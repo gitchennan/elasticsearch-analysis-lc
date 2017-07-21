@@ -11,13 +11,12 @@
  */
 package com.hankcs.hanlp.dictionary.nr;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.utility.Predefine;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;

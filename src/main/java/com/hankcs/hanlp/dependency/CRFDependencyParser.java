@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dependency;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.ITrie;
 import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
@@ -40,23 +40,28 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class CRFDependencyParser extends AbstractDependencyParser {
+public class CRFDependencyParser extends AbstractDependencyParser
+{
     CRFModel crfModel;
 
-    public CRFDependencyParser(String modelPath) {
+    public CRFDependencyParser(String modelPath)
+    {
         crfModel = GlobalObjectPool.get(modelPath);
         if (crfModel != null) return;
         long start = System.currentTimeMillis();
-        if (load(modelPath)) {
+        if (load(modelPath))
+        {
             logger.info("加载随机条件场依存句法分析器模型" + modelPath + "成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
             GlobalObjectPool.put(modelPath, crfModel);
         }
-        else {
+        else
+        {
             logger.info("加载随机条件场依存句法分析器模型" + modelPath + "失败，耗时 " + (System.currentTimeMillis() - start) + " ms");
         }
     }
 
-    public CRFDependencyParser() {
+    public CRFDependencyParser()
+    {
         this(HanLP.Config.CRFDependencyModelPath);
     }
 
@@ -66,7 +71,8 @@ public class CRFDependencyParser extends AbstractDependencyParser {
      * @param termList 句子，可以是任何具有词性标注功能的分词器的分词结果
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(List<Term> termList) {
+    public static CoNLLSentence compute(List<Term> termList)
+    {
         return new CRFDependencyParser().parse(termList);
     }
 
@@ -76,48 +82,36 @@ public class CRFDependencyParser extends AbstractDependencyParser {
      * @param sentence 句子
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(String sentence) {
+    public static CoNLLSentence compute(String sentence)
+    {
         return new CRFDependencyParser().parse(sentence);
     }
 
-    static int convertOffset2Index(CRFModelForDependency.DTag dTag, Table table, int current) {
-        int posCount = 0;
-        if (dTag.offset > 0) {
-            for (int i = current + 1; i < table.size(); ++i) {
-                if (table.v[i][1].equals(dTag.pos)) ++posCount;
-                if (posCount == dTag.offset) return i;
-            }
-        }
-        else {
-            for (int i = current - 1; i >= 0; --i) {
-                if (table.v[i][1].equals(dTag.pos)) ++posCount;
-                if (posCount == -dTag.offset) return i;
-            }
-        }
-
-        return -1;
-    }
-
-    boolean load(String path) {
+    boolean load(String path)
+    {
         if (loadDat(path + Predefine.BIN_EXT)) return true;
         crfModel = CRFModel.loadTxt(path, new CRFModelForDependency(new DoubleArrayTrie<FeatureFunction>())); // 使用特化版的CRF
         return crfModel != null;
     }
 
-    boolean loadDat(String path) {
+    boolean loadDat(String path)
+    {
         ByteArray byteArray = ByteArray.createByteArray(path);
         if (byteArray == null) return false;
         crfModel = new CRFModelForDependency(new DoubleArrayTrie<FeatureFunction>());
         return crfModel.load(byteArray);
     }
 
-    boolean saveDat(String path) {
-        try {
+    boolean saveDat(String path)
+    {
+        try
+        {
             DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path));
             crfModel.save(out);
             out.close();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             logger.warning("在缓存" + path + "时发生错误" + TextUtility.exceptionToString(e));
             return false;
         }
@@ -126,31 +120,38 @@ public class CRFDependencyParser extends AbstractDependencyParser {
     }
 
     @Override
-    public CoNLLSentence parse(List<Term> termList) {
+    public CoNLLSentence parse(List<Term> termList)
+    {
         Table table = new Table();
         table.v = new String[termList.size()][4];
         Iterator<Term> iterator = termList.iterator();
-        for (String[] line : table.v) {
+        for (String[] line : table.v)
+        {
             Term term = iterator.next();
             line[0] = term.word;
             line[2] = POSUtil.compilePOS(term.nature);
             line[1] = line[2].substring(0, 1);
         }
         crfModel.tag(table);
-        if (HanLP.Config.DEBUG) {
+        if (HanLP.Config.DEBUG)
+        {
             System.out.println(table);
         }
         CoNLLWord[] coNLLWordArray = new CoNLLWord[table.size()];
-        for (int i = 0; i < coNLLWordArray.length; i++) {
+        for (int i = 0; i < coNLLWordArray.length; i++)
+        {
             coNLLWordArray[i] = new CoNLLWord(i + 1, table.v[i][0], table.v[i][2], table.v[i][1]);
         }
         int i = 0;
-        for (String[] line : table.v) {
+        for (String[] line : table.v)
+        {
             CRFModelForDependency.DTag dTag = new CRFModelForDependency.DTag(line[3]);
-            if (dTag.pos.endsWith("ROOT")) {
+            if (dTag.pos.endsWith("ROOT"))
+            {
                 coNLLWordArray[i].HEAD = CoNLLWord.ROOT;
             }
-            else {
+            else
+            {
                 int index = convertOffset2Index(dTag, table, i);
                 if (index == -1)
                     coNLLWordArray[i].HEAD = CoNLLWord.NULL;
@@ -159,62 +160,123 @@ public class CRFDependencyParser extends AbstractDependencyParser {
             ++i;
         }
 
-        for (i = 0; i < coNLLWordArray.length; i++) {
+        for (i = 0; i < coNLLWordArray.length; i++)
+        {
             coNLLWordArray[i].DEPREL = BigramDependencyModel.get(coNLLWordArray[i].NAME, coNLLWordArray[i].POSTAG, coNLLWordArray[i].HEAD.NAME, coNLLWordArray[i].HEAD.POSTAG);
         }
         return new CoNLLSentence(coNLLWordArray);
     }
 
+    static int convertOffset2Index(CRFModelForDependency.DTag dTag, Table table, int current)
+    {
+        int posCount = 0;
+        if (dTag.offset > 0)
+        {
+            for (int i = current + 1; i < table.size(); ++i)
+            {
+                if (table.v[i][1].equals(dTag.pos)) ++posCount;
+                if (posCount == dTag.offset) return i;
+            }
+        }
+        else
+        {
+            for (int i = current - 1; i >= 0; --i)
+            {
+                if (table.v[i][1].equals(dTag.pos)) ++posCount;
+                if (posCount == -dTag.offset) return i;
+            }
+        }
+
+        return -1;
+    }
+
     /**
      * 必须对维特比算法做一些特化修改
      */
-    static class CRFModelForDependency extends CRFModel {
+    static class CRFModelForDependency extends CRFModel
+    {
 
-        DTag[] id2dtag;
-
-        public CRFModelForDependency(ITrie<FeatureFunction> featureFunctionTrie) {
+        public CRFModelForDependency(ITrie<FeatureFunction> featureFunctionTrie)
+        {
             super(featureFunctionTrie);
         }
 
+        /**
+         * 每个tag的分解。内部类的内部类你到底累不累
+         */
+        static class DTag
+        {
+            int offset;
+            String pos;
+
+            public DTag(String tag)
+            {
+                String[] args = tag.split("_", 2);
+                if (args[0].charAt(0) == '+') args[0] = args[0].substring(1);
+                offset = Integer.parseInt(args[0]);
+                pos = args[1];
+            }
+
+            @Override
+            public String toString()
+            {
+                return (offset > 0 ? "+" : "") + offset + "_" + pos;
+            }
+        }
+
+        DTag[] id2dtag;
+
         @Override
-        public boolean load(ByteArray byteArray) {
+        public boolean load(ByteArray byteArray)
+        {
             if (!super.load(byteArray)) return false;
             initId2dtagArray();
             return true;
         }
 
-        private void initId2dtagArray() {
+        private void initId2dtagArray()
+        {
             id2dtag = new DTag[id2tag.length];
-            for (int i = 0; i < id2tag.length; i++) {
+            for (int i = 0; i < id2tag.length; i++)
+            {
                 id2dtag[i] = new DTag(id2tag[i]);
             }
         }
 
         @Override
-        protected void onLoadTxtFinished() {
+        protected void onLoadTxtFinished()
+        {
             super.onLoadTxtFinished();
             initId2dtagArray();
         }
 
-        boolean isLegal(int tagId, int current, Table table) {
+        boolean isLegal(int tagId, int current, Table table)
+        {
             DTag tag = id2dtag[tagId];
-            if ("ROOT".equals(tag.pos)) {
-                for (int i = 0; i < current; ++i) {
+            if ("ROOT".equals(tag.pos))
+            {
+                for (int i = 0; i < current; ++i)
+                {
                     if (table.v[i][3].endsWith("ROOT")) return false;
                 }
                 return true;
             }
-            else {
+            else
+            {
                 int posCount = 0;
-                if (tag.offset > 0) {
-                    for (int i = current + 1; i < table.size(); ++i) {
+                if (tag.offset > 0)
+                {
+                    for (int i = current + 1; i < table.size(); ++i)
+                    {
                         if (table.v[i][1].equals(tag.pos)) ++posCount;
                         if (posCount == tag.offset) return true;
                     }
                     return false;
                 }
-                else {
-                    for (int i = current - 1; i >= 0; --i) {
+                else
+                {
+                    for (int i = current - 1; i >= 0; --i)
+                    {
                         if (table.v[i][1].equals(tag.pos)) ++posCount;
                         if (posCount == -tag.offset) return true;
                     }
@@ -224,7 +286,8 @@ public class CRFDependencyParser extends AbstractDependencyParser {
         }
 
         @Override
-        public void tag(Table table) {
+        public void tag(Table table)
+        {
             int size = table.size();
             double bestScore = Double.MIN_VALUE;
             int bestTag = 0;
@@ -236,10 +299,12 @@ public class CRFDependencyParser extends AbstractDependencyParser {
                 {
                     if (!isLegal(j, 0, table)) continue;
                     double curScore = computeScore(scoreList, j);
-                    if (matrix != null) {
+                    if (matrix != null)
+                    {
                         curScore += matrix[i][j];
                     }
-                    if (curScore > bestScore) {
+                    if (curScore > bestScore)
+                    {
                         bestScore = curScore;
                         bestTag = j;
                     }
@@ -248,43 +313,26 @@ public class CRFDependencyParser extends AbstractDependencyParser {
             table.setLast(0, id2tag[bestTag]);
             int preTag = bestTag;
             // 0位置打分完毕，接下来打剩下的
-            for (int i = 1; i < size; ++i) {
+            for (int i = 1; i < size; ++i)
+            {
                 scoreList = computeScoreList(table, i);    // i位置命中的特征函数
                 bestScore = Double.MIN_VALUE;
                 for (int j = 0; j < tagSize; ++j)   // i位置的标签遍历
                 {
                     if (!isLegal(j, i, table)) continue;
                     double curScore = computeScore(scoreList, j);
-                    if (matrix != null) {
+                    if (matrix != null)
+                    {
                         curScore += matrix[preTag][j];
                     }
-                    if (curScore > bestScore) {
+                    if (curScore > bestScore)
+                    {
                         bestScore = curScore;
                         bestTag = j;
                     }
                 }
                 table.setLast(i, id2tag[bestTag]);
                 preTag = bestTag;
-            }
-        }
-
-        /**
-         * 每个tag的分解。内部类的内部类你到底累不累
-         */
-        static class DTag {
-            int offset;
-            String pos;
-
-            public DTag(String tag) {
-                String[] args = tag.split("_", 2);
-                if (args[0].charAt(0) == '+') args[0] = args[0].substring(1);
-                offset = Integer.parseInt(args[0]);
-                pos = args[1];
-            }
-
-            @Override
-            public String toString() {
-                return (offset > 0 ? "+" : "") + offset + "_" + pos;
             }
         }
     }

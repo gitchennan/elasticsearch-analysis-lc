@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.io.IOUtil;
@@ -21,20 +21,35 @@ import com.hankcs.hanlp.utility.Predefine;
 import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 使用DoubleArrayTrie实现的核心词典
- *
  * @author hankcs
  */
-public class CoreDictionary {
+public class CoreDictionary
+{
+    public static DoubleArrayTrie<Attribute> trie = new DoubleArrayTrie<Attribute>();
     public final static String path = HanLP.Config.CoreDictionaryPath;
     public static final int totalFrequency = 221894;
-    public static DoubleArrayTrie<Attribute> trie = new DoubleArrayTrie<Attribute>();
+
+    // 自动加载词典
+    static
+    {
+        long start = System.currentTimeMillis();
+        if (!load(path))
+        {
+            logger.severe("核心词典" + path + "加载失败");
+            System.exit(-1);
+        }
+        else
+        {
+            logger.info(path + "加载成功，" + trie.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
+    }
+
     // 一些特殊的WORD_ID
     public static final int NR_WORD_ID = getWordID(Predefine.TAG_PEOPLE);
     public static final int NS_WORD_ID = getWordID(Predefine.TAG_PLACE);
@@ -44,33 +59,25 @@ public class CoreDictionary {
     public static final int M_WORD_ID = getWordID(Predefine.TAG_NUMBER);
     public static final int NX_WORD_ID = getWordID(Predefine.TAG_PROPER);
 
-    // 自动加载词典
-    static {
-        long start = System.currentTimeMillis();
-        if (!load(path)) {
-            logger.severe("核心词典" + path + "加载失败");
-            System.exit(-1);
-        }
-        else {
-            logger.info(path + "加载成功，" + trie.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
-        }
-    }
-
-    private static boolean load(String path) {
+    private static boolean load(String path)
+    {
         logger.info("核心词典开始加载:" + path);
         if (loadDat(path)) return true;
         TreeMap<String, CoreDictionary.Attribute> map = new TreeMap<String, Attribute>();
         BufferedReader br = null;
-        try {
+        try
+        {
             br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
             String line;
             int MAX_FREQUENCY = 0;
             long start = System.currentTimeMillis();
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
+            {
                 String param[] = line.split("\\s");
                 int natureCount = (param.length - 1) / 2;
                 CoreDictionary.Attribute attribute = new CoreDictionary.Attribute(natureCount);
-                for (int i = 0; i < natureCount; ++i) {
+                for (int i = 0; i < natureCount; ++i)
+                {
                     attribute.nature[i] = Enum.valueOf(Nature.class, param[1 + 2 * i]);
                     attribute.frequency[i] = Integer.parseInt(param[2 + 2 * i]);
                     attribute.totalFrequency += attribute.frequency[i];
@@ -82,14 +89,17 @@ public class CoreDictionary {
             br.close();
             trie.build(map);
             logger.info("核心词典加载成功:" + trie.size() + "个词条，下面将写入缓存……");
-            try {
+            try
+            {
                 DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.BIN_EXT));
                 Collection<CoreDictionary.Attribute> attributeList = map.values();
                 out.writeInt(attributeList.size());
-                for (CoreDictionary.Attribute attribute : attributeList) {
+                for (CoreDictionary.Attribute attribute : attributeList)
+                {
                     out.writeInt(attribute.totalFrequency);
                     out.writeInt(attribute.nature.length);
-                    for (int i = 0; i < attribute.nature.length; ++i) {
+                    for (int i = 0; i < attribute.nature.length; ++i)
+                    {
                         out.writeInt(attribute.nature[i].ordinal());
                         out.writeInt(attribute.frequency[i]);
                     }
@@ -97,16 +107,19 @@ public class CoreDictionary {
                 trie.save(out);
                 out.close();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 logger.warning("保存失败" + e);
                 return false;
             }
         }
-        catch (FileNotFoundException e) {
+        catch (FileNotFoundException e)
+        {
             logger.warning("核心词典" + path + "不存在！" + e);
             return false;
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             logger.warning("核心词典" + path + "读取错误！" + e);
             return false;
         }
@@ -120,27 +133,32 @@ public class CoreDictionary {
      * @param path
      * @return
      */
-    static boolean loadDat(String path) {
-        try {
+    static boolean loadDat(String path)
+    {
+        try
+        {
             ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
             if (byteArray == null) return false;
             int size = byteArray.nextInt();
             CoreDictionary.Attribute[] attributes = new CoreDictionary.Attribute[size];
             final Nature[] natureIndexArray = Nature.values();
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < size; ++i)
+            {
                 // 第一个是全部频次，第二个是词性个数
                 int currentTotalFrequency = byteArray.nextInt();
                 int length = byteArray.nextInt();
                 attributes[i] = new CoreDictionary.Attribute(length);
                 attributes[i].totalFrequency = currentTotalFrequency;
-                for (int j = 0; j < length; ++j) {
+                for (int j = 0; j < length; ++j)
+                {
                     attributes[i].nature[j] = natureIndexArray[byteArray.nextInt()];
                     attributes[i].frequency[j] = byteArray.nextInt();
                 }
             }
             if (!trie.load(byteArray, attributes) || byteArray.hasMore()) return false;
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             logger.warning("读取失败，问题发生在" + e);
             return false;
         }
@@ -149,21 +167,21 @@ public class CoreDictionary {
 
     /**
      * 获取条目
-     *
      * @param key
      * @return
      */
-    public static Attribute get(String key) {
+    public static Attribute get(String key)
+    {
         return trie.get(key);
     }
 
     /**
      * 获取条目
-     *
      * @param wordID
      * @return
      */
-    public static Attribute get(int wordID) {
+    public static Attribute get(int wordID)
+    {
         return trie.get(wordID);
     }
 
@@ -173,7 +191,8 @@ public class CoreDictionary {
      * @param term
      * @return
      */
-    public static int getTermFrequency(String term) {
+    public static int getTermFrequency(String term)
+    {
         Attribute attribute = get(term);
         if (attribute == null) return 0;
         return attribute.totalFrequency;
@@ -181,28 +200,19 @@ public class CoreDictionary {
 
     /**
      * 是否包含词语
-     *
      * @param key
      * @return
      */
-    public static boolean contains(String key) {
+    public static boolean contains(String key)
+    {
         return trie.get(key) != null;
-    }
-
-    /**
-     * 获取词语的ID
-     *
-     * @param a 词语
-     * @return ID, 如果不存在, 则返回-1
-     */
-    public static int getWordID(String a) {
-        return CoreDictionary.trie.exactMatchSearch(a);
     }
 
     /**
      * 核心词典中的词属性
      */
-    static public class Attribute implements Serializable {
+    static public class Attribute implements Serializable
+    {
         /**
          * 词性列表
          */
@@ -218,24 +228,28 @@ public class CoreDictionary {
 
 //        public static Attribute NUMBER = new Attribute()
 
-        public Attribute(int size) {
+        public Attribute(int size)
+        {
             nature = new Nature[size];
             frequency = new int[size];
         }
 
-        public Attribute(Nature[] nature, int[] frequency) {
+        public Attribute(Nature[] nature, int[] frequency)
+        {
             this.nature = nature;
             this.frequency = frequency;
         }
 
-        public Attribute(Nature nature, int frequency) {
+        public Attribute(Nature nature, int frequency)
+        {
             this(1);
             this.nature[0] = nature;
             this.frequency[0] = frequency;
             totalFrequency = frequency;
         }
 
-        public Attribute(Nature[] nature, int[] frequency, int totalFrequency) {
+        public Attribute(Nature[] nature, int[] frequency, int totalFrequency)
+        {
             this.nature = nature;
             this.frequency = frequency;
             this.totalFrequency = totalFrequency;
@@ -246,23 +260,28 @@ public class CoreDictionary {
          *
          * @param nature
          */
-        public Attribute(Nature nature) {
+        public Attribute(Nature nature)
+        {
             this(nature, 1000);
         }
 
-        public static Attribute create(String natureWithFrequency) {
-            try {
+        public static Attribute create(String natureWithFrequency)
+        {
+            try
+            {
                 String param[] = natureWithFrequency.split(" ");
                 int natureCount = param.length / 2;
                 Attribute attribute = new Attribute(natureCount);
-                for (int i = 0; i < natureCount; ++i) {
+                for (int i = 0; i < natureCount; ++i)
+                {
                     attribute.nature[i] = LexiconUtility.convertStringToNature(param[2 * i], null);
                     attribute.frequency[i] = Integer.parseInt(param[1 + 2 * i]);
                     attribute.totalFrequency += attribute.frequency[i];
                 }
                 return attribute;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 logger.warning("使用字符串" + natureWithFrequency + "创建词条属性失败！" + TextUtility.exceptionToString(e));
                 return null;
             }
@@ -270,17 +289,18 @@ public class CoreDictionary {
 
         /**
          * 从字节流中加载
-         *
          * @param byteArray
          * @param natureIndexArray
          * @return
          */
-        public static Attribute create(ByteArray byteArray, Nature[] natureIndexArray) {
+        public static Attribute create(ByteArray byteArray, Nature[] natureIndexArray)
+        {
             int currentTotalFrequency = byteArray.nextInt();
             int length = byteArray.nextInt();
             Attribute attribute = new Attribute(length);
             attribute.totalFrequency = currentTotalFrequency;
-            for (int j = 0; j < length; ++j) {
+            for (int j = 0; j < length; ++j)
+            {
                 attribute.nature[j] = natureIndexArray[byteArray.nextInt()];
                 attribute.frequency[j] = byteArray.nextInt();
             }
@@ -295,12 +315,15 @@ public class CoreDictionary {
          * @return 词频
          * @deprecated 推荐使用Nature参数！
          */
-        public int getNatureFrequency(String nature) {
-            try {
+        public int getNatureFrequency(String nature)
+        {
+            try
+            {
                 Nature pos = Enum.valueOf(Nature.class, nature);
                 return getNatureFrequency(pos);
             }
-            catch (IllegalArgumentException e) {
+            catch (IllegalArgumentException e)
+            {
                 return 0;
             }
         }
@@ -311,10 +334,13 @@ public class CoreDictionary {
          * @param nature 词性
          * @return 词频
          */
-        public int getNatureFrequency(final Nature nature) {
+        public int getNatureFrequency(final Nature nature)
+        {
             int i = 0;
-            for (Nature pos : this.nature) {
-                if (nature == pos) {
+            for (Nature pos : this.nature)
+            {
+                if (nature == pos)
+                {
                     return frequency[i];
                 }
                 ++i;
@@ -324,43 +350,58 @@ public class CoreDictionary {
 
         /**
          * 是否有某个词性
-         *
          * @param nature
          * @return
          */
-        public boolean hasNature(Nature nature) {
+        public boolean hasNature(Nature nature)
+        {
             return getNatureFrequency(nature) > 0;
         }
 
         /**
          * 是否有以某个前缀开头的词性
-         *
          * @param prefix 词性前缀，比如u会查询是否有ude, uzhe等等
          * @return
          */
-        public boolean hasNatureStartsWith(String prefix) {
-            for (Nature n : nature) {
+        public boolean hasNatureStartsWith(String prefix)
+        {
+            for (Nature n : nature)
+            {
                 if (n.startsWith(prefix)) return true;
             }
             return false;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < nature.length; ++i) {
+            for (int i = 0; i < nature.length; ++i)
+            {
                 sb.append(nature[i]).append(' ').append(frequency[i]).append(' ');
             }
             return sb.toString();
         }
 
-        public void save(DataOutputStream out) throws IOException {
+        public void save(DataOutputStream out) throws IOException
+        {
             out.writeInt(totalFrequency);
             out.writeInt(nature.length);
-            for (int i = 0; i < nature.length; ++i) {
+            for (int i = 0; i < nature.length; ++i)
+            {
                 out.writeInt(nature[i].ordinal());
                 out.writeInt(frequency[i]);
             }
         }
+    }
+
+    /**
+     * 获取词语的ID
+     * @param a 词语
+     * @return ID,如果不存在,则返回-1
+     */
+    public static int getWordID(String a)
+    {
+        return CoreDictionary.trie.exactMatchSearch(a);
     }
 }

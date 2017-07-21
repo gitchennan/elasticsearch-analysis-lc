@@ -11,8 +11,8 @@
  */
 package com.hankcs.hanlp.seg.common;
 
-import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.seg.NShort.Path.AtomNode;
 import com.hankcs.hanlp.utility.MathTools;
 import com.hankcs.hanlp.utility.Predefine;
@@ -21,45 +21,51 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * @author hankcs
  */
-public class WordNet {
-    /**
-     * 原始句子
-     *
-     * @deprecated 应当使用数组，这样比较快
-     */
-    public String sentence;
-    /**
-     * 原始句子对应的数组
-     */
-    public char[] charArray;
-    /**
-     * 共有多少个节点
-     */
-    int size;
+public class WordNet
+{
     /**
      * 节点，每一行都是前缀词，跟图的表示方式不同
      */
     private LinkedList<Vertex> vertexes[];
 
     /**
+     * 共有多少个节点
+     */
+    int size;
+
+    /**
+     * 原始句子
+     *
+     * @deprecated 应当使用数组，这样比较快
+     */
+    public String sentence;
+
+    /**
+     * 原始句子对应的数组
+     */
+    public char[] charArray;
+
+    /**
      * 为一个句子生成空白词网
      *
      * @param sentence 句子
      */
-    public WordNet(String sentence) {
+    public WordNet(String sentence)
+    {
         this(sentence.toCharArray());
     }
 
-    public WordNet(char[] charArray) {
+    public WordNet(char[] charArray)
+    {
         this.charArray = charArray;
         vertexes = new LinkedList[charArray.length + 2];
-        for (int i = 0; i < vertexes.length; ++i) {
+        for (int i = 0; i < vertexes.length; ++i)
+        {
             vertexes[i] = new LinkedList<Vertex>();
         }
         vertexes[0].add(Vertex.newB());
@@ -67,14 +73,17 @@ public class WordNet {
         size = 2;
     }
 
-    public WordNet(char[] charArray, List<Vertex> vertexList) {
+    public WordNet(char[] charArray, List<Vertex> vertexList)
+    {
         this.charArray = charArray;
         vertexes = new LinkedList[charArray.length + 2];
-        for (int i = 0; i < vertexes.length; ++i) {
+        for (int i = 0; i < vertexes.length; ++i)
+        {
             vertexes[i] = new LinkedList<Vertex>();
         }
         int i = 0;
-        for (Vertex vertex : vertexList) {
+        for (Vertex vertex : vertexList)
+        {
             vertexes[i].add(vertex);
             ++size;
             i += vertex.realWord.length();
@@ -87,8 +96,10 @@ public class WordNet {
      * @param line   行号
      * @param vertex 顶点
      */
-    public void add(int line, Vertex vertex) {
-        for (Vertex oldVertex : vertexes[line]) {
+    public void add(int line, Vertex vertex)
+    {
+        for (Vertex oldVertex : vertexes[line])
+        {
             // 保证唯一性
             if (oldVertex.realWord.length() == vertex.realWord.length()) return;
         }
@@ -102,10 +113,13 @@ public class WordNet {
      * @param line
      * @param vertex
      */
-    public void push(int line, Vertex vertex) {
+    public void push(int line, Vertex vertex)
+    {
         Iterator<Vertex> iterator = vertexes[line].iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().realWord.length() == vertex.realWord.length()) {
+        while (iterator.hasNext())
+        {
+            if (iterator.next().realWord.length() == vertex.realWord.length())
+            {
                 iterator.remove();
                 --size;
                 break;
@@ -122,44 +136,53 @@ public class WordNet {
      * @param vertex
      * @param wordNetAll 这是一个完全的词图
      */
-    public void insert(int line, Vertex vertex, WordNet wordNetAll) {
-        for (Vertex oldVertex : vertexes[line]) {
+    public void insert(int line, Vertex vertex, WordNet wordNetAll)
+    {
+        for (Vertex oldVertex : vertexes[line])
+        {
             // 保证唯一性
             if (oldVertex.realWord.length() == vertex.realWord.length()) return;
         }
         vertexes[line].add(vertex);
         ++size;
         // 保证连接
-        for (int l = line - 1; l > 1; --l) {
-            if (get(l, 1) == null) {
+        for (int l = line - 1; l > 1; --l)
+        {
+            if (get(l, 1) == null)
+            {
                 Vertex first = wordNetAll.getFirst(l);
                 if (first == null) break;
                 vertexes[l].add(first);
                 ++size;
                 if (vertexes[l].size() > 1) break;
             }
-            else {
+            else
+            {
                 break;
             }
         }
         // 首先保证这个词语可直达
         int l = line + vertex.realWord.length();
-        if (get(l).size() == 0) {
+        if (get(l).size() == 0)
+        {
             List<Vertex> targetLine = wordNetAll.get(l);
             if (targetLine == null || targetLine.size() == 0) return;
             vertexes[l].addAll(targetLine);
             size += targetLine.size();
         }
         // 直达之后一直往后
-        for (++l; l < vertexes.length; ++l) {
-            if (get(l).size() == 0) {
+        for (++l; l < vertexes.length; ++l)
+        {
+            if (get(l).size() == 0)
+            {
                 Vertex first = wordNetAll.getFirst(l);
                 if (first == null) break;
                 vertexes[l].add(first);
                 ++size;
                 if (vertexes[l].size() > 1) break;
             }
-            else {
+            else
+            {
                 break;
             }
         }
@@ -170,9 +193,11 @@ public class WordNet {
      *
      * @param vertexList
      */
-    public void addAll(List<Vertex> vertexList) {
+    public void addAll(List<Vertex> vertexList)
+    {
         int i = 0;
-        for (Vertex vertex : vertexList) {
+        for (Vertex vertex : vertexList)
+        {
             add(i, vertex);
             i += vertex.realWord.length();
         }
@@ -184,17 +209,18 @@ public class WordNet {
      * @param line 行号
      * @return 一个数组
      */
-    public List<Vertex> get(int line) {
+    public List<Vertex> get(int line)
+    {
         return vertexes[line];
     }
 
     /**
      * 获取某一行的逆序迭代器
-     *
      * @param line 行号
      * @return 逆序迭代器
      */
-    public Iterator<Vertex> descendingIterator(int line) {
+    public Iterator<Vertex> descendingIterator(int line)
+    {
         return vertexes[line].descendingIterator();
     }
 
@@ -204,7 +230,8 @@ public class WordNet {
      * @param line
      * @return
      */
-    public Vertex getFirst(int line) {
+    public Vertex getFirst(int line)
+    {
         Iterator<Vertex> iterator = vertexes[line].iterator();
         if (iterator.hasNext()) return iterator.next();
 
@@ -218,9 +245,12 @@ public class WordNet {
      * @param length
      * @return
      */
-    public Vertex get(int line, int length) {
-        for (Vertex vertex : vertexes[line]) {
-            if (vertex.realWord.length() == length) {
+    public Vertex get(int line, int length)
+    {
+        for (Vertex vertex : vertexes[line])
+        {
+            if (vertex.realWord.length() == length)
+            {
                 return vertex;
             }
         }
@@ -234,7 +264,8 @@ public class WordNet {
      * @param line
      * @param atomSegment
      */
-    public void add(int line, List<AtomNode> atomSegment) {
+    public void add(int line, List<AtomNode> atomSegment)
+    {
         // 将原子部分存入m_segGraph
         int offset = 0;
         for (AtomNode atomNode : atomSegment)//Init the cost array
@@ -242,7 +273,8 @@ public class WordNet {
             String sWord = atomNode.sWord;//init the word
             Nature nature = Nature.n;
             int id = -1;
-            switch (atomNode.nPOS) {
+            switch (atomNode.nPOS)
+            {
                 case Predefine.CT_CHINESE:
                     break;
                 case Predefine.CT_INDEX:
@@ -269,7 +301,8 @@ public class WordNet {
         }
     }
 
-    public int size() {
+    public int size()
+    {
         return size;
     }
 
@@ -278,11 +311,14 @@ public class WordNet {
      *
      * @return Vertex[] 按行优先列次之的顺序构造的顶点数组
      */
-    private Vertex[] getVertexesLineFirst() {
+    private Vertex[] getVertexesLineFirst()
+    {
         Vertex[] vertexes = new Vertex[size];
         int i = 0;
-        for (List<Vertex> vertexList : this.vertexes) {
-            for (Vertex v : vertexList) {
+        for (List<Vertex> vertexList : this.vertexes)
+        {
+            for (Vertex v : vertexList)
+            {
                 v.index = i;    // 设置id
                 vertexes[i++] = v;
             }
@@ -296,15 +332,19 @@ public class WordNet {
      *
      * @return 词图
      */
-    public Graph toGraph() {
+    public Graph toGraph()
+    {
         Graph graph = new Graph(getVertexesLineFirst());
 
-        for (int row = 0; row < vertexes.length - 1; ++row) {
+        for (int row = 0; row < vertexes.length - 1; ++row)
+        {
             List<Vertex> vertexListFrom = vertexes[row];
-            for (Vertex from : vertexListFrom) {
+            for (Vertex from : vertexListFrom)
+            {
                 assert from.realWord.length() > 0 : "空节点会导致死循环！";
                 int toIndex = row + from.realWord.length();
-                for (Vertex to : vertexes[toIndex]) {
+                for (Vertex to : vertexes[toIndex])
+                {
                     graph.connect(from.index, to.index, MathTools.calculateWeight(from, to));
                 }
             }
@@ -313,13 +353,15 @@ public class WordNet {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
 //        return "Graph{" +
 //                "vertexes=" + Arrays.toString(vertexes) +
 //                '}';
         StringBuilder sb = new StringBuilder();
         int line = 0;
-        for (List<Vertex> vertexList : vertexes) {
+        for (List<Vertex> vertexList : vertexes)
+        {
             sb.append(String.valueOf(line++) + ':' + vertexList.toString()).append("\n");
         }
         return sb.toString();
@@ -328,18 +370,24 @@ public class WordNet {
     /**
      * 将连续的ns节点合并为一个
      */
-    public void mergeContinuousNsIntoOne() {
-        for (int row = 0; row < vertexes.length - 1; ++row) {
+    public void mergeContinuousNsIntoOne()
+    {
+        for (int row = 0; row < vertexes.length - 1; ++row)
+        {
             List<Vertex> vertexListFrom = vertexes[row];
             ListIterator<Vertex> listIteratorFrom = vertexListFrom.listIterator();
-            while (listIteratorFrom.hasNext()) {
+            while (listIteratorFrom.hasNext())
+            {
                 Vertex from = listIteratorFrom.next();
-                if (from.getNature() == Nature.ns) {
+                if (from.getNature() == Nature.ns)
+                {
                     int toIndex = row + from.realWord.length();
                     ListIterator<Vertex> listIteratorTo = vertexes[toIndex].listIterator();
-                    while (listIteratorTo.hasNext()) {
+                    while (listIteratorTo.hasNext())
+                    {
                         Vertex to = listIteratorTo.next();
-                        if (to.getNature() == Nature.ns) {
+                        if (to.getNature() == Nature.ns)
+                        {
                             // 我们不能直接改，因为很多条线路在公用指针
 //                            from.realWord += to.realWord;
                             logger.info("合并【" + from.realWord + "】和【" + to.realWord + "】");
@@ -356,8 +404,10 @@ public class WordNet {
     /**
      * 清空词图
      */
-    public void clear() {
-        for (List<Vertex> vertexList : vertexes) {
+    public void clear()
+    {
+        for (List<Vertex> vertexList : vertexes)
+        {
             vertexList.clear();
         }
         size = 0;
@@ -368,7 +418,8 @@ public class WordNet {
      *
      * @return
      */
-    public LinkedList<Vertex>[] getVertexes() {
+    public LinkedList<Vertex>[] getVertexes()
+    {
         return vertexes;
     }
 }

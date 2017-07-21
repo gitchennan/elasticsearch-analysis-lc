@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.utility.Predefine;
 
@@ -27,9 +27,8 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  *
  * @author hankcs
  */
-public class CoreBiGramTableDictionary {
-    public final static String path = HanLP.Config.BiGramDictionaryPath;
-    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".table" + Predefine.BIN_EXT;
+public class CoreBiGramTableDictionary
+{
     /**
      * 描述了词在pair中的范围，具体说来<br>
      * 给定一个词idA，从pair[start[idA]]开始的start[idA + 1] - start[idA]描述了一些接续的频次
@@ -40,47 +39,59 @@ public class CoreBiGramTableDictionary {
      */
     static int pair[];
 
-    static {
+    public final static String path = HanLP.Config.BiGramDictionaryPath;
+    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".table" + Predefine.BIN_EXT;
+
+    static
+    {
         logger.info("开始加载二元词典" + path + ".table");
         long start = System.currentTimeMillis();
-        if (!load(path)) {
+        if (!load(path))
+        {
             logger.severe("二元词典加载失败");
             System.exit(-1);
         }
-        else {
+        else
+        {
             logger.info(path + ".table" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
         }
     }
 
-    static boolean load(String path) {
+    static boolean load(String path)
+    {
         if (loadDat(datPath)) return true;
         BufferedReader br;
         TreeMap<Integer, TreeMap<Integer, Integer>> map = new TreeMap<Integer, TreeMap<Integer, Integer>>();
-        try {
+        try
+        {
             br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
             String line;
             int total = 0;
             int maxWordId = CoreDictionary.trie.size();
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
+            {
                 String[] params = line.split("\\s");
                 String[] twoWord = params[0].split("@", 2);
                 String a = twoWord[0];
                 int idA = CoreDictionary.trie.exactMatchSearch(a);
-                if (idA == -1) {
+                if (idA == -1)
+                {
 //                    if (HanLP.Config.DEBUG)
 //                        logger.warning(line + " 中的 " + a + "不存在于核心词典，将会忽略这一行");
                     continue;
                 }
                 String b = twoWord[1];
                 int idB = CoreDictionary.trie.exactMatchSearch(b);
-                if (idB == -1) {
+                if (idB == -1)
+                {
 //                    if (HanLP.Config.DEBUG)
 //                        logger.warning(line + " 中的 " + b + "不存在于核心词典，将会忽略这一行");
                     continue;
                 }
                 int freq = Integer.parseInt(params[1]);
                 TreeMap<Integer, Integer> biMap = map.get(idA);
-                if (biMap == null) {
+                if (biMap == null)
+                {
                     biMap = new TreeMap<Integer, Integer>();
                     map.put(idA, biMap);
                 }
@@ -92,10 +103,13 @@ public class CoreBiGramTableDictionary {
             pair = new int[total];  // total是接续的个数*2
             int offset = 0;
 
-            for (int i = 0; i < maxWordId; ++i) {
+            for (int i = 0; i < maxWordId; ++i)
+            {
                 TreeMap<Integer, Integer> bMap = map.get(i);
-                if (bMap != null) {
-                    for (Map.Entry<Integer, Integer> entry : bMap.entrySet()) {
+                if (bMap != null)
+                {
+                    for (Map.Entry<Integer, Integer> entry : bMap.entrySet())
+                    {
                         int index = offset << 1;
                         pair[index] = entry.getKey();
                         pair[index + 1] = entry.getValue();
@@ -107,23 +121,28 @@ public class CoreBiGramTableDictionary {
 
             logger.info("二元词典读取完毕:" + path + "，构建为TableBin结构");
         }
-        catch (FileNotFoundException e) {
+        catch (FileNotFoundException e)
+        {
             logger.severe("二元词典" + path + "不存在！" + e);
             return false;
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             logger.severe("二元词典" + path + "读取错误！" + e);
             return false;
         }
         logger.info("开始缓存二元词典到" + datPath);
-        if (!saveDat(datPath)) {
+        if (!saveDat(datPath))
+        {
             logger.warning("缓存二元词典到" + datPath + "失败");
         }
         return true;
     }
 
-    static boolean saveDat(String path) {
-        try {
+    static boolean saveDat(String path)
+    {
+        try
+        {
 //            DataOutputStream out = new DataOutputStream(new FileOutputStream(path));
 //            out.writeInt(start.length);
 //            for (int i : start)
@@ -141,7 +160,8 @@ public class CoreBiGramTableDictionary {
             out.writeObject(pair);
             out.close();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             logger.log(Level.WARNING, "在缓存" + path + "时发生异常", e);
             return false;
         }
@@ -149,7 +169,8 @@ public class CoreBiGramTableDictionary {
         return true;
     }
 
-    static boolean loadDat(String path) {
+    static boolean loadDat(String path)
+    {
 //        ByteArray byteArray = ByteArray.createByteArray(path);
 //        if (byteArray == null) return false;
 //
@@ -167,7 +188,8 @@ public class CoreBiGramTableDictionary {
 //            pair[i] = byteArray.nextInt();
 //        }
 
-        try {
+        try
+        {
             ObjectInputStream in = new ObjectInputStream(IOUtil.newInputStream(path));
             start = (int[]) in.readObject();
             if (CoreDictionary.trie.size() != start.length - 1)     // 目前CoreNatureDictionary.ngram.txt的缓存依赖于CoreNatureDictionary.txt的缓存
@@ -178,7 +200,8 @@ public class CoreBiGramTableDictionary {
             pair = (int[]) in.readObject();
             in.close();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             logger.warning("尝试载入缓存文件" + path + "发生异常[" + e + "]，下面将载入源文件并自动缓存……");
             return false;
         }
@@ -187,18 +210,19 @@ public class CoreBiGramTableDictionary {
 
     /**
      * 二分搜索，由于二元接续前一个词固定时，后一个词比较少，所以二分也能取得很高的性能
-     *
-     * @param a         目标数组
+     * @param a 目标数组
      * @param fromIndex 开始下标
-     * @param length    长度
-     * @param key       词的id
+     * @param length 长度
+     * @param key 词的id
      * @return 共现频次
      */
-    private static int binarySearch(int[] a, int fromIndex, int length, int key) {
+    private static int binarySearch(int[] a, int fromIndex, int length, int key)
+    {
         int low = fromIndex;
         int high = fromIndex + length - 1;
 
-        while (low <= high) {
+        while (low <= high)
+        {
             int mid = (low + high) >>> 1;
             int midVal = a[mid << 1];
 
@@ -219,13 +243,16 @@ public class CoreBiGramTableDictionary {
      * @param b 第二个词
      * @return 第一个词@第二个词出现的频次
      */
-    public static int getBiFrequency(String a, String b) {
+    public static int getBiFrequency(String a, String b)
+    {
         int idA = CoreDictionary.trie.exactMatchSearch(a);
-        if (idA == -1) {
+        if (idA == -1)
+        {
             return 0;
         }
         int idB = CoreDictionary.trie.exactMatchSearch(b);
-        if (idB == -1) {
+        if (idB == -1)
+        {
             return 0;
         }
         int index = binarySearch(pair, start[idA], start[idA + 1] - start[idA], idB);
@@ -236,13 +263,14 @@ public class CoreBiGramTableDictionary {
 
     /**
      * 获取共现频次
-     *
      * @param idA 第一个词的id
      * @param idB 第二个词的id
      * @return 共现频次
      */
-    public static int getBiFrequency(int idA, int idB) {
-        if (idA == -1 || idB == -1) {
+    public static int getBiFrequency(int idA, int idB)
+    {
+        if (idA == -1 || idB == -1)
+        {
             return 1000;   // -1表示用户词典，返回正值增加其亲和度
         }
         int index = binarySearch(pair, start[idA], start[idA + 1] - start[idA], idB);
@@ -257,7 +285,8 @@ public class CoreBiGramTableDictionary {
      * @param a 词语
      * @return id
      */
-    public static int getWordID(String a) {
+    public static int getWordID(String a)
+    {
         return CoreDictionary.trie.exactMatchSearch(a);
     }
 }

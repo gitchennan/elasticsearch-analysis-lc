@@ -12,13 +12,14 @@
 package com.hankcs.hanlp.corpus.dictionary;
 
 import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
-
+import com.hankcs.hanlp.corpus.document.sentence.word.Word;
 import java.util.List;
-
+import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * @author hankcs
  */
-public abstract class CommonDictionaryMaker implements ISaveAble {
+public abstract class CommonDictionaryMaker implements ISaveAble
+{
     static boolean verbose = false;
     /**
      * 语料库中的单词
@@ -33,16 +34,20 @@ public abstract class CommonDictionaryMaker implements ISaveAble {
      */
     NGramDictionaryMaker nGramDictionaryMaker;
 
-    public CommonDictionaryMaker(EasyDictionary dictionary) {
+    public CommonDictionaryMaker(EasyDictionary dictionary)
+    {
         nGramDictionaryMaker = new NGramDictionaryMaker();
         dictionaryMaker = new DictionaryMaker();
         this.dictionary = dictionary;
     }
 
     @Override
-    public boolean saveTxtTo(String path) {
-        if (dictionaryMaker.saveTxtTo(path + ".txt")) {
-            if (nGramDictionaryMaker.saveTxtTo(path)) {
+    public boolean saveTxtTo(String path)
+    {
+        if (dictionaryMaker.saveTxtTo(path + ".txt"))
+        {
+            if (nGramDictionaryMaker.saveTxtTo(path))
+            {
                 return true;
             }
         }
@@ -53,14 +58,14 @@ public abstract class CommonDictionaryMaker implements ISaveAble {
     /**
      * 处理语料，准备词典
      */
-    public void compute(List<List<IWord>> sentenceList) {
+    public void compute(List<List<IWord>> sentenceList)
+    {
         roleTag(sentenceList);
         addToDictionary(sentenceList);
     }
 
     /**
      * 加入到词典中，允许子类自定义过滤等等，这样比较灵活
-     *
      * @param sentenceList
      */
     abstract protected void addToDictionary(List<List<IWord>> sentenceList);

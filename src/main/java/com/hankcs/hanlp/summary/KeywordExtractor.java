@@ -18,10 +18,10 @@ import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 
 /**
  * 提取关键词的基类
- *
  * @author hankcs
  */
-public class KeywordExtractor {
+public class KeywordExtractor
+{
     /**
      * 默认分词器
      */
@@ -33,12 +33,14 @@ public class KeywordExtractor {
      * @param term
      * @return 是否应当
      */
-    public boolean shouldInclude(Term term) {
+    public boolean shouldInclude(Term term)
+    {
         // 除掉停用词
         if (term.nature == null) return false;
         String nature = term.nature.toString();
         char firstChar = nature.charAt(0);
-        switch (firstChar) {
+        switch (firstChar)
+        {
             case 'm':
             case 'b':
             case 'c':
@@ -50,11 +52,14 @@ public class KeywordExtractor {
             case 'y':
             case 'z':
             case 'r':
-            case 'w': {
+            case 'w':
+            {
                 return false;
             }
-            default: {
-                if (term.word.trim().length() > 1 && !CoreStopWordDictionary.contains(term.word)) {
+            default:
+            {
+                if (term.word.trim().length() > 1 && !CoreStopWordDictionary.contains(term.word))
+                {
                     return true;
                 }
             }
@@ -66,11 +71,11 @@ public class KeywordExtractor {
 
     /**
      * 设置关键词提取器使用的分词器
-     *
      * @param segment 任何开启了词性标注的分词器
      * @return 自己
      */
-    public KeywordExtractor setSegment(Segment segment) {
+    public KeywordExtractor setSegment(Segment segment)
+    {
         defaultSegment = segment;
         return this;
     }

@@ -12,8 +12,8 @@ package com.hankcs.hanlp.seg;
 
 /**
  * 基于字构词的生成式模型分词器基类
- *
  * @author hankcs
  */
-public abstract class CharacterBasedGenerativeModelSegment extends Segment {
+public abstract class CharacterBasedGenerativeModelSegment extends Segment
+{
 }

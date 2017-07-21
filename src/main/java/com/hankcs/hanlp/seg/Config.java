@@ -14,7 +14,8 @@ package com.hankcs.hanlp.seg;
 /**
  * 分词器配置项
  */
-public class Config {
+public class Config
+{
     /**
      * 是否是索引分词（合理地最小分割）
      */
@@ -67,7 +68,8 @@ public class Config {
     /**
      * 更新命名实体识别总开关
      */
-    public void updateNerConfig() {
+    public void updateNerConfig()
+    {
         ner = nameRecognize || translatedNameRecognize || japaneseNameRecognize || placeRecognize || organizationRecognize;
     }
 }

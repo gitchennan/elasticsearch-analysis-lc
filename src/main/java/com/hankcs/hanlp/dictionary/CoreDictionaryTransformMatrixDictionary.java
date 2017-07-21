@@ -11,27 +11,28 @@
  */
 package com.hankcs.hanlp.dictionary;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.tag.Nature;
-
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 核心词典词性转移矩阵
- *
  * @author hankcs
  */
-public class CoreDictionaryTransformMatrixDictionary {
+public class CoreDictionaryTransformMatrixDictionary
+{
     public static TransformMatrixDictionary<Nature> transformMatrixDictionary;
-
-    static {
+    static
+    {
         transformMatrixDictionary = new TransformMatrixDictionary<Nature>(Nature.class);
         long start = System.currentTimeMillis();
-        if (!transformMatrixDictionary.load(HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath)) {
+        if (!transformMatrixDictionary.load(HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath))
+        {
             logger.severe("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "失败");
             System.exit(-1);
         }
-        else {
+        else
+        {
             logger.info("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
         }
     }

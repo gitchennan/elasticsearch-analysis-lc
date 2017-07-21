@@ -22,7 +22,8 @@ package com.hankcs.hanlp.model.maxent;
 /**
  * 将参数与特征关联起来的类，用来储存最大熵的参数，也用来储存模型和经验分布
  */
-public class Context {
+public class Context
+{
 
     /**
      * 参数
@@ -39,7 +40,8 @@ public class Context {
      * @param outcomePattern 输出
      * @param parameters     参数
      */
-    public Context(int[] outcomePattern, double[] parameters) {
+    public Context(int[] outcomePattern, double[] parameters)
+    {
         this.outcomes = outcomePattern;
         this.parameters = parameters;
     }
@@ -49,7 +51,8 @@ public class Context {
      *
      * @return 输出数组
      */
-    public int[] getOutcomes() {
+    public int[] getOutcomes()
+    {
         return outcomes;
     }
 
@@ -58,7 +61,8 @@ public class Context {
      *
      * @return 参数数组
      */
-    public double[] getParameters() {
+    public double[] getParameters()
+    {
         return parameters;
     }
 }

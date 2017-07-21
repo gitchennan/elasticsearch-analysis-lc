@@ -11,36 +11,44 @@
  */
 package com.hankcs.hanlp.corpus.nr;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import com.hankcs.hanlp.corpus.dictionary.DictionaryMaker;
+import com.hankcs.hanlp.corpus.dictionary.item.Item;
+
+import java.io.*;
+import java.util.List;
 
 /**
  * @author hankcs
  */
-public class FamilyName {
+public class FamilyName
+{
     static boolean fn[];
-
-    static {
+    static
+    {
         fn = new boolean[65535];
-        try {
+        try
+        {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("data/dictionary/person/familyname.txt")));
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
+            {
                 fn[line.charAt(0)] = true;
             }
             br.close();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
-    public static boolean contains(char c) {
+    public static boolean contains(char c)
+    {
         return fn[c];
     }
 
-    public static boolean contains(String c) {
+    public static boolean contains(String c)
+    {
         if (c.length() != 1) return false;
         return fn[c.charAt(0)];
     }

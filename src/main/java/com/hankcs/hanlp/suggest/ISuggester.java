@@ -16,7 +16,8 @@ import java.util.List;
 /**
  * @author hankcs
  */
-public interface ISuggester {
+public interface ISuggester
+{
     void addSentence(String sentence);
 
     /**

@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.phrase;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.occurrence.Occurrence;
 import com.hankcs.hanlp.corpus.occurrence.PairFrequency;
 import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
@@ -24,33 +24,25 @@ import java.util.List;
 
 /**
  * 利用互信息和左右熵的短语提取器
- *
  * @author hankcs
  */
-public class MutualInformationEntropyPhraseExtractor implements IPhraseExtractor {
-    /**
-     * 一句话提取
-     *
-     * @param text
-     * @param size
-     * @return
-     */
-    public static List<String> extract(String text, int size) {
-        IPhraseExtractor extractor = new MutualInformationEntropyPhraseExtractor();
-        return extractor.extractPhrase(text, size);
-    }
-
+public class MutualInformationEntropyPhraseExtractor implements IPhraseExtractor
+{
     @Override
-    public List<String> extractPhrase(String text, int size) {
+    public List<String> extractPhrase(String text, int size)
+    {
         List<String> phraseList = new LinkedList<String>();
         Occurrence occurrence = new Occurrence();
         Filter[] filterChain = new Filter[]
                 {
                         CoreStopWordDictionary.FILTER,
-                        new Filter() {
+                        new Filter()
+                        {
                             @Override
-                            public boolean shouldInclude(Term term) {
-                                switch (term.nature) {
+                            public boolean shouldInclude(Term term)
+                            {
+                                switch (term.nature)
+                                {
                                     case t:
                                     case nx:
                                         return false;
@@ -59,38 +51,58 @@ public class MutualInformationEntropyPhraseExtractor implements IPhraseExtractor
                             }
                         }
                 };
-        for (List<Term> sentence : NotionalTokenizer.seg2sentence(text, filterChain)) {
-            if (HanLP.Config.DEBUG) {
+        for (List<Term> sentence : NotionalTokenizer.seg2sentence(text, filterChain))
+        {
+            if (HanLP.Config.DEBUG)
+            {
                 System.out.println(sentence);
             }
             occurrence.addAll(sentence);
         }
         occurrence.compute();
-        if (HanLP.Config.DEBUG) {
+        if (HanLP.Config.DEBUG)
+        {
             System.out.println(occurrence);
-            for (PairFrequency phrase : occurrence.getPhraseByMi()) {
-                System.out.print(phrase.getKey().replace(Occurrence.RIGHT, '→') + "\tmi=" + phrase.mi + " , ");
+            for (PairFrequency phrase : occurrence.getPhraseByMi())
+            {
+                System.out.print(phrase.getKey().replace(Occurrence.RIGHT, '→') + "\tmi=" + phrase.mi + " , ") ;
             }
             System.out.println();
-            for (PairFrequency phrase : occurrence.getPhraseByLe()) {
+            for (PairFrequency phrase : occurrence.getPhraseByLe())
+            {
                 System.out.print(phrase.getKey().replace(Occurrence.RIGHT, '→') + "\tle=" + phrase.le + " , ");
             }
             System.out.println();
-            for (PairFrequency phrase : occurrence.getPhraseByRe()) {
+            for (PairFrequency phrase : occurrence.getPhraseByRe())
+            {
                 System.out.print(phrase.getKey().replace(Occurrence.RIGHT, '→') + "\tre=" + phrase.re + " , ");
             }
             System.out.println();
-            for (PairFrequency phrase : occurrence.getPhraseByScore()) {
+            for (PairFrequency phrase : occurrence.getPhraseByScore())
+            {
                 System.out.print(phrase.getKey().replace(Occurrence.RIGHT, '→') + "\tscore=" + phrase.score + " , ");
             }
             System.out.println();
         }
 
-        for (PairFrequency phrase : occurrence.getPhraseByScore()) {
+        for (PairFrequency phrase : occurrence.getPhraseByScore())
+        {
             if (phraseList.size() == size) break;
             phraseList.add(phrase.first + phrase.second);
         }
         return phraseList;
+    }
+
+    /**
+     * 一句话提取
+     * @param text
+     * @param size
+     * @return
+     */
+    public static List<String> extract(String text, int size)
+    {
+        IPhraseExtractor extractor = new MutualInformationEntropyPhraseExtractor();
+        return extractor.extractPhrase(text, size);
     }
 
 //    public static void main(String[] args)

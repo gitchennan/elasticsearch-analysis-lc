@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dependency;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
 import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLWord;
 import com.hankcs.hanlp.corpus.io.IOUtil;
@@ -24,7 +24,8 @@ import java.util.TreeMap;
 /**
  * @author hankcs
  */
-public abstract class AbstractDependencyParser implements IDependencyParser {
+public abstract class AbstractDependencyParser implements IDependencyParser
+{
     /**
      * 本Parser使用的分词器，可以自由替换
      */
@@ -39,11 +40,14 @@ public abstract class AbstractDependencyParser implements IDependencyParser {
     private boolean enableDeprelTranslater;
 
     @Override
-    public CoNLLSentence parse(String sentence) {
+    public CoNLLSentence parse(String sentence)
+    {
         assert sentence != null;
         CoNLLSentence output = parse(segment.seg(sentence.toCharArray()));
-        if (enableDeprelTranslater && deprelTranslater != null) {
-            for (CoNLLWord word : output) {
+        if (enableDeprelTranslater && deprelTranslater != null)
+        {
+            for (CoNLLWord word : output)
+            {
                 String translatedDeprel = deprelTranslater.get(word.DEPREL);
                 word.DEPREL = translatedDeprel;
             }
@@ -52,44 +56,50 @@ public abstract class AbstractDependencyParser implements IDependencyParser {
     }
 
     @Override
-    public Segment getSegment() {
+    public Segment getSegment()
+    {
         return segment;
     }
 
     @Override
-    public IDependencyParser setSegment(Segment segment) {
+    public IDependencyParser setSegment(Segment segment)
+    {
         this.segment = segment;
         return this;
     }
 
     @Override
-    public Map<String, String> getDeprelTranslator() {
+    public Map<String, String> getDeprelTranslator()
+    {
         return deprelTranslater;
     }
 
     @Override
-    public IDependencyParser setDeprelTranslator(Map<String, String> deprelTranslator) {
+    public IDependencyParser setDeprelTranslator(Map<String, String> deprelTranslator)
+    {
         this.deprelTranslater = deprelTranslator;
         return this;
     }
 
     /**
      * 设置映射表
-     *
      * @param deprelTranslatorPath 映射表路径
      * @return
      */
-    public IDependencyParser setDeprelTranslater(String deprelTranslatorPath) {
+    public IDependencyParser setDeprelTranslater(String deprelTranslatorPath)
+    {
         deprelTranslater = GlobalObjectPool.get(deprelTranslatorPath);
         if (deprelTranslater != null) return this;
 
         IOUtil.LineIterator iterator = new IOUtil.LineIterator(deprelTranslatorPath);
         deprelTranslater = new TreeMap<String, String>();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             String[] args = iterator.next().split("\\s");
             deprelTranslater.put(args[0], args[1]);
         }
-        if (deprelTranslater.size() == 0) {
+        if (deprelTranslater.size() == 0)
+        {
             deprelTranslater = null;
         }
         GlobalObjectPool.put(deprelTranslatorPath, deprelTranslater);
@@ -98,7 +108,8 @@ public abstract class AbstractDependencyParser implements IDependencyParser {
     }
 
     @Override
-    public IDependencyParser enableDeprelTranslator(boolean enable) {
+    public IDependencyParser enableDeprelTranslator(boolean enable)
+    {
         enableDeprelTranslater = enable;
         return this;
     }

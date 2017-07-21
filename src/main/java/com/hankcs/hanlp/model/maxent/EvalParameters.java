@@ -24,24 +24,26 @@ package com.hankcs.hanlp.model.maxent;
  *
  * @author open-nlp
  */
-public class EvalParameters {
+public class EvalParameters
+{
 
-    /**
-     * 一共有几种输出
-     */
-    private final int numOutcomes;
-    /**
-     * correctionConstant的倒数
-     */
-    private final double constantInverse;
     /**
      * 将输出与参数映射起来，下标可以用 <code>pmap</code> 查询到
      */
     private Context[] params;
     /**
+     * 一共有几种输出
+     */
+    private final int numOutcomes;
+    /**
      * 一个事件中最多包含的特征数
      */
     private double correctionConstant;
+
+    /**
+     * correctionConstant的倒数
+     */
+    private final double constantInverse;
     /**
      * 修正参数
      */
@@ -55,7 +57,8 @@ public class EvalParameters {
      * @param correctionConstant 一个事件中最多包含的特征数
      * @param numOutcomes        事件的可能label数
      */
-    public EvalParameters(Context[] params, double correctionParam, double correctionConstant, int numOutcomes) {
+    public EvalParameters(Context[] params, double correctionParam, double correctionConstant, int numOutcomes)
+    {
         this.params = params;
         this.correctionParam = correctionParam;
         this.numOutcomes = numOutcomes;
@@ -63,31 +66,38 @@ public class EvalParameters {
         this.constantInverse = 1.0 / correctionConstant;
     }
 
-    public EvalParameters(Context[] params, int numOutcomes) {
+    public EvalParameters(Context[] params, int numOutcomes)
+    {
         this(params, 0, 0, numOutcomes);
     }
 
-    public Context[] getParams() {
+    public Context[] getParams()
+    {
         return params;
     }
 
-    public int getNumOutcomes() {
+    public int getNumOutcomes()
+    {
         return numOutcomes;
     }
 
-    public double getCorrectionConstant() {
+    public double getCorrectionConstant()
+    {
         return correctionConstant;
     }
 
-    public double getConstantInverse() {
+    public double getConstantInverse()
+    {
         return constantInverse;
     }
 
-    public double getCorrectionParam() {
+    public double getCorrectionParam()
+    {
         return correctionParam;
     }
 
-    public void setCorrectionParam(double correctionParam) {
+    public void setCorrectionParam(double correctionParam)
+    {
         this.correctionParam = correctionParam;
     }
 }

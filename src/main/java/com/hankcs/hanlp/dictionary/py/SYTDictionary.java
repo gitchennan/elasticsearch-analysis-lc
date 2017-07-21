@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.py;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.collection.set.UnEmptyStringSet;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
 import com.hankcs.hanlp.corpus.io.IOUtil;

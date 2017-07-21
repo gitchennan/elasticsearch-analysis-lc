@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dependency;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
 import com.hankcs.hanlp.dependency.common.Edge;
 import com.hankcs.hanlp.dependency.common.Node;
@@ -26,21 +26,25 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class WordNatureDependencyParser extends MinimumSpanningTreeParser {
+public class WordNatureDependencyParser extends MinimumSpanningTreeParser
+{
     private WordNatureDependencyModel model;
 
-    public WordNatureDependencyParser(WordNatureDependencyModel model) {
+    public WordNatureDependencyParser(WordNatureDependencyModel model)
+    {
         this.model = model;
     }
 
-    public WordNatureDependencyParser(String modelPath) {
+    public WordNatureDependencyParser(String modelPath)
+    {
         model = GlobalObjectPool.get(modelPath);
         if (model != null) return;
         model = new WordNatureDependencyModel(modelPath);
         GlobalObjectPool.put(modelPath, model);
     }
 
-    public WordNatureDependencyParser() {
+    public WordNatureDependencyParser()
+    {
         this(HanLP.Config.WordNatureModelPath);
     }
 
@@ -50,7 +54,8 @@ public class WordNatureDependencyParser extends MinimumSpanningTreeParser {
      * @param termList 句子，可以是任何具有词性标注功能的分词器的分词结果
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(List<Term> termList) {
+    public static CoNLLSentence compute(List<Term> termList)
+    {
         return new WordNatureDependencyParser().parse(termList);
     }
 
@@ -60,12 +65,14 @@ public class WordNatureDependencyParser extends MinimumSpanningTreeParser {
      * @param sentence 句子
      * @return CoNLL格式的依存句法树
      */
-    public static CoNLLSentence compute(String sentence) {
+    public static CoNLLSentence compute(String sentence)
+    {
         return new WordNatureDependencyParser().parse(sentence);
     }
 
     @Override
-    protected Edge makeEdge(Node[] nodeArray, int from, int to) {
+    protected Edge makeEdge(Node[] nodeArray, int from, int to)
+    {
         return model.getEdge(nodeArray[from], nodeArray[to]);
     }
 }

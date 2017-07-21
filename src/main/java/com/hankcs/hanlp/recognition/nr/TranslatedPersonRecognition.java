@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.recognition.nr;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.nr.TranslatedPersonDictionary;

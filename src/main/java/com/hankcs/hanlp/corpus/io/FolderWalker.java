@@ -15,34 +15,39 @@ package com.hankcs.hanlp.corpus.io;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-
+import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * 遍历目录工具类
- *
  * @author hankcs
  */
-public class FolderWalker {
+public class FolderWalker
+{
     /**
      * 打开一个目录，获取全部的文件名
-     *
      * @param path
      * @return
      */
-    public static List<File> open(String path) {
+    public static List<File> open(String path)
+    {
         List<File> fileList = new LinkedList<File>();
         File folder = new File(path);
         handleFolder(folder, fileList);
         return fileList;
     }
 
-    private static void handleFolder(File folder, List<File> fileList) {
+    private static void handleFolder(File folder, List<File> fileList)
+    {
         File[] fileArray = folder.listFiles();
-        if (fileArray != null) {
-            for (File file : fileArray) {
-                if (file.isFile()) {
+        if (fileArray != null)
+        {
+            for (File file : fileArray)
+            {
+                if (file.isFile())
+                {
                     fileList.add(file);
                 }
-                else {
+                else
+                {
                     handleFolder(file, fileList);
                 }
             }

@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.other;
 
-import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.utility.TextUtility;
 

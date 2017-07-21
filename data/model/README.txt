@@ -4,5 +4,5 @@
 3、网络受限制，check out太耗时
 4、不是每个人都需要CRF分词、句法分析等功能
 
-如果你需要最新的模型文件，请访问 https://github.com/com.hankcs/HanLP/releases 下载对应版本的数据包。
+如果你需要最新的模型文件，请访问 https://github.com/hankcs/HanLP/releases 下载对应版本的数据包。
 敬请注意数据包与jar包的版本，以免发生不兼容的问题。

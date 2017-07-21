@@ -24,7 +24,8 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class TextRankSentence {
+public class TextRankSentence
+{
     /**
      * 阻尼系数（ＤａｍｐｉｎｇＦａｃｔｏｒ），一般取值为0.85
      */
@@ -65,7 +66,8 @@ public class TextRankSentence {
      */
     BM25 bm25;
 
-    public TextRankSentence(List<List<String>> docs) {
+    public TextRankSentence(List<List<String>> docs)
+    {
         this.docs = docs;
         bm25 = new BM25(docs);
         D = docs.size();
@@ -76,15 +78,76 @@ public class TextRankSentence {
         solve();
     }
 
+    private void solve()
+    {
+        int cnt = 0;
+        for (List<String> sentence : docs)
+        {
+            double[] scores = bm25.simAll(sentence);
+//            System.out.println(Arrays.toString(scores));
+            weight[cnt] = scores;
+            weight_sum[cnt] = sum(scores) - scores[cnt]; // 减掉自己，自己跟自己肯定最相似
+            vertex[cnt] = 1.0;
+            ++cnt;
+        }
+        for (int _ = 0; _ < max_iter; ++_)
+        {
+            double[] m = new double[D];
+            double max_diff = 0;
+            for (int i = 0; i < D; ++i)
+            {
+                m[i] = 1 - d;
+                for (int j = 0; j < D; ++j)
+                {
+                    if (j == i || weight_sum[j] == 0) continue;
+                    m[i] += (d * weight[j][i] / weight_sum[j] * vertex[j]);
+                }
+                double diff = Math.abs(m[i] - vertex[i]);
+                if (diff > max_diff)
+                {
+                    max_diff = diff;
+                }
+            }
+            vertex = m;
+            if (max_diff <= min_diff) break;
+        }
+        // 我们来排个序吧
+        for (int i = 0; i < D; ++i)
+        {
+            top.put(vertex[i], i);
+        }
+    }
+
+    /**
+     * 获取前几个关键句子
+     *
+     * @param size 要几个
+     * @return 关键句子的下标
+     */
+    public int[] getTopSentence(int size)
+    {
+        Collection<Integer> values = top.values();
+        size = Math.min(size, values.size());
+        int[] indexArray = new int[size];
+        Iterator<Integer> it = values.iterator();
+        for (int i = 0; i < size; ++i)
+        {
+            indexArray[i] = it.next();
+        }
+        return indexArray;
+    }
+
     /**
      * 简单的求和
      *
      * @param array
      * @return
      */
-    private static double sum(double[] array) {
+    private static double sum(double[] array)
+    {
         double total = 0;
-        for (double v : array) {
+        for (double v : array)
+        {
             total += v;
         }
         return total;
@@ -96,12 +159,15 @@ public class TextRankSentence {
      * @param document
      * @return
      */
-    static List<String> spiltSentence(String document) {
+    static List<String> spiltSentence(String document)
+    {
         List<String> sentences = new ArrayList<String>();
-        for (String line : document.split("[\r\n]")) {
+        for (String line : document.split("[\r\n]"))
+        {
             line = line.trim();
             if (line.length() == 0) continue;
-            for (String sent : line.split("[，,。:：“”？?！!；;]")) {
+            for (String sent : line.split("[，,。:：“”？?！!；;]"))
+            {
                 sent = sent.trim();
                 if (sent.length() == 0) continue;
                 sentences.add(sent);
@@ -117,13 +183,17 @@ public class TextRankSentence {
      * @param sentenceList
      * @return
      */
-    private static List<List<String>> convertSentenceListToDocument(List<String> sentenceList) {
+    private static List<List<String>> convertSentenceListToDocument(List<String> sentenceList)
+    {
         List<List<String>> docs = new ArrayList<List<String>>(sentenceList.size());
-        for (String sentence : sentenceList) {
+        for (String sentence : sentenceList)
+        {
             List<Term> termList = StandardTokenizer.segment(sentence.toCharArray());
             List<String> wordList = new LinkedList<String>();
-            for (Term term : termList) {
-                if (CoreStopWordDictionary.shouldInclude(term)) {
+            for (Term term : termList)
+            {
+                if (CoreStopWordDictionary.shouldInclude(term))
+                {
                     wordList.add(term.word);
                 }
             }
@@ -139,13 +209,15 @@ public class TextRankSentence {
      * @param size     需要的关键句的个数
      * @return 关键句列表
      */
-    public static List<String> getTopSentenceList(String document, int size) {
+    public static List<String> getTopSentenceList(String document, int size)
+    {
         List<String> sentenceList = spiltSentence(document);
         List<List<String>> docs = convertSentenceListToDocument(sentenceList);
         TextRankSentence textRank = new TextRankSentence(docs);
         int[] topSentence = textRank.getTopSentence(size);
         List<String> resultList = new LinkedList<String>();
-        for (int i : topSentence) {
+        for (int i : topSentence)
+        {
             resultList.add(sentenceList.get(i));
         }
         return resultList;
@@ -158,7 +230,8 @@ public class TextRankSentence {
      * @param max_length 需要摘要的长度
      * @return 摘要文本
      */
-    public static String getSummary(String document, int max_length) {
+    public static String getSummary(String document, int max_length)
+    {
         List<String> sentenceList = spiltSentence(document);
 
         int sentence_count = sentenceList.size();
@@ -169,7 +242,8 @@ public class TextRankSentence {
         TextRankSentence textRank = new TextRankSentence(docs);
         int[] topSentence = textRank.getTopSentence(size);
         List<String> resultList = new LinkedList<String>();
-        for (int i : topSentence) {
+        for (int i : topSentence)
+        {
             resultList.add(sentenceList.get(i));
         }
 
@@ -178,7 +252,8 @@ public class TextRankSentence {
         return TextUtility.join("。", resultList);
     }
 
-    private static List<String> permutation(List<String> resultList, final List<String> sentenceList) {
+    private static List<String> permutation(List<String> resultList, final List<String> sentenceList)
+    {
         Collections.sort(resultList, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -190,7 +265,8 @@ public class TextRankSentence {
         return resultList;
     }
 
-    private static List<String> pick_sentences(List<String> resultList, int max_length) {
+    private static List<String> pick_sentences(List<String> resultList, int max_length)
+    {
         List<String> summary = new ArrayList<String>();
         int count = 0;
         for (String result : resultList) {
@@ -200,56 +276,6 @@ public class TextRankSentence {
             }
         }
         return summary;
-    }
-
-    private void solve() {
-        int cnt = 0;
-        for (List<String> sentence : docs) {
-            double[] scores = bm25.simAll(sentence);
-//            System.out.println(Arrays.toString(scores));
-            weight[cnt] = scores;
-            weight_sum[cnt] = sum(scores) - scores[cnt]; // 减掉自己，自己跟自己肯定最相似
-            vertex[cnt] = 1.0;
-            ++cnt;
-        }
-        for (int _ = 0; _ < max_iter; ++_) {
-            double[] m = new double[D];
-            double max_diff = 0;
-            for (int i = 0; i < D; ++i) {
-                m[i] = 1 - d;
-                for (int j = 0; j < D; ++j) {
-                    if (j == i || weight_sum[j] == 0) continue;
-                    m[i] += (d * weight[j][i] / weight_sum[j] * vertex[j]);
-                }
-                double diff = Math.abs(m[i] - vertex[i]);
-                if (diff > max_diff) {
-                    max_diff = diff;
-                }
-            }
-            vertex = m;
-            if (max_diff <= min_diff) break;
-        }
-        // 我们来排个序吧
-        for (int i = 0; i < D; ++i) {
-            top.put(vertex[i], i);
-        }
-    }
-
-    /**
-     * 获取前几个关键句子
-     *
-     * @param size 要几个
-     * @return 关键句子的下标
-     */
-    public int[] getTopSentence(int size) {
-        Collection<Integer> values = top.values();
-        size = Math.min(size, values.size());
-        int[] indexArray = new int[size];
-        Iterator<Integer> it = values.iterator();
-        for (int i = 0; i < size; ++i) {
-            indexArray[i] = it.next();
-        }
-        return indexArray;
     }
 
 }
