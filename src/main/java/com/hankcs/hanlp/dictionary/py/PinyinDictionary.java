@@ -51,7 +51,7 @@ public class PinyinDictionary
      */
     static boolean load(String path)
     {
-        if (loadDat(path)) return true;
+//        if (loadDat(path)) return true;
         // 从文本中载入并且尝试生成dat
         StringDictionary dictionary = new StringDictionary("=");
         if (!dictionary.load(path)) return false;
@@ -76,56 +76,56 @@ public class PinyinDictionary
             map.put(entry.getKey(), pinyinValue);
         }
         trie.build(map);
-        logger.info("正在缓存双数组" + path);
-        saveDat(path, trie, map.entrySet());
+//        logger.info("正在缓存双数组" + path);
+//        saveDat(path, trie, map.entrySet());
         return true;
     }
-
-    static boolean loadDat(String path)
-    {
-        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
-        if (byteArray == null) return false;
-        int size = byteArray.nextInt();
-        Pinyin[][] valueArray = new Pinyin[size][];
-        for (int i = 0; i < valueArray.length; ++i)
-        {
-            int length = byteArray.nextInt();
-            valueArray[i] = new Pinyin[length];
-            for (int j = 0; j < length; ++j)
-            {
-                valueArray[i][j] = pinyins[byteArray.nextInt()];
-            }
-        }
-        if (!trie.load(byteArray, valueArray)) return false;
-        return true;
-    }
-
-    static boolean saveDat(String path, AhoCorasickDoubleArrayTrie<Pinyin[]> trie, Set<Map.Entry<String, Pinyin[]>> entrySet)
-    {
-        try
-        {
-            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.BIN_EXT));
-            out.writeInt(entrySet.size());
-            for (Map.Entry<String, Pinyin[]> entry : entrySet)
-            {
-                Pinyin[] value = entry.getValue();
-                out.writeInt(value.length);
-                for (Pinyin pinyin : value)
-                {
-                    out.writeInt(pinyin.ordinal());
-                }
-            }
-            trie.save(out);
-            out.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("缓存值dat" + path + "失败");
-            return false;
-        }
-
-        return true;
-    }
+//
+//    static boolean loadDat(String path)
+//    {
+//        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
+//        if (byteArray == null) return false;
+//        int size = byteArray.nextInt();
+//        Pinyin[][] valueArray = new Pinyin[size][];
+//        for (int i = 0; i < valueArray.length; ++i)
+//        {
+//            int length = byteArray.nextInt();
+//            valueArray[i] = new Pinyin[length];
+//            for (int j = 0; j < length; ++j)
+//            {
+//                valueArray[i][j] = pinyins[byteArray.nextInt()];
+//            }
+//        }
+//        if (!trie.load(byteArray, valueArray)) return false;
+//        return true;
+//    }
+//
+//    static boolean saveDat(String path, AhoCorasickDoubleArrayTrie<Pinyin[]> trie, Set<Map.Entry<String, Pinyin[]>> entrySet)
+//    {
+//        try
+//        {
+//            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.BIN_EXT));
+//            out.writeInt(entrySet.size());
+//            for (Map.Entry<String, Pinyin[]> entry : entrySet)
+//            {
+//                Pinyin[] value = entry.getValue();
+//                out.writeInt(value.length);
+//                for (Pinyin pinyin : value)
+//                {
+//                    out.writeInt(pinyin.ordinal());
+//                }
+//            }
+//            trie.save(out);
+//            out.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("缓存值dat" + path + "失败");
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     public static Pinyin[] get(String key)
     {

@@ -143,19 +143,19 @@ public class Predefine
     /**
      * trie树文件后缀名
      */
-    public final static String TRIE_EXT = ".trie.dat";
+//    public final static String TRIE_EXT = ".trie.dat";
     /**
      * 值文件后缀名
      */
-    public final static String VALUE_EXT = ".value.dat";
+//    public final static String VALUE_EXT = ".value.dat";
 
     /**
      * 逆转后缀名
      */
-    public final static String REVERSE_EXT = ".reverse";
+//    public final static String REVERSE_EXT = ".reverse";
 
     /**
      * 二进制文件后缀
      */
-    public final static String BIN_EXT = ".bin";
+//    public final static String BIN_EXT = ".bin";
 }

@@ -46,7 +46,7 @@ public class TranslatedPersonDictionary
     static boolean load()
     {
         trie = new DoubleArrayTrie<Boolean>();
-        if (loadDat()) return true;
+//        if (loadDat()) return true;
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
@@ -78,8 +78,8 @@ public class TranslatedPersonDictionary
             }
             logger.info("音译人名词典" + path + "开始构建双数组……");
             trie.build(map);
-            logger.info("音译人名词典" + path + "开始编译DAT文件……");
-            logger.info("音译人名词典" + path + "编译结果：" + saveDat(map));
+//            logger.info("音译人名词典" + path + "开始编译DAT文件……");
+//            logger.info("音译人名词典" + path + "编译结果：" + saveDat(map));
         }
         catch (Exception e)
         {
@@ -90,20 +90,20 @@ public class TranslatedPersonDictionary
         return true;
     }
 
-    /**
-     * 保存dat到磁盘
-     * @param map
-     * @return
-     */
-    static boolean saveDat(TreeMap<String, Boolean> map)
-    {
-        return trie.save(path + Predefine.TRIE_EXT);
-    }
-
-    static boolean loadDat()
-    {
-        return trie.load(path + Predefine.TRIE_EXT);
-    }
+//    /**
+//     * 保存dat到磁盘
+//     * @param map
+//     * @return
+//     */
+//    static boolean saveDat(TreeMap<String, Boolean> map)
+//    {
+//        return trie.save(path + Predefine.TRIE_EXT);
+//    }
+//
+//    static boolean loadDat()
+//    {
+//        return trie.load(path + Predefine.TRIE_EXT);
+//    }
 
     /**
      * 是否包含key

@@ -107,67 +107,67 @@ public class BaseChineseDictionary
      */
     static boolean load(String path, AhoCorasickDoubleArrayTrie<String> trie, boolean reverse)
     {
-        String datPath = path;
-        if (reverse)
-        {
-            datPath += Predefine.REVERSE_EXT;
-        }
-        if (loadDat(datPath, trie)) return true;
+//        String datPath = path;
+//        if (reverse)
+//        {
+//            datPath += Predefine.REVERSE_EXT;
+//        }
+//        if (loadDat(datPath, trie)) return true;
         // 从文本中载入并且尝试生成dat
         TreeMap<String, String> map = new TreeMap<String, String>();
         if (!load(map, reverse, path)) return false;
         logger.info("正在构建AhoCorasickDoubleArrayTrie，来源：" + path);
         trie.build(map);
-        logger.info("正在缓存双数组" + datPath);
-        saveDat(datPath, trie, map.entrySet());
+//        logger.info("正在缓存双数组" + datPath);
+//        saveDat(datPath, trie, map.entrySet());
         return true;
     }
-
-    static boolean loadDat(String path, AhoCorasickDoubleArrayTrie<String> trie)
-    {
-        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
-        if (byteArray == null) return false;
-        int size = byteArray.nextInt();
-        String[] valueArray = new String[size];
-        for (int i = 0; i < valueArray.length; ++i)
-        {
-            valueArray[i] = byteArray.nextString();
-        }
-        trie.load(byteArray, valueArray);
-        return true;
-    }
-
-    static boolean saveDat(String path, AhoCorasickDoubleArrayTrie<String> trie, Set<Map.Entry<String, String>> entrySet)
-    {
-        if (trie.size() != entrySet.size())
-        {
-            logger.warning("键值对不匹配");
-            return false;
-        }
-        try
-        {
-            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.BIN_EXT));
-            out.writeInt(entrySet.size());
-            for (Map.Entry<String, String> entry : entrySet)
-            {
-                char[] charArray = entry.getValue().toCharArray();
-                out.writeInt(charArray.length);
-                for (char c : charArray)
-                {
-                    out.writeChar(c);
-                }
-            }
-            trie.save(out);
-            out.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("缓存值dat" + path + "失败");
-            return false;
-        }
-
-        return true;
-    }
+//
+//    static boolean loadDat(String path, AhoCorasickDoubleArrayTrie<String> trie)
+//    {
+//        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
+//        if (byteArray == null) return false;
+//        int size = byteArray.nextInt();
+//        String[] valueArray = new String[size];
+//        for (int i = 0; i < valueArray.length; ++i)
+//        {
+//            valueArray[i] = byteArray.nextString();
+//        }
+//        trie.load(byteArray, valueArray);
+//        return true;
+//    }
+//
+//    static boolean saveDat(String path, AhoCorasickDoubleArrayTrie<String> trie, Set<Map.Entry<String, String>> entrySet)
+//    {
+//        if (trie.size() != entrySet.size())
+//        {
+//            logger.warning("键值对不匹配");
+//            return false;
+//        }
+//        try
+//        {
+//            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.BIN_EXT));
+//            out.writeInt(entrySet.size());
+//            for (Map.Entry<String, String> entry : entrySet)
+//            {
+//                char[] charArray = entry.getValue().toCharArray();
+//                out.writeInt(charArray.length);
+//                for (char c : charArray)
+//                {
+//                    out.writeChar(c);
+//                }
+//            }
+//            trie.save(out);
+//            out.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("缓存值dat" + path + "失败");
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     public static BaseSearcher getSearcher(char[] charArray, DoubleArrayTrie<String> trie)
     {

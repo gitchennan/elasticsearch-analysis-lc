@@ -51,54 +51,54 @@ public class NGramDictionaryMaker
         tmDictionaryMaker.addPair(first.getLabel(), second.getLabel());
     }
 
-    /**
-     * 保存NGram词典和转移矩阵
-     *
-     * @param path
-     * @return
-     */
-    public boolean saveTxtTo(String path)
-    {
-        saveNGramToTxt(path + ".ngram.txt");
-        saveTransformMatrixToTxt(path + ".tr.txt");
-        return true;
-    }
+//    /**
+//     * 保存NGram词典和转移矩阵
+//     *
+//     * @param path
+//     * @return
+//     */
+//    public boolean saveTxtTo(String path)
+//    {
+//        saveNGramToTxt(path + ".ngram.txt");
+//        saveTransformMatrixToTxt(path + ".tr.txt");
+//        return true;
+//    }
 
-    /**
-     * 保存NGram词典
-     *
-     * @param path
-     * @return
-     */
-    public boolean saveNGramToTxt(String path)
-    {
-        try
-        {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
-            for (Map.Entry<String, Integer> entry : trie.entrySet())
-            {
-                bw.write(entry.getKey() + " " + entry.getValue());
-                bw.newLine();
-            }
-            bw.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("在保存NGram词典到" + path + "时发生异常" + e);
-            return false;
-        }
+//    /**
+//     * 保存NGram词典
+//     *
+//     * @param path
+//     * @return
+//     */
+//    public boolean saveNGramToTxt(String path)
+//    {
+//        try
+//        {
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
+//            for (Map.Entry<String, Integer> entry : trie.entrySet())
+//            {
+//                bw.write(entry.getKey() + " " + entry.getValue());
+//                bw.newLine();
+//            }
+//            bw.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("在保存NGram词典到" + path + "时发生异常" + e);
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
-        return true;
-    }
-
-    /**
-     * 保存转移矩阵
-     *
-     * @param path
-     * @return
-     */
-    public boolean saveTransformMatrixToTxt(String path)
-    {
-        return tmDictionaryMaker.saveTxtTo(path);
-    }
+//    /**
+//     * 保存转移矩阵
+//     *
+//     * @param path
+//     * @return
+//     */
+//    public boolean saveTransformMatrixToTxt(String path)
+//    {
+//        return tmDictionaryMaker.saveTxtTo(path);
+//    }
 }

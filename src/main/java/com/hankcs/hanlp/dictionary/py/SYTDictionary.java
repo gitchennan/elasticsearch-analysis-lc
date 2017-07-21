@@ -14,9 +14,10 @@ package com.hankcs.hanlp.dictionary.py;
 import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.collection.set.UnEmptyStringSet;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -59,41 +60,41 @@ public class SYTDictionary
         }
     }
 
-    /**
-     * 导出声母表等等
-     *
-     * @param path
-     */
-    public static void dumpEnum(String path)
-    {
-        dumpEnum(smSet, path + "sm.txt");
-        dumpEnum(ymSet, path + "ym.txt");
-        dumpEnum(ydSet, path + "yd.txt");
-        Set<String> hdSet = new TreeSet<String>();
-        for (Pinyin pinyin : PinyinDictionary.pinyins)
-        {
-            hdSet.add(pinyin.getHeadString());
-        }
-        dumpEnum(hdSet, path + "head.txt");
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String[]> entry : map.entrySet())
-        {
-            // 0声母 1韵母 2音调 3带音标
-            String[] value = entry.getValue();
-            Pinyin pinyin = Pinyin.valueOf(entry.getKey());
-            sb.append(entry.getKey() + "(" + Shengmu.class.getSimpleName() + "." + value[0] + ", " + Yunmu.class.getSimpleName() + "." + value[1] + ", " + value[2] + ", \"" + value[3] + "\", \"" + entry.getKey().substring(0, entry.getKey().length() - 1)  + "\"" + ", " + Head.class.getSimpleName() + "." + pinyin.getHeadString() + ", '" + pinyin.getFirstChar() + "'" + "),\n");
-        }
-        IOUtil.saveTxt(path + "py.txt", sb.toString());
-    }
-
-    private static boolean dumpEnum(Set<String> set, String path)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (String s : set)
-        {
-            sb.append(s);
-            sb.append(",\n");
-        }
-        return IOUtil.saveTxt(path, sb.toString());
-    }
+//    /**
+//     * 导出声母表等等
+//     *
+//     * @param path
+//     */
+//    public static void dumpEnum(String path)
+//    {
+//        dumpEnum(smSet, path + "sm.txt");
+//        dumpEnum(ymSet, path + "ym.txt");
+//        dumpEnum(ydSet, path + "yd.txt");
+//        Set<String> hdSet = new TreeSet<String>();
+//        for (Pinyin pinyin : PinyinDictionary.pinyins)
+//        {
+//            hdSet.add(pinyin.getHeadString());
+//        }
+//        dumpEnum(hdSet, path + "head.txt");
+//        StringBuilder sb = new StringBuilder();
+//        for (Map.Entry<String, String[]> entry : map.entrySet())
+//        {
+//            // 0声母 1韵母 2音调 3带音标
+//            String[] value = entry.getValue();
+//            Pinyin pinyin = Pinyin.valueOf(entry.getKey());
+//            sb.append(entry.getKey() + "(" + Shengmu.class.getSimpleName() + "." + value[0] + ", " + Yunmu.class.getSimpleName() + "." + value[1] + ", " + value[2] + ", \"" + value[3] + "\", \"" + entry.getKey().substring(0, entry.getKey().length() - 1)  + "\"" + ", " + Head.class.getSimpleName() + "." + pinyin.getHeadString() + ", '" + pinyin.getFirstChar() + "'" + "),\n");
+//        }
+//        IOUtil.saveTxt(path + "py.txt", sb.toString());
+//    }
+//
+//    private static boolean dumpEnum(Set<String> set, String path)
+//    {
+//        StringBuilder sb = new StringBuilder();
+//        for (String s : set)
+//        {
+//            sb.append(s);
+//            sb.append(",\n");
+//        }
+//        return IOUtil.saveTxt(path, sb.toString());
+//    }
 }

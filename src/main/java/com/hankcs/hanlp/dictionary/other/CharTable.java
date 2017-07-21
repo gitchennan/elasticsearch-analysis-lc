@@ -42,8 +42,8 @@ public class CharTable
 
     private static boolean load(String path)
     {
-        String binPath = path + Predefine.BIN_EXT;
-        if (loadBin(binPath)) return true;
+//        String binPath = path + Predefine.BIN_EXT;
+//        if (loadBin(binPath)) return true;
         CONVERT = new char[Character.MAX_VALUE + 1];
         for (int i = 0; i < CONVERT.length; i++)
         {
@@ -57,8 +57,8 @@ public class CharTable
             if (line.length() != 3) continue;
             CONVERT[line.charAt(0)] = CONVERT[line.charAt(2)];
         }
-        logger.info("正在缓存字符正规化表到" + binPath);
-        IOUtil.saveObjectTo(CONVERT, binPath);
+//        logger.info("正在缓存字符正规化表到" + binPath);
+//        IOUtil.saveObjectTo(CONVERT, binPath);
 
         return true;
     }

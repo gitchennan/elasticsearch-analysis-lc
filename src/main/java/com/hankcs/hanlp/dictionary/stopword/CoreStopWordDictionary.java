@@ -33,26 +33,26 @@ public class CoreStopWordDictionary
     static StopWordDictionary dictionary;
     static
     {
-        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT);
-        if (byteArray == null)
-        {
+//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT);
+//        if (byteArray == null)
+//        {
             try
             {
                 dictionary = new StopWordDictionary(HanLP.Config.CoreStopWordDictionaryPath);
-                DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT));
-                dictionary.save(out);
-                out.close();
+//                DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT));
+//                dictionary.save(out);
+//                out.close();
             }
             catch (Exception e)
             {
                 logger.severe("载入停用词词典" + HanLP.Config.CoreStopWordDictionaryPath + "失败"  + TextUtility.exceptionToString(e));
             }
-        }
-        else
-        {
-            dictionary = new StopWordDictionary();
-            dictionary.load(byteArray);
-        }
+//        }
+//        else
+//        {
+//            dictionary = new StopWordDictionary();
+//            dictionary.load(byteArray);
+//        }
     }
 
     public static boolean contains(String key)

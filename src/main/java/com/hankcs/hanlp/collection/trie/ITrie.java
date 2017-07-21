@@ -23,7 +23,7 @@ import java.util.TreeMap;
 public interface ITrie<V>
 {
     int build(TreeMap<String, V> keyValueMap);
-    boolean save(DataOutputStream out);
+//    boolean save(DataOutputStream out);
     boolean load(ByteArray byteArray, V[] value);
     V get(char[] key);
     V get(String key);

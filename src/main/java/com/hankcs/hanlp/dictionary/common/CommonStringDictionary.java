@@ -35,7 +35,7 @@ public class CommonStringDictionary
     public boolean load(String path)
     {
         trie = new BinTrie<Byte>();
-        if (loadDat(path + Predefine.TRIE_EXT)) return true;
+//        if (loadDat(path + Predefine.TRIE_EXT)) return true;
         String line = null;
         try
         {
@@ -50,14 +50,14 @@ public class CommonStringDictionary
         {
             logger.warning("加载" + path + "失败，" + e);
         }
-        if (!trie.save(path + Predefine.TRIE_EXT)) logger.warning("缓存" + path + Predefine.TRIE_EXT + "失败");
+//        if (!trie.save(path + Predefine.TRIE_EXT)) logger.warning("缓存" + path + Predefine.TRIE_EXT + "失败");
         return true;
     }
 
-    boolean loadDat(String path)
-    {
-        return trie.load(path);
-    }
+//    boolean loadDat(String path)
+//    {
+//        return trie.load(path);
+//    }
 
     public Set<String> keySet()
     {

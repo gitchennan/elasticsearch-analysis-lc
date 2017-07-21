@@ -17,6 +17,7 @@ import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NT;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.TransformMatrixDictionary;
+import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
 import com.hankcs.hanlp.utility.Predefine;
@@ -24,15 +25,12 @@ import com.hankcs.hanlp.utility.Predefine;
 import java.util.List;
 import java.util.TreeMap;
 
-import static com.hankcs.hanlp.utility.Predefine.logger;
-
 /**
  * 机构名识别用的词典，实际上是对两个词典的包装
  *
  * @author hankcs
  */
-public class OrganizationDictionary
-{
+public class OrganizationDictionary {
     /**
      * 机构名词典
      */
@@ -54,16 +52,17 @@ public class OrganizationDictionary
      */
     static final CoreDictionary.Attribute ATTRIBUTE = CoreDictionary.get(WORD_ID);
 
-    private static void addKeyword(TreeMap<String, String> patternMap, String keyword)
-    {
+    private static void addKeyword(TreeMap<String, String> patternMap, String keyword) {
         patternMap.put(keyword, keyword);
     }
-    static
-    {
+
+    static {
         long start = System.currentTimeMillis();
         dictionary = new NTDictionary();
         dictionary.load(HanLP.Config.OrganizationDictionaryPath);
-        logger.info(HanLP.Config.OrganizationDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+
+
+        HanLpLogger.info(OrganizationDictionary.class, HanLP.Config.OrganizationDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
         transformMatrixDictionary = new TransformMatrixDictionary<NT>(NT.class);
         transformMatrixDictionary.load(HanLP.Config.OrganizationDictionaryTrPath);
         trie = new AhoCorasickDoubleArrayTrie<String>();
@@ -3740,24 +3739,19 @@ public class OrganizationDictionary
      * @param wordNetOptimum 待优化的图
      * @param wordNetAll
      */
-    public static void parsePattern(List<NT> ntList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll)
-    {
+    public static void parsePattern(List<NT> ntList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll) {
 //        ListIterator<Vertex> listIterator = vertexList.listIterator();
         StringBuilder sbPattern = new StringBuilder(ntList.size());
-        for (NT nt : ntList)
-        {
+        for (NT nt : ntList) {
             sbPattern.append(nt.toString());
         }
         String pattern = sbPattern.toString();
         final Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
-        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<String>()
-        {
+        trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<String>() {
             @Override
-            public void hit(int begin, int end, String keyword)
-            {
+            public void hit(int begin, int end, String keyword) {
                 StringBuilder sbName = new StringBuilder();
-                for (int i = begin; i < end; ++i)
-                {
+                for (int i = begin; i < end; ++i) {
                     sbName.append(wordArray[i].realWord);
                 }
                 String name = sbName.toString();
@@ -3765,13 +3759,11 @@ public class OrganizationDictionary
                 if (isBadCase(name)) return;
 
                 // 正式算它是一个名字
-                if (HanLP.Config.DEBUG)
-                {
+                if (HanLP.Config.DEBUG) {
                     System.out.printf("识别出机构名：%s %s\n", name, keyword);
                 }
                 int offset = 0;
-                for (int i = 0; i < begin; ++i)
-                {
+                for (int i = 0; i < begin; ++i) {
                     offset += wordArray[i].realWord.length();
                 }
                 wordNetOptimum.insert(offset, new Vertex(Predefine.TAG_GROUP, name, ATTRIBUTE, WORD_ID), wordNetAll);
@@ -3786,8 +3778,7 @@ public class OrganizationDictionary
      * @param name
      * @return
      */
-    static boolean isBadCase(String name)
-    {
+    static boolean isBadCase(String name) {
         EnumItem<NT> nrEnumItem = dictionary.get(name);
         if (nrEnumItem == null) return false;
         return nrEnumItem.containsLabel(NT.Z);

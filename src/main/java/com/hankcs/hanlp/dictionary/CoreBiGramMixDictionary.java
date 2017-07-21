@@ -34,7 +34,7 @@ public class CoreBiGramMixDictionary
 {
     static DoubleArrayTrie<Integer> trie;
     public final static String path = HanLP.Config.BiGramDictionaryPath;
-    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".mix" + Predefine.BIN_EXT;
+//    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".mix" + Predefine.BIN_EXT;
 
     static
     {
@@ -54,7 +54,7 @@ public class CoreBiGramMixDictionary
     static boolean load(String path)
     {
         trie = new DoubleArrayTrie<Integer>();
-        if (loadDat(datPath)) return true;
+//        if (loadDat(datPath)) return true;
         TreeMap<String, Integer> map = new TreeMap<String, Integer>();
         BufferedReader br;
         try
@@ -87,59 +87,59 @@ public class CoreBiGramMixDictionary
             logger.severe("二元词典" + path + "读取错误！" + e);
             return false;
         }
-        logger.info("开始缓存二元词典到" + datPath);
-        if (!saveDat(datPath, map))
-        {
-            logger.warning("缓存二元词典到" + datPath + "失败");
-        }
+//        logger.info("开始缓存二元词典到" + datPath);
+//        if (!saveDat(datPath, map))
+//        {
+//            logger.warning("缓存二元词典到" + datPath + "失败");
+//        }
         return true;
     }
-
-    static boolean saveDat(String path, TreeMap<String, Integer> map)
-    {
-        try
-        {
-            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(path)));
-            Collection<Integer> freqList = map.values();
-            out.writeInt(freqList.size());
-            for (int freq : freqList)
-            {
-                out.writeInt(freq);
-            }
-            trie.save(out);
-            out.close();
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.WARNING, "在缓存" + path + "时发生异常", e);
-            return false;
-        }
-
-        return true;
-    }
-
-    static boolean loadDat(String path)
-    {
-        try
-        {
-            ByteArray byteArray = ByteArray.createByteArray(path);
-            if (byteArray == null) return false;
-
-            int size = byteArray.nextInt();
-            Integer[] value = new Integer[size];
-            for (int i = 0; i < size; i++)
-            {
-                value[i] = byteArray.nextInt();
-            }
-            if (!trie.load(byteArray, value)) return false;
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-
-        return true;
-    }
+//
+//    static boolean saveDat(String path, TreeMap<String, Integer> map)
+//    {
+//        try
+//        {
+//            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(path)));
+//            Collection<Integer> freqList = map.values();
+//            out.writeInt(freqList.size());
+//            for (int freq : freqList)
+//            {
+//                out.writeInt(freq);
+//            }
+//            trie.save(out);
+//            out.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.log(Level.WARNING, "在缓存" + path + "时发生异常", e);
+//            return false;
+//        }
+//
+//        return true;
+//    }
+//
+//    static boolean loadDat(String path)
+//    {
+//        try
+//        {
+//            ByteArray byteArray = ByteArray.createByteArray(path);
+//            if (byteArray == null) return false;
+//
+//            int size = byteArray.nextInt();
+//            Integer[] value = new Integer[size];
+//            for (int i = 0; i < size; i++)
+//            {
+//                value[i] = byteArray.nextInt();
+//            }
+//            if (!trie.load(byteArray, value)) return false;
+//        }
+//        catch (Exception e)
+//        {
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     /**
      * 二分搜索

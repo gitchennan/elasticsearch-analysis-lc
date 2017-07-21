@@ -37,7 +37,7 @@ public class HongKongToTraditionalChineseDictionary extends BaseChineseDictionar
                 throw new IllegalArgumentException("香港繁体转繁体加载失败");
             }
             trie.build(hk2t);
-            saveDat(datPath, trie, hk2t.entrySet());
+//            saveDat(datPath, trie, hk2t.entrySet());
         }
         logger.info("香港繁体转繁体加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }

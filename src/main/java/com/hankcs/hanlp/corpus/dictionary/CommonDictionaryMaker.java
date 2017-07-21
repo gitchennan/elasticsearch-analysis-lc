@@ -18,7 +18,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * @author hankcs
  */
-public abstract class CommonDictionaryMaker implements ISaveAble
+public abstract class CommonDictionaryMaker// implements ISaveAble
 {
     static boolean verbose = false;
     /**
@@ -40,20 +40,20 @@ public abstract class CommonDictionaryMaker implements ISaveAble
         dictionaryMaker = new DictionaryMaker();
         this.dictionary = dictionary;
     }
-
-    @Override
-    public boolean saveTxtTo(String path)
-    {
-        if (dictionaryMaker.saveTxtTo(path + ".txt"))
-        {
-            if (nGramDictionaryMaker.saveTxtTo(path))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//
+//    @Override
+//    public boolean saveTxtTo(String path)
+//    {
+//        if (dictionaryMaker.saveTxtTo(path + ".txt"))
+//        {
+//            if (nGramDictionaryMaker.saveTxtTo(path))
+//            {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * 处理语料，准备词典

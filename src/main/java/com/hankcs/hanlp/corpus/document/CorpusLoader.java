@@ -90,21 +90,21 @@ public class CorpusLoader
     {
         return (List<Document>) IOUtil.readObjectFrom(path);
     }
-
-    public static boolean saveCorpus(List<Document> documentList, String path)
-    {
-        return IOUtil.saveObjectTo(documentList, path);
-    }
+//
+//    public static boolean saveCorpus(List<Document> documentList, String path)
+//    {
+//        return IOUtil.saveObjectTo(documentList, path);
+//    }
 
     public static List<List<IWord>> loadSentenceList(String path)
     {
         return (List<List<IWord>>) IOUtil.readObjectFrom(path);
     }
-
-    public static boolean saveSentenceList(List<List<IWord>> sentenceList, String path)
-    {
-        return IOUtil.saveObjectTo(sentenceList, path);
-    }
+//
+//    public static boolean saveSentenceList(List<List<IWord>> sentenceList, String path)
+//    {
+//        return IOUtil.saveObjectTo(sentenceList, path);
+//    }
 
     public static List<List<IWord>> convert2SentenceList(String path)
     {

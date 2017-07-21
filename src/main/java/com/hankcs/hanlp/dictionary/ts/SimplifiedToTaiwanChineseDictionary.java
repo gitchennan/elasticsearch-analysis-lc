@@ -29,8 +29,8 @@ public class SimplifiedToTaiwanChineseDictionary extends BaseChineseDictionary
     {
         long start = System.currentTimeMillis();
         String datPath = HanLP.Config.tcDictionaryRoot + "s2tw";
-        if (!loadDat(datPath, trie))
-        {
+//        if (!loadDat(datPath, trie))
+//        {
             TreeMap<String, String> s2t = new TreeMap<String, String>();
             TreeMap<String, String> t2tw = new TreeMap<String, String>();
             if (!load(s2t, false, HanLP.Config.tcDictionaryRoot + "s2t.txt") ||
@@ -40,8 +40,8 @@ public class SimplifiedToTaiwanChineseDictionary extends BaseChineseDictionary
             }
             combineChain(s2t, t2tw);
             trie.build(s2t);
-            saveDat(datPath, trie, s2t.entrySet());
-        }
+//            saveDat(datPath, trie, s2t.entrySet());
+//        }
         logger.info("简体转台湾繁体词典加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 

@@ -22,8 +22,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.hankcs.hanlp.utility.Predefine.logger;
 import static com.hankcs.hanlp.api.HanLP.Config.IOAdapter;
+import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 一些常用的IO操作
@@ -32,29 +32,29 @@ import static com.hankcs.hanlp.api.HanLP.Config.IOAdapter;
  */
 public class IOUtil
 {
-    /**
-     * 序列化对象
-     *
-     * @param o
-     * @param path
-     * @return
-     */
-    public static boolean saveObjectTo(Object o, String path)
-    {
-        try
-        {
-            ObjectOutputStream oos = new ObjectOutputStream(IOUtil.newOutputStream(path));
-            oos.writeObject(o);
-            oos.close();
-        }
-        catch (IOException e)
-        {
-            logger.warning("在保存对象" + o + "到" + path + "时发生异常" + e);
-            return false;
-        }
-
-        return true;
-    }
+//    /**
+//     * 序列化对象
+//     *
+//     * @param o
+//     * @param path
+//     * @return
+//     */
+//    public static boolean saveObjectTo(Object o, String path)
+//    {
+//        try
+//        {
+//            ObjectOutputStream oos = new ObjectOutputStream(IOUtil.newOutputStream(path));
+//            oos.writeObject(o);
+//            oos.close();
+//        }
+//        catch (IOException e)
+//        {
+//            logger.warning("在保存对象" + o + "到" + path + "时发生异常" + e);
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
     /**
      * 反序列化对象
@@ -121,45 +121,45 @@ public class IOUtil
         return resultList;
     }
 
-    /**
-     * 快速保存
-     *
-     * @param path
-     * @param content
-     * @return
-     */
-    public static boolean saveTxt(String path, String content)
-    {
-        try
-        {
-            FileChannel fc = new FileOutputStream(path).getChannel();
-            fc.write(ByteBuffer.wrap(content.getBytes()));
-            fc.close();
-        }
-        catch (Exception e)
-        {
-            logger.throwing("IOUtil", "saveTxt", e);
-            logger.warning("IOUtil saveTxt 到" + path + "失败" + e.toString());
-            return false;
-        }
-        return true;
-    }
+//    /**
+//     * 快速保存
+//     *
+//     * @param path
+//     * @param content
+//     * @return
+//     */
+//    public static boolean saveTxt(String path, String content)
+//    {
+//        try
+//        {
+//            FileChannel fc = new FileOutputStream(path).getChannel();
+//            fc.write(ByteBuffer.wrap(content.getBytes()));
+//            fc.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.throwing("IOUtil", "saveTxt", e);
+//            logger.warning("IOUtil saveTxt 到" + path + "失败" + e.toString());
+//            return false;
+//        }
+//        return true;
+//    }
 
-    public static boolean saveTxt(String path, StringBuilder content)
-    {
-        return saveTxt(path, content.toString());
-    }
-
-    public static <T> boolean saveCollectionToTxt(Collection<T> collection, String path)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (Object o : collection)
-        {
-            sb.append(o);
-            sb.append('\n');
-        }
-        return saveTxt(path, sb.toString());
-    }
+//    public static boolean saveTxt(String path, StringBuilder content)
+//    {
+//        return saveTxt(path, content.toString());
+//    }
+//
+//    public static <T> boolean saveCollectionToTxt(Collection<T> collection, String path)
+//    {
+//        StringBuilder sb = new StringBuilder();
+//        for (Object o : collection)
+//        {
+//            sb.append(o);
+//            sb.append('\n');
+//        }
+//        return saveTxt(path, sb.toString());
+//    }
 
     /**
      * 将整个文件读取为字节数组
@@ -338,30 +338,30 @@ public class IOUtil
 
         return result;
     }
+//
+//    public static boolean saveMapToTxt(Map<Object, Object> map, String path)
+//    {
+//        return saveMapToTxt(map, path, "=");
+//    }
+//
+//    public static boolean saveMapToTxt(Map<Object, Object> map, String path, String separator)
+//    {
+//        map = new TreeMap<Object, Object>(map);
+//        return saveEntrySetToTxt(map.entrySet(), path, separator);
+//    }
 
-    public static boolean saveMapToTxt(Map<Object, Object> map, String path)
-    {
-        return saveMapToTxt(map, path, "=");
-    }
-
-    public static boolean saveMapToTxt(Map<Object, Object> map, String path, String separator)
-    {
-        map = new TreeMap<Object, Object>(map);
-        return saveEntrySetToTxt(map.entrySet(), path, separator);
-    }
-
-    public static boolean saveEntrySetToTxt(Set<Map.Entry<Object, Object>> entrySet, String path, String separator)
-    {
-        StringBuilder sbOut = new StringBuilder();
-        for (Map.Entry<Object, Object> entry : entrySet)
-        {
-            sbOut.append(entry.getKey());
-            sbOut.append(separator);
-            sbOut.append(entry.getValue());
-            sbOut.append('\n');
-        }
-        return saveTxt(path, sbOut.toString());
-    }
+//    public static boolean saveEntrySetToTxt(Set<Map.Entry<Object, Object>> entrySet, String path, String separator)
+//    {
+//        StringBuilder sbOut = new StringBuilder();
+//        for (Map.Entry<Object, Object> entry : entrySet)
+//        {
+//            sbOut.append(entry.getKey());
+//            sbOut.append(separator);
+//            sbOut.append(entry.getValue());
+//            sbOut.append('\n');
+//        }
+//        return saveTxt(path, sbOut.toString());
+//    }
 
     /**
      * 获取文件所在目录的路径
@@ -484,18 +484,18 @@ public class IOUtil
         }
     }
 
-    /**
-     * 创建一个BufferedWriter
-     *
-     * @param path
-     * @return
-     * @throws FileNotFoundException
-     * @throws UnsupportedEncodingException
-     */
-    public static BufferedWriter newBufferedWriter(String path) throws IOException
-    {
-        return new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path), "UTF-8"));
-    }
+//    /**
+//     * 创建一个BufferedWriter
+//     *
+//     * @param path
+//     * @return
+//     * @throws FileNotFoundException
+//     * @throws UnsupportedEncodingException
+//     */
+//    public static BufferedWriter newBufferedWriter(String path) throws IOException
+//    {
+//        return new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path), "UTF-8"));
+//    }
 
     /**
      * 创建一个BufferedReader
@@ -509,10 +509,10 @@ public class IOUtil
         return new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
     }
 
-    public static BufferedWriter newBufferedWriter(String path, boolean append) throws FileNotFoundException, UnsupportedEncodingException
-    {
-        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path, append), "UTF-8"));
-    }
+//    public static BufferedWriter newBufferedWriter(String path, boolean append) throws FileNotFoundException, UnsupportedEncodingException
+//    {
+//        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path, append), "UTF-8"));
+//    }
 
     /**
      * 创建输入流（经过IO适配器创建）
@@ -526,17 +526,17 @@ public class IOUtil
         return IOAdapter.open(path);
     }
 
-    /**
-     * 创建输出流（经过IO适配器创建）
-     * @param path
-     * @return
-     * @throws IOException
-     */
-    public static OutputStream newOutputStream(String path) throws IOException
-    {
-        if (IOAdapter == null) return new FileOutputStream(path);
-        return IOAdapter.create(path);
-    }
+//    /**
+//     * 创建输出流（经过IO适配器创建）
+//     * @param path
+//     * @return
+//     * @throws IOException
+//     */
+//    public static OutputStream newOutputStream(String path) throws IOException
+//    {
+//        if (IOAdapter == null) return new FileOutputStream(path);
+//        return IOAdapter.create(path);
+//    }
 
     /**
      * 获取最后一个分隔符的后缀

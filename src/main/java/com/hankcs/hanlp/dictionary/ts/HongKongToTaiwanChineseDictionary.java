@@ -31,8 +31,8 @@ public class HongKongToTaiwanChineseDictionary extends BaseChineseDictionary
     {
         long start = System.currentTimeMillis();
         String datPath = HanLP.Config.tcDictionaryRoot + "hk2tw";
-        if (!loadDat(datPath, trie))
-        {
+//        if (!loadDat(datPath, trie))
+//        {
             TreeMap<String, String> t2tw = new TreeMap<String, String>();
             TreeMap<String, String> hk2t = new TreeMap<String, String>();
             if (!load(t2tw, false, HanLP.Config.tcDictionaryRoot + "t2tw.txt") ||
@@ -42,8 +42,8 @@ public class HongKongToTaiwanChineseDictionary extends BaseChineseDictionary
             }
             combineReverseChain(t2tw, hk2t, false);
             trie.build(t2tw);
-            saveDat(datPath, trie, t2tw.entrySet());
-        }
+//            saveDat(datPath, trie, t2tw.entrySet());
+//        }
         logger.info("香港繁体转台湾繁体词典加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 

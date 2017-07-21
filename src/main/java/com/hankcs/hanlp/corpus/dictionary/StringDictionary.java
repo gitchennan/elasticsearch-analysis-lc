@@ -53,32 +53,32 @@ public class StringDictionary extends SimpleDictionary<String>
         return new AbstractMap.SimpleEntry<String, String>(paramArray[0], paramArray[1]);
     }
 
-    /**
-     * 保存词典
-     * @param path
-     * @return 是否成功
-     */
-    public boolean save(String path)
-    {
-        try
-        {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
-            for (Map.Entry<String, String> entry : trie.entrySet())
-            {
-                bw.write(entry.getKey());
-                bw.write(separator);
-                bw.write(entry.getValue());
-                bw.newLine();
-            }
-            bw.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("保存词典到" + path + "失败");
-            return true;
-        }
-        return false;
-    }
+//    /**
+//     * 保存词典
+//     * @param path
+//     * @return 是否成功
+//     */
+//    public boolean save(String path)
+//    {
+//        try
+//        {
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
+//            for (Map.Entry<String, String> entry : trie.entrySet())
+//            {
+//                bw.write(entry.getKey());
+//                bw.write(separator);
+//                bw.write(entry.getValue());
+//                bw.newLine();
+//            }
+//            bw.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("保存词典到" + path + "失败");
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * 将自己逆转过来返回

@@ -23,7 +23,6 @@ package com.hankcs.hanlp.collection.MDAG;
 
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.ICacheAble;
 
 import java.io.DataOutputStream;
 
@@ -33,7 +32,8 @@ import java.io.DataOutputStream;
  *
  * @author Kevin
  */
-public class SimpleMDAGNode implements ICacheAble
+public class SimpleMDAGNode
+        //implements ICacheAble
 {
     //The character labeling an incoming _transition to this node
     private char letter;
@@ -291,16 +291,16 @@ public class SimpleMDAGNode implements ICacheAble
         return sb.toString();
     }
 
-    @Override
-    public void save(DataOutputStream out) throws Exception
-    {
-        out.writeChar(letter);
-        out.writeByte(isAcceptNode ? 1 : 0);
-        out.writeInt(transitionSetBeginIndex);
-        out.writeInt(transitionSetSize);
-    }
-
-    @Override
+//    @Override
+//    public void save(DataOutputStream out) throws Exception
+//    {
+//        out.writeChar(letter);
+//        out.writeByte(isAcceptNode ? 1 : 0);
+//        out.writeInt(transitionSetBeginIndex);
+//        out.writeInt(transitionSetSize);
+//    }
+//
+//    @Override
     public boolean load(ByteArray byteArray)
     {
         letter = byteArray.nextChar();

@@ -63,7 +63,7 @@ public class CustomDictionary
     private static boolean loadMainDictionary(String mainPath)
     {
         logger.info("自定义词典开始加载:" + mainPath);
-        if (loadDat(mainPath)) return true;
+//        if (loadDat(mainPath)) return true;
         dat = new DoubleArrayTrie<CoreDictionary.Attribute>();
         TreeMap<String, CoreDictionary.Attribute> map = new TreeMap<String, CoreDictionary.Attribute>();
         LinkedHashSet<Nature> customNatureCollector = new LinkedHashSet<Nature>();
@@ -99,36 +99,36 @@ public class CustomDictionary
             }
             logger.info("正在构建DoubleArrayTrie……");
             dat.build(map);
-            // 缓存成dat文件，下次加载会快很多
-            logger.info("正在缓存词典为dat文件……");
-            // 缓存值文件
-            List<CoreDictionary.Attribute> attributeList = new LinkedList<CoreDictionary.Attribute>();
-            for (Map.Entry<String, CoreDictionary.Attribute> entry : map.entrySet())
-            {
-                attributeList.add(entry.getValue());
-            }
-            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(mainPath + Predefine.BIN_EXT));
-            // 缓存用户词性
-            IOUtil.writeCustomNature(out, customNatureCollector);
-            // 缓存正文
-            out.writeInt(attributeList.size());
-            for (CoreDictionary.Attribute attribute : attributeList)
-            {
-                attribute.save(out);
-            }
-            dat.save(out);
-            out.close();
+//            // 缓存成dat文件，下次加载会快很多
+//            logger.info("正在缓存词典为dat文件……");
+//            // 缓存值文件
+//            List<CoreDictionary.Attribute> attributeList = new LinkedList<CoreDictionary.Attribute>();
+//            for (Map.Entry<String, CoreDictionary.Attribute> entry : map.entrySet())
+//            {
+//                attributeList.add(entry.getValue());
+//            }
+//            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(mainPath + Predefine.BIN_EXT));
+//            // 缓存用户词性
+//            IOUtil.writeCustomNature(out, customNatureCollector);
+//            // 缓存正文
+//            out.writeInt(attributeList.size());
+//            for (CoreDictionary.Attribute attribute : attributeList)
+//            {
+//                attribute.save(out);
+//            }
+//            dat.save(out);
+//            out.close();
         }
-        catch (FileNotFoundException e)
-        {
-            logger.severe("自定义词典" + mainPath + "不存在！" + e);
-            return false;
-        }
-        catch (IOException e)
-        {
-            logger.severe("自定义词典" + mainPath + "读取错误！" + e);
-            return false;
-        }
+//        catch (FileNotFoundException e)
+//        {
+//            logger.severe("自定义词典" + mainPath + "不存在！" + e);
+//            return false;
+//        }
+//        catch (IOException e)
+//        {
+//            logger.severe("自定义词典" + mainPath + "读取错误！" + e);
+//            return false;
+//        }
         catch (Exception e)
         {
             logger.warning("自定义词典" + mainPath + "缓存失败！\n" + TextUtility.exceptionToString(e));
@@ -287,51 +287,51 @@ public class CustomDictionary
         return insert(word, null);
     }
 
-    /**
-     * 从磁盘加载双数组
-     *
-     * @param path
-     * @return
-     */
-    static boolean loadDat(String path)
-    {
-        try
-        {
-            ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
-            if (byteArray == null) return false;
-            int size = byteArray.nextInt();
-            if (size < 0)   // 一种兼容措施,当size小于零表示文件头部储存了-size个用户词性
-            {
-                while (++size <= 0)
-                {
-                    Nature.create(byteArray.nextString());
-                }
-                size = byteArray.nextInt();
-            }
-            CoreDictionary.Attribute[] attributes = new CoreDictionary.Attribute[size];
-            final Nature[] natureIndexArray = Nature.values();
-            for (int i = 0; i < size; ++i)
-            {
-                // 第一个是全部频次，第二个是词性个数
-                int currentTotalFrequency = byteArray.nextInt();
-                int length = byteArray.nextInt();
-                attributes[i] = new CoreDictionary.Attribute(length);
-                attributes[i].totalFrequency = currentTotalFrequency;
-                for (int j = 0; j < length; ++j)
-                {
-                    attributes[i].nature[j] = natureIndexArray[byteArray.nextInt()];
-                    attributes[i].frequency[j] = byteArray.nextInt();
-                }
-            }
-            if (!dat.load(byteArray, attributes)) return false;
-        }
-        catch (Exception e)
-        {
-            logger.warning("读取失败，问题发生在" + TextUtility.exceptionToString(e));
-            return false;
-        }
-        return true;
-    }
+//    /**
+//     * 从磁盘加载双数组
+//     *
+//     * @param path
+//     * @return
+//     */
+//    static boolean loadDat(String path)
+//    {
+//        try
+//        {
+//            ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
+//            if (byteArray == null) return false;
+//            int size = byteArray.nextInt();
+//            if (size < 0)   // 一种兼容措施,当size小于零表示文件头部储存了-size个用户词性
+//            {
+//                while (++size <= 0)
+//                {
+//                    Nature.create(byteArray.nextString());
+//                }
+//                size = byteArray.nextInt();
+//            }
+//            CoreDictionary.Attribute[] attributes = new CoreDictionary.Attribute[size];
+//            final Nature[] natureIndexArray = Nature.values();
+//            for (int i = 0; i < size; ++i)
+//            {
+//                // 第一个是全部频次，第二个是词性个数
+//                int currentTotalFrequency = byteArray.nextInt();
+//                int length = byteArray.nextInt();
+//                attributes[i] = new CoreDictionary.Attribute(length);
+//                attributes[i].totalFrequency = currentTotalFrequency;
+//                for (int j = 0; j < length; ++j)
+//                {
+//                    attributes[i].nature[j] = natureIndexArray[byteArray.nextInt()];
+//                    attributes[i].frequency[j] = byteArray.nextInt();
+//                }
+//            }
+//            if (!dat.load(byteArray, attributes)) return false;
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("读取失败，问题发生在" + TextUtility.exceptionToString(e));
+//            return false;
+//        }
+//        return true;
+//    }
 
     /**
      * 查单词

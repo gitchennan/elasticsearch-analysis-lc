@@ -40,7 +40,7 @@ public class SimplifiedToHongKongChineseDictionary extends BaseChineseDictionary
             }
             combineChain(s2t, t2hk);
             trie.build(s2t);
-            saveDat(datPath, trie, s2t.entrySet());
+//            saveDat(datPath, trie, s2t.entrySet());
         }
         logger.info("简体转香港繁体词典加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }

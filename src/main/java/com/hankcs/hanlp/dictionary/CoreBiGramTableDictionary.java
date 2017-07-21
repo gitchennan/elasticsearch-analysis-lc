@@ -40,7 +40,7 @@ public class CoreBiGramTableDictionary
     static int pair[];
 
     public final static String path = HanLP.Config.BiGramDictionaryPath;
-    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".table" + Predefine.BIN_EXT;
+//    final static String datPath = HanLP.Config.BiGramDictionaryPath + ".table" + Predefine.BIN_EXT;
 
     static
     {
@@ -59,7 +59,7 @@ public class CoreBiGramTableDictionary
 
     static boolean load(String path)
     {
-        if (loadDat(datPath)) return true;
+//        if (loadDat(datPath)) return true;
         BufferedReader br;
         TreeMap<Integer, TreeMap<Integer, Integer>> map = new TreeMap<Integer, TreeMap<Integer, Integer>>();
         try
@@ -131,82 +131,53 @@ public class CoreBiGramTableDictionary
             logger.severe("二元词典" + path + "读取错误！" + e);
             return false;
         }
-        logger.info("开始缓存二元词典到" + datPath);
-        if (!saveDat(datPath))
-        {
-            logger.warning("缓存二元词典到" + datPath + "失败");
-        }
+//        logger.info("开始缓存二元词典到" + datPath);
+//        if (!saveDat(datPath))
+//        {
+//            logger.warning("缓存二元词典到" + datPath + "失败");
+//        }
         return true;
     }
-
-    static boolean saveDat(String path)
-    {
-        try
-        {
-//            DataOutputStream out = new DataOutputStream(new FileOutputStream(path));
-//            out.writeInt(start.length);
-//            for (int i : start)
-//            {
-//                out.writeInt(i);
-//            }
-//            out.writeInt(pair.length);
-//            for (int i : pair)
-//            {
-//                out.writeInt(i);
-//            }
+//
+//    static boolean saveDat(String path)
+//    {
+//        try
+//        {
+//            ObjectOutputStream out = new ObjectOutputStream(IOUtil.newOutputStream(path));
+//            out.writeObject(start);
+//            out.writeObject(pair);
 //            out.close();
-            ObjectOutputStream out = new ObjectOutputStream(IOUtil.newOutputStream(path));
-            out.writeObject(start);
-            out.writeObject(pair);
-            out.close();
-        }
-        catch (Exception e)
-        {
-            logger.log(Level.WARNING, "在缓存" + path + "时发生异常", e);
-            return false;
-        }
-
-        return true;
-    }
-
-    static boolean loadDat(String path)
-    {
-//        ByteArray byteArray = ByteArray.createByteArray(path);
-//        if (byteArray == null) return false;
-//
-//        int size = byteArray.nextInt(); // 这两个数组从byte转为int竟然要花4秒钟
-//        start = new int[size];
-//        for (int i = 0; i < size; ++i)
+//        }
+//        catch (Exception e)
 //        {
-//            start[i] = byteArray.nextInt();
+//            logger.log(Level.WARNING, "在缓存" + path + "时发生异常", e);
+//            return false;
 //        }
 //
-//        size = byteArray.nextInt();
-//        pair = new int[size];
-//        for (int i = 0; i < size; ++i)
+//        return true;
+//    }
+//
+//    static boolean loadDat(String path)
+//    {
+//        try
 //        {
-//            pair[i] = byteArray.nextInt();
+//            ObjectInputStream in = new ObjectInputStream(IOUtil.newInputStream(path));
+//            start = (int[]) in.readObject();
+//            if (CoreDictionary.trie.size() != start.length - 1)     // 目前CoreNatureDictionary.ngram.txt的缓存依赖于CoreNatureDictionary.txt的缓存
+//            {                                                       // 所以这里校验一下二者的一致性，不然可能导致下标越界或者ngram错乱的情况
+//                in.close();
+//                return false;
+//            }
+//            pair = (int[]) in.readObject();
+//            in.close();
 //        }
-
-        try
-        {
-            ObjectInputStream in = new ObjectInputStream(IOUtil.newInputStream(path));
-            start = (int[]) in.readObject();
-            if (CoreDictionary.trie.size() != start.length - 1)     // 目前CoreNatureDictionary.ngram.txt的缓存依赖于CoreNatureDictionary.txt的缓存
-            {                                                       // 所以这里校验一下二者的一致性，不然可能导致下标越界或者ngram错乱的情况
-                in.close();
-                return false;
-            }
-            pair = (int[]) in.readObject();
-            in.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("尝试载入缓存文件" + path + "发生异常[" + e + "]，下面将载入源文件并自动缓存……");
-            return false;
-        }
-        return true;
-    }
+//        catch (Exception e)
+//        {
+//            logger.warning("尝试载入缓存文件" + path + "发生异常[" + e + "]，下面将载入源文件并自动缓存……");
+//            return false;
+//        }
+//        return true;
+//    }
 
     /**
      * 二分搜索，由于二元接续前一个词固定时，后一个词比较少，所以二分也能取得很高的性能

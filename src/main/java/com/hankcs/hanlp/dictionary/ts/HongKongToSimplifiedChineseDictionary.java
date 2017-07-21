@@ -29,8 +29,8 @@ public class HongKongToSimplifiedChineseDictionary extends BaseChineseDictionary
     {
         long start = System.currentTimeMillis();
         String datPath = HanLP.Config.tcDictionaryRoot + "hk2s";
-        if (!loadDat(datPath, trie))
-        {
+//        if (!loadDat(datPath, trie))
+//        {
             TreeMap<String, String> t2s = new TreeMap<String, String>();
             TreeMap<String, String> hk2t = new TreeMap<String, String>();
             if (!load(t2s, false, HanLP.Config.tcDictionaryRoot + "t2s.txt") ||
@@ -40,8 +40,8 @@ public class HongKongToSimplifiedChineseDictionary extends BaseChineseDictionary
             }
             combineReverseChain(t2s, hk2t, true);
             trie.build(t2s);
-            saveDat(datPath, trie, t2s.entrySet());
-        }
+//            saveDat(datPath, trie, t2s.entrySet());
+//        }
         logger.info("香港繁体转简体加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 

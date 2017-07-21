@@ -98,13 +98,13 @@ public class DartMap<V> extends DoubleArray implements Map<String, V>, ITrie<V>
         build(keyList, indexArray);
         return 0;
     }
-
-    @Override
-    public boolean save(DataOutputStream out)
-    {
-        return false;
-    }
-
+//
+//    @Override
+//    public boolean save(DataOutputStream out)
+//    {
+//        return false;
+//    }
+//
     @Override
     public boolean load(ByteArray byteArray, V[] value)
     {

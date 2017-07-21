@@ -33,10 +33,10 @@ public class SimplifiedChineseDictionary extends BaseChineseDictionary
         long start = System.currentTimeMillis();
         if (!load(HanLP.Config.tcDictionaryRoot + "s2t.txt", trie, false))
         {
-            throw new IllegalArgumentException("简繁词典" + HanLP.Config.tcDictionaryRoot + "s2t.txt" + Predefine.BIN_EXT + "加载失败");
+            throw new IllegalArgumentException("简繁词典" + HanLP.Config.tcDictionaryRoot + "s2t.txt" + "加载失败");
         }
 
-        logger.info("简繁词典" + HanLP.Config.tcDictionaryRoot + "s2t.txt" + Predefine.BIN_EXT + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        logger.info("简繁词典" + HanLP.Config.tcDictionaryRoot + "s2t.txt" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
     public static String convertToTraditionalChinese(String simplifiedChineseString)

@@ -59,7 +59,7 @@ public class JapanesePersonDictionary
     static boolean load()
     {
         trie = new DoubleArrayTrie<Character>();
-        if (loadDat()) return true;
+//        if (loadDat()) return true;
         try
         {
             BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
@@ -73,8 +73,8 @@ public class JapanesePersonDictionary
             br.close();
             logger.info("日本人名词典" + path + "开始构建双数组……");
             trie.build(map);
-            logger.info("日本人名词典" + path + "开始编译DAT文件……");
-            logger.info("日本人名词典" + path + "编译结果：" + saveDat(map));
+//            logger.info("日本人名词典" + path + "开始编译DAT文件……");
+//            logger.info("日本人名词典" + path + "编译结果：" + saveDat(map));
         }
         catch (Exception e)
         {
@@ -85,43 +85,43 @@ public class JapanesePersonDictionary
         return true;
     }
 
-    /**
-     * 保存dat到磁盘
-     * @param map
-     * @return
-     */
-    static boolean saveDat(TreeMap<String, Character> map)
-    {
-        try
-        {
-            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.VALUE_EXT));
-            out.writeInt(map.size());
-            for (Character character : map.values())
-            {
-                out.writeChar(character);
-            }
-            out.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("保存值" + path + Predefine.VALUE_EXT + "失败" + e);
-            return false;
-        }
-        return trie.save(path + Predefine.TRIE_EXT);
-    }
-
-    static boolean loadDat()
-    {
-        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.VALUE_EXT);
-        if (byteArray == null) return false;
-        int size = byteArray.nextInt();
-        Character[] valueArray = new Character[size];
-        for (int i = 0; i < valueArray.length; ++i)
-        {
-            valueArray[i] = byteArray.nextChar();
-        }
-        return trie.load(path + Predefine.TRIE_EXT, valueArray);
-    }
+//    /**
+//     * 保存dat到磁盘
+//     * @param map
+//     * @return
+//     */
+//    static boolean saveDat(TreeMap<String, Character> map)
+//    {
+//        try
+//        {
+//            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path + Predefine.VALUE_EXT));
+//            out.writeInt(map.size());
+//            for (Character character : map.values())
+//            {
+//                out.writeChar(character);
+//            }
+//            out.close();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.warning("保存值" + path + Predefine.VALUE_EXT + "失败" + e);
+//            return false;
+//        }
+//        return trie.save(path + Predefine.TRIE_EXT);
+//    }
+//
+//    static boolean loadDat()
+//    {
+//        ByteArray byteArray = ByteArray.createByteArray(path + Predefine.VALUE_EXT);
+//        if (byteArray == null) return false;
+//        int size = byteArray.nextInt();
+//        Character[] valueArray = new Character[size];
+//        for (int i = 0; i < valueArray.length; ++i)
+//        {
+//            valueArray[i] = byteArray.nextChar();
+//        }
+//        return trie.load(path + Predefine.TRIE_EXT, valueArray);
+//    }
 
     /**
      * 是否包含key

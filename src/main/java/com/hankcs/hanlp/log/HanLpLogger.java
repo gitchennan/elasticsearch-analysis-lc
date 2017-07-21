@@ -8,17 +8,33 @@ public class HanLpLogger {
     }
 
     public static void info(Object object, String message) {
-        System.out.println(
-                String.format("[%s.%s] %s",
-                        object.getClass().getPackage().getName(),
-                        object.getClass().getName(), message));
+        if (object instanceof Class) {
+            System.out.println(
+                    String.format("[%s] %s",
+                            ((Class) object).getName(), message));
+        }
+        else {
+            System.out.println(
+                    String.format("[%s.%s] %s",
+                            object.getClass().getPackage().getName(),
+                            object.getClass().getName(), message)
+            );
+        }
     }
 
     public static void info(Object object, String message, Throwable t) {
-        System.out.println(
-                String.format("[%s.%s] %s",
-                        object.getClass().getPackage().getName(),
-                        object.getClass().getName(), message));
+        if (object instanceof Class) {
+            System.out.println(
+                    String.format("[%s] %s",
+                            ((Class) object).getName(), message));
+        }
+        else {
+            System.out.println(
+                    String.format("[%s.%s] %s",
+                            object.getClass().getPackage().getName(),
+                            object.getClass().getName(), message)
+            );
+        }
         t.printStackTrace();
     }
 

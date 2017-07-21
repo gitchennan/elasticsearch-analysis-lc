@@ -24,10 +24,9 @@
 package com.hankcs.hanlp.collection.MDAG;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.ICacheAble;
 import com.hankcs.hanlp.corpus.io.IOUtil;
+
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -40,7 +39,7 @@ import java.util.Map.Entry;
  *
  * @author Kevin
  */
-public class MDAG implements ICacheAble
+public class MDAG //implements ICacheAble
 {
     //MDAGNode from which all others in the structure are reachable (all manipulation and non-simplified MDAG search operations begin from this).
     /**
@@ -80,43 +79,42 @@ public class MDAG implements ICacheAble
      */
     protected int transitionCount;
 
-    @Override
-    public void save(DataOutputStream out) throws Exception
-    {
-        simplify();
-        out.writeInt(charTreeSet.size());
-        for (Character character : charTreeSet)
-        {
-            out.writeChar(character);
-        }
-        simplifiedSourceNode.save(out);
-        out.writeInt(mdagDataArray.length);
-        for (SimpleMDAGNode simpleMDAGNode : mdagDataArray)
-        {
-            simpleMDAGNode.save(out);
-        }
-    }
+//    @Override
+//    public void save(DataOutputStream out) throws Exception
+//    {
+//        simplify();
+//        out.writeInt(charTreeSet.size());
+//        for (Character character : charTreeSet)
+//        {
+//            out.writeChar(character);
+//        }
+//        simplifiedSourceNode.save(out);
+//        out.writeInt(mdagDataArray.length);
+//        for (SimpleMDAGNode simpleMDAGNode : mdagDataArray)
+//        {
+//            simpleMDAGNode.save(out);
+//        }
+//    }
 
-    @Override
-    public boolean load(ByteArray byteArray)
-    {
-        int length = byteArray.nextInt();
-        for (int i = 0; i < length; ++i)
-        {
-            charTreeSet.add(byteArray.nextChar());
-        }
-        simplifiedSourceNode = new SimpleMDAGNode();
-        simplifiedSourceNode.load(byteArray);
-        length = byteArray.nextInt();
-        mdagDataArray = new SimpleMDAGNode[length];
-        for (int i = 0; i < length; ++i)
-        {
-            mdagDataArray[i] = new SimpleMDAGNode();
-            mdagDataArray[i].load(byteArray);
-        }
-        sourceNode = null;
-        return true;
-    }
+//    public boolean load(ByteArray byteArray)
+//    {
+//        int length = byteArray.nextInt();
+//        for (int i = 0; i < length; ++i)
+//        {
+//            charTreeSet.add(byteArray.nextChar());
+//        }
+//        simplifiedSourceNode = new SimpleMDAGNode();
+//        simplifiedSourceNode.load(byteArray);
+//        length = byteArray.nextInt();
+//        mdagDataArray = new SimpleMDAGNode[length];
+//        for (int i = 0; i < length; ++i)
+//        {
+//            mdagDataArray[i] = new SimpleMDAGNode();
+//            mdagDataArray[i].load(byteArray);
+//        }
+//        sourceNode = null;
+//        return true;
+//    }
 
     //Enum containing fields collectively denoting the set of all conditions that can be applied to a search on the MDAG
 
