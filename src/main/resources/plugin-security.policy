@@ -1,0 +1,5 @@
+grant {
+  permission java.io.FilePermission "*.txt", "read,write";
+  permission java.lang.RuntimePermission "*";
+  permission java.lang.reflect.ReflectPermission "*";
+};

@@ -1,167 +1,150 @@
 package com.hankcs.hanlp.api;
 
-import com.hankcs.hanlp.io.IOSafeHelper;
-import com.hankcs.hanlp.io.InputStreamCreator;
-import com.hankcs.hanlp.io.InputStreamOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
-import com.hankcs.hanlp.utility.Predefine;
+import org.elasticsearch.common.io.PathUtils;
+import org.elasticsearch.plugin.analysis.hanlp.AnalysisHanLPPlugin;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Properties;
 
 /**
- * ¿âµÄÈ«¾ÖÅäÖÃ£¬¼È¿ÉÒÔÓÃ´úÂëÐÞ¸Ä£¬Ò²¿ÉÒÔÍ¨¹ýhanlp.propertiesÅäÖÃ£¨°´ÕÕ ±äÁ¿Ãû=Öµ µÄÐÎÊ½£©
+ * åº“çš„å…¨å±€é…ç½®ï¼Œæ—¢å¯ä»¥ç”¨ä»£ç ä¿®æ”¹ï¼Œä¹Ÿå¯ä»¥é€šè¿‡hanlp.propertiesé…ç½®ï¼ˆæŒ‰ç…§ å˜é‡å=å€¼ çš„å½¢å¼ï¼‰
  */
 public class HanLpGlobalSettings {
     /**
-     * ºËÐÄ´ÊµäÂ·¾¶
+     * æ ¸å¿ƒè¯å…¸è·¯å¾„
      */
     public static String CoreDictionaryPath = "data/dictionary/CoreNatureDictionary.txt";
     /**
-     * ºËÐÄ´Êµä´ÊÐÔ×ªÒÆ¾ØÕóÂ·¾¶
+     * æ ¸å¿ƒè¯å…¸è¯æ€§è½¬ç§»çŸ©é˜µè·¯å¾„
      */
     public static String CoreDictionaryTransformMatrixDictionaryPath = "data/dictionary/CoreNatureDictionary.tr.txt";
     /**
-     * ÓÃ»§×Ô¶¨Òå´ÊµäÂ·¾¶
+     * ç”¨æˆ·è‡ªå®šä¹‰è¯å…¸è·¯å¾„
      */
     public static String CustomDictionaryPath[] = new String[]{"data/dictionary/custom/CustomDictionary.txt"};
     /**
-     * 2ÔªÓï·¨´ÊµäÂ·¾¶
+     * 2å…ƒè¯­æ³•è¯å…¸è·¯å¾„
      */
     public static String BiGramDictionaryPath = "data/dictionary/CoreNatureDictionary.ngram.txt";
 
     /**
-     * Í£ÓÃ´Ê´ÊµäÂ·¾¶
+     * åœç”¨è¯è¯å…¸è·¯å¾„
      */
     public static String CoreStopWordDictionaryPath = "data/dictionary/stopwords.txt";
     /**
-     * Í¬Òå´Ê´ÊµäÂ·¾¶
+     * åŒä¹‰è¯è¯å…¸è·¯å¾„
      */
     public static String CoreSynonymDictionaryDictionaryPath = "data/dictionary/synonym/CoreSynonym.txt";
     /**
-     * ÈËÃû´ÊµäÂ·¾¶
+     * äººåè¯å…¸è·¯å¾„
      */
     public static String PersonDictionaryPath = "data/dictionary/person/nr.txt";
     /**
-     * ÈËÃû´Êµä×ªÒÆ¾ØÕóÂ·¾¶
+     * äººåè¯å…¸è½¬ç§»çŸ©é˜µè·¯å¾„
      */
     public static String PersonDictionaryTrPath = "data/dictionary/person/nr.tr.txt";
     /**
-     * µØÃû´ÊµäÂ·¾¶
+     * åœ°åè¯å…¸è·¯å¾„
      */
     public static String PlaceDictionaryPath = "data/dictionary/place/ns.txt";
     /**
-     * µØÃû´Êµä×ªÒÆ¾ØÕóÂ·¾¶
+     * åœ°åè¯å…¸è½¬ç§»çŸ©é˜µè·¯å¾„
      */
     public static String PlaceDictionaryTrPath = "data/dictionary/place/ns.tr.txt";
     /**
-     * µØÃû´ÊµäÂ·¾¶
+     * åœ°åè¯å…¸è·¯å¾„
      */
     public static String OrganizationDictionaryPath = "data/dictionary/organization/nt.txt";
     /**
-     * µØÃû´Êµä×ªÒÆ¾ØÕóÂ·¾¶
+     * åœ°åè¯å…¸è½¬ç§»çŸ©é˜µè·¯å¾„
      */
     public static String OrganizationDictionaryTrPath = "data/dictionary/organization/nt.tr.txt";
     /**
-     * ¼ò·±×ª»»´Êµä¸ùÄ¿Â¼
+     * ç®€ç¹è½¬æ¢è¯å…¸æ ¹ç›®å½•
      */
     public static String tcDictionaryRoot = "data/dictionary/tc/";
     /**
-     * ÉùÄ¸ÔÏÄ¸Óïµ÷´Êµä
+     * å£°æ¯éŸµæ¯è¯­è°ƒè¯å…¸
      */
     public static String SYTDictionaryPath = "data/dictionary/pinyin/SYTDictionary.txt";
 
     /**
-     * Æ´Òô´ÊµäÂ·¾¶
+     * æ‹¼éŸ³è¯å…¸è·¯å¾„
      */
     public static String PinyinDictionaryPath = "data/dictionary/pinyin/pinyin.txt";
 
     /**
-     * ÒôÒëÈËÃû´Êµä
+     * éŸ³è¯‘äººåè¯å…¸
      */
     public static String TranslatedPersonDictionaryPath = "data/dictionary/person/nrf.txt";
 
     /**
-     * ÈÕ±¾ÈËÃû´ÊµäÂ·¾¶
+     * æ—¥æœ¬äººåè¯å…¸è·¯å¾„
      */
     public static String JapanesePersonDictionaryPath = "data/dictionary/person/nrj.txt";
 
     /**
-     * ×Ö·ûÀàÐÍ¶ÔÓ¦±í
+     * å­—ç¬¦ç±»åž‹å¯¹åº”è¡¨
      */
 //        public static String CharTypePath = "data/dictionary/other/CharType.bin";
 
     /**
-     * ×Ö·ûÕý¹æ»¯±í£¨È«½Ç×ª°ë½Ç£¬·±Ìå×ª¼òÌå£©
+     * å­—ç¬¦æ­£è§„åŒ–è¡¨ï¼ˆå…¨è§’è½¬åŠè§’ï¼Œç¹ä½“è½¬ç®€ä½“ï¼‰
      */
     public static String CharTablePath = "data/dictionary/other/CharTable.txt";
 
     /**
-     * ´Ê-´ÊÐÔ-ÒÀ´æ¹ØÏµÄ£ÐÍ
+     * è¯-è¯æ€§-ä¾å­˜å…³ç³»æ¨¡åž‹
      */
     public static String WordNatureModelPath = "data/model/dependency/WordNature.txt";
 
     /**
-     * ×î´óìØ-ÒÀ´æ¹ØÏµÄ£ÐÍ
+     * æœ€å¤§ç†µ-ä¾å­˜å…³ç³»æ¨¡åž‹
      */
     public static String MaxEntModelPath = "data/model/dependency/MaxEntModel.txt";
     /**
-     * Éñ¾­ÍøÂçÒÀ´æÄ£ÐÍÂ·¾¶
+     * ç¥žç»ç½‘ç»œä¾å­˜æ¨¡åž‹è·¯å¾„
      */
     public static String NNParserModelPath = "data/model/dependency/NNParserModel.txt";
     /**
-     * CRF·Ö´ÊÄ£ÐÍ
+     * CRFåˆ†è¯æ¨¡åž‹
      */
     public static String CRFSegmentModelPath = "data/model/segment/CRFSegmentModel.txt";
     /**
-     * HMM·Ö´ÊÄ£ÐÍ
+     * HMMåˆ†è¯æ¨¡åž‹
      */
 //        public static String HMMSegmentModelPath = "data/model/segment/HMMSegmentModel.bin";
     /**
-     * CRFÒÀ´æÄ£ÐÍ
+     * CRFä¾å­˜æ¨¡åž‹
      */
     public static String CRFDependencyModelPath = "data/model/dependency/CRFDependencyModelMini.txt";
     /**
-     * ·Ö´Ê½á¹ûÊÇ·ñÕ¹Ê¾´ÊÐÔ
+     * åˆ†è¯ç»“æžœæ˜¯å¦å±•ç¤ºè¯æ€§
      */
     public static boolean ShowTermNature = true;
     /**
-     * ÊÇ·ñÖ´ÐÐ×Ö·ûÕý¹æ»¯£¨·±Ìå->¼òÌå£¬È«½Ç->°ë½Ç£¬´óÐ´->Ð¡Ð´£©£¬ÇÐ»»ÅäÖÃºó±ØÐëÉ¾CustomDictionary.txt.bin»º´æ
+     * æ˜¯å¦æ‰§è¡Œå­—ç¬¦æ­£è§„åŒ–ï¼ˆç¹ä½“->ç®€ä½“ï¼Œå…¨è§’->åŠè§’ï¼Œå¤§å†™->å°å†™ï¼‰ï¼Œåˆ‡æ¢é…ç½®åŽå¿…é¡»åˆ CustomDictionary.txt.binç¼“å­˜
      */
     public static boolean Normalization = false;
 
     static {
-        // ×Ô¶¯¶ÁÈ¡ÅäÖÃ
+        // è‡ªåŠ¨è¯»å–é…ç½®
         Properties p = new Properties();
         try {
-            IOSafeHelper.openAutoCloseableInputStream(new InputStreamCreator() {
-                @Override
-                public InputStream create() throws Exception {
-                    if (Predefine.HANLP_PROPERTIES_PATH == null) {
-                        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                        if (loader == null) {
-                            loader = HanLpGlobalSettings.class.getClassLoader();
-                        }
-                        InputStream inputStream = loader.getResourceAsStream("hanlp.properties");
-                        if (inputStream == null) {
-                            throw new FileNotFoundException("HanLp setting file[hanlp.properties] not found");
-                        }
-                        return inputStream;
-                    }
-                    return new FileInputStream(Predefine.HANLP_PROPERTIES_PATH);
-                }
-            }, new InputStreamOperator() {
-                @Override
-                public void process(InputStream input) throws Exception {
-                    p.load(new InputStreamReader(input, "UTF-8"));
-                }
-            });
+            String pluginDir = AnalysisHanLPPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            Path pluginConfigDir = PathUtils.get(new File(pluginDir).getParent(), "config").toAbsolutePath();
 
-            String root = p.getProperty("root", "").replaceAll("\\\\", "/");
-            if (root.length() > 0 && !root.endsWith("/")) root += "/";
+            String root = pluginConfigDir.toString();
+            if (!pluginConfigDir.toFile().exists()) {
+                root = "config/";
+            }
+
+            if (root.length() > 0 && !root.endsWith("/")) {
+                root += "/";
+            }
+
             CoreDictionaryPath = root + p.getProperty("CoreDictionaryPath", CoreDictionaryPath);
             CoreDictionaryTransformMatrixDictionaryPath = root + p.getProperty("CoreDictionaryTransformMatrixDictionaryPath", CoreDictionaryTransformMatrixDictionaryPath);
             BiGramDictionaryPath = root + p.getProperty("BiGramDictionaryPath", BiGramDictionaryPath);

@@ -14,7 +14,6 @@ package com.hankcs.hanlp.collection.dartsclone;
 import com.hankcs.hanlp.collection.trie.ITrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.DataOutputStream;
 import java.util.*;
 
 /**

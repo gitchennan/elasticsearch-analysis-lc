@@ -67,7 +67,7 @@ public class SegmentWrapper
 
         List<Term> termList = segment.seg(line);
         if (termList.size() == 0) return null;
-        termArray = termList.toArray(new Term[0]);
+        termArray = termList.toArray(new Term[termList.size()]);
         index = 0;
 
         return termArray[index++];

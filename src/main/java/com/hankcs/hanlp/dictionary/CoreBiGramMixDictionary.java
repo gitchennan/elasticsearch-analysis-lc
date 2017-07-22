@@ -39,7 +39,6 @@ public class CoreBiGramMixDictionary {
         long start = System.currentTimeMillis();
         if (!load(path)) {
             HanLpLogger.error(CoreBiGramMixDictionary.class, "二元词典加载失败");
-            System.exit(-1);
         }
         else {
             HanLpLogger.info(CoreBiGramMixDictionary.class, path + ".mix" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");

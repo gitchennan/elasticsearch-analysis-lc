@@ -523,17 +523,17 @@ public class TextUtility {
         return count;
     }
 
-    /**
-     * 简单好用的写String方式
-     *
-     * @throws IOException
-     */
-    public static void writeString(String s, DataOutputStream out) throws IOException {
-        out.writeInt(s.length());
-        for (char c : s.toCharArray()) {
-            out.writeChar(c);
-        }
-    }
+//    /**
+//     * 简单好用的写String方式
+//     *
+//     * @throws IOException
+//     */
+//    public static void writeString(String s, DataOutputStream out) throws IOException {
+//        out.writeInt(s.length());
+//        for (char c : s.toCharArray()) {
+//            out.writeChar(c);
+//        }
+//    }
 
     /**
      * 判断字符串是否为空（null和空格）

@@ -11,7 +11,6 @@
  */
 package com.hankcs.hanlp.utility;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -238,17 +237,17 @@ public class ByteUtil {
         int l = bytesHighFirstToInt(bytes, start);
         return Float.intBitsToFloat(l);
     }
-
-    /**
-     * 无符号整型输出
-     *
-     * @throws IOException
-     */
-    public static void writeUnsignedInt(DataOutputStream out, int uInt) throws IOException {
-        out.writeByte((byte) ((uInt >>> 8) & 0xFF));
-        //noinspection PointlessBitwiseExpression
-        out.writeByte((byte) ((uInt >>> 0) & 0xFF));
-    }
+//
+//    /**
+//     * 无符号整型输出
+//     *
+//     * @throws IOException
+//     */
+//    public static void writeUnsignedInt(DataOutputStream out, int uInt) throws IOException {
+//        out.writeByte((byte) ((uInt >>> 8) & 0xFF));
+//        //noinspection PointlessBitwiseExpression
+//        out.writeByte((byte) ((uInt >>> 0) & 0xFF));
+//    }
 
     public static int convertTwoCharToInt(char high, char low) {
         int result = high << 16;

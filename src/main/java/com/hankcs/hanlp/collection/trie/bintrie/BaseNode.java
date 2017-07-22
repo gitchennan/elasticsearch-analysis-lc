@@ -13,10 +13,8 @@ package com.hankcs.hanlp.collection.trie.bintrie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Set;
@@ -159,38 +157,38 @@ public abstract class BaseNode<V> implements Comparable<BaseNode>
             node.walk(new StringBuilder(sb.toString()), entrySet);
         }
     }
-
-    protected void walkToSave(DataOutputStream out) throws IOException
-    {
-        out.writeChar(c);
-        out.writeInt(status.ordinal());
-        int childSize = 0;
-        if (child != null) childSize = child.length;
-        out.writeInt(childSize);
-        if (child == null) return;
-        for (BaseNode node : child)
-        {
-            node.walkToSave(out);
-        }
-    }
-
-    protected void walkToSave(ObjectOutput out) throws IOException
-    {
-        out.writeChar(c);
-        out.writeInt(status.ordinal());
-        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2)
-        {
-            out.writeObject(value);
-        }
-        int childSize = 0;
-        if (child != null) childSize = child.length;
-        out.writeInt(childSize);
-        if (child == null) return;
-        for (BaseNode node : child)
-        {
-            node.walkToSave(out);
-        }
-    }
+//
+//    protected void walkToSave(DataOutputStream out) throws IOException
+//    {
+//        out.writeChar(c);
+//        out.writeInt(status.ordinal());
+//        int childSize = 0;
+//        if (child != null) childSize = child.length;
+//        out.writeInt(childSize);
+//        if (child == null) return;
+//        for (BaseNode node : child)
+//        {
+//            node.walkToSave(out);
+//        }
+//    }
+//
+//    protected void walkToSave(ObjectOutput out) throws IOException
+//    {
+//        out.writeChar(c);
+//        out.writeInt(status.ordinal());
+//        if (status == Status.WORD_END_3 || status == Status.WORD_MIDDLE_2)
+//        {
+//            out.writeObject(value);
+//        }
+//        int childSize = 0;
+//        if (child != null) childSize = child.length;
+//        out.writeInt(childSize);
+//        if (child == null) return;
+//        for (BaseNode node : child)
+//        {
+//            node.walkToSave(out);
+//        }
+//    }
 
     protected void walkToLoad(ByteArray byteArray, _ValueArray<V> valueArray)
     {

@@ -82,32 +82,32 @@ public class DoubleArray
         }
     }
 
-    /**
-     * Saves the doubleArrayTrie data into a stream.
-     *
-     * @param stream
-     * @throws java.io.IOException
-     */
-    public void save(OutputStream stream) throws IOException
-    {
-        DataOutputStream out = null;
-        try
-        {
-            out = new DataOutputStream(new BufferedOutputStream(
-                    stream));
-            for (int i = 0; i < _array.length; ++i)
-            {
-                out.writeInt(_array[i]);
-            }
-        }
-        finally
-        {
-            if (out != null)
-            {
-                out.close();
-            }
-        }
-    }
+//    /**
+//     * Saves the doubleArrayTrie data into a stream.
+//     *
+//     * @param stream
+//     * @throws java.io.IOException
+//     */
+//    public void save(OutputStream stream) throws IOException
+//    {
+//        DataOutputStream out = null;
+//        try
+//        {
+//            out = new DataOutputStream(new BufferedOutputStream(
+//                    stream));
+//            for (int i = 0; i < _array.length; ++i)
+//            {
+//                out.writeInt(_array[i]);
+//            }
+//        }
+//        finally
+//        {
+//            if (out != null)
+//            {
+//                out.close();
+//            }
+//        }
+//    }
 
     /**
      * Returns the corresponding value if the key is found. Otherwise returns -1.

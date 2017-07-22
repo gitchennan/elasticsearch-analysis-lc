@@ -11,17 +11,19 @@
  */
 package com.hankcs.hanlp.corpus.util;
 
-import sun.reflect.*;
+import sun.reflect.ConstructorAccessor;
+import sun.reflect.ReflectionFactory;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
  * 动态修改Enum的对象
+ *
  * @param <E>
  */
-public class EnumBuster<E extends Enum<E>>
-{
+public class EnumBuster<E extends Enum<E>> {
     private static final Class[] EMPTY_CLASS_ARRAY =
             new Class[0];
     private static final Object[] EMPTY_OBJECT_ARRAY =
@@ -30,8 +32,8 @@ public class EnumBuster<E extends Enum<E>>
     private static final String VALUES_FIELD = "$VALUES";
     private static final String ORDINAL_FIELD = "ordinal";
 
-    private final ReflectionFactory reflection =
-            ReflectionFactory.getReflectionFactory();
+    private final ReflectionFactory reflection = ReflectionFactoryHelper.getReflectionFactory();
+
 
     private final Class<E> clazz;
 
@@ -45,15 +47,12 @@ public class EnumBuster<E extends Enum<E>>
      * the switch statements of the classes specified in
      * switchUsers in sync with the enum values.
      */
-    public EnumBuster(Class<E> clazz, Class... switchUsers)
-    {
-        try
-        {
+    public EnumBuster(Class<E> clazz, Class... switchUsers) {
+        try {
             this.clazz = clazz;
             switchFields = findRelatedSwitchFields(switchUsers);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalArgumentException(
                     "Could not create the class", e);
         }
@@ -63,19 +62,17 @@ public class EnumBuster<E extends Enum<E>>
      * Make a new enum instance, without adding it to the values
      * array and using the default ordinal of 0.
      */
-    public E make(String value)
-    {
+    public E make(String value) {
         return make(value, 0,
-                    EMPTY_CLASS_ARRAY, EMPTY_OBJECT_ARRAY);
+                EMPTY_CLASS_ARRAY, EMPTY_OBJECT_ARRAY);
     }
 
     /**
      * Make a new enum instance with the given ordinal.
      */
-    public E make(String value, int ordinal)
-    {
+    public E make(String value, int ordinal) {
         return make(value, ordinal,
-                    EMPTY_CLASS_ARRAY, EMPTY_OBJECT_ARRAY);
+                EMPTY_CLASS_ARRAY, EMPTY_OBJECT_ARRAY);
     }
 
     /**
@@ -84,18 +81,15 @@ public class EnumBuster<E extends Enum<E>>
      * the constructor accurately.
      */
     public E make(String value, int ordinal,
-                  Class[] additionalTypes, Object[] additional)
-    {
-        try
-        {
+                  Class[] additionalTypes, Object[] additional) {
+        try {
             undoStack.push(new Memento());
             ConstructorAccessor ca = findConstructorAccessor(
                     additionalTypes, clazz);
             return constructEnum(clazz, ca, value,
-                                 ordinal, additional);
+                    ordinal, additional);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalArgumentException(
                     "Could not create enum", e);
         }
@@ -107,34 +101,30 @@ public class EnumBuster<E extends Enum<E>>
      * contains that particular value, then the value
      * is overwritten with our enum.  Otherwise it is
      * added at the end of the array.
-     * <p/>
+     * <p>
      * In addition, if there is a constant field in the
      * enum class pointing to an enum with our value,
      * then we replace that with our enum instance.
-     * <p/>
+     * <p>
      * The ordinal is either set to the existing position
      * or to the last value.
-     * <p/>
+     * <p>
      * Warning: This should probably never be called,
      * since it can cause permanent changes to the enum
      * values.  Use only in extreme conditions.
      *
      * @param e the enum to add
      */
-    public void addByValue(E e)
-    {
-        try
-        {
+    public void addByValue(E e) {
+        try {
             undoStack.push(new Memento());
             Field valuesField = findValuesField();
 
             // we get the current Enum[]
             E[] values = values();
-            for (int i = 0; i < values.length; i++)
-            {
+            for (int i = 0; i < values.length; i++) {
                 E value = values[i];
-                if (value.name().equals(e.name()))
-                {
+                if (value.name().equals(e.name())) {
                     setOrdinal(e, value.ordinal());
                     values[i] = e;
                     replaceConstant(e);
@@ -154,8 +144,7 @@ public class EnumBuster<E extends Enum<E>>
             setOrdinal(e, ordinal);
             addSwitchCase();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             throw new IllegalArgumentException(
                     "Could not set the enum", ex);
         }
@@ -169,25 +158,20 @@ public class EnumBuster<E extends Enum<E>>
      * @return true if the enum was found and deleted;
      * false otherwise
      */
-    public boolean deleteByValue(E e)
-    {
+    public boolean deleteByValue(E e) {
         if (e == null) throw new NullPointerException();
-        try
-        {
+        try {
             undoStack.push(new Memento());
             // we get the current E[]
             E[] values = values();
-            for (int i = 0; i < values.length; i++)
-            {
+            for (int i = 0; i < values.length; i++) {
                 E value = values[i];
-                if (value.name().equals(e.name()))
-                {
+                if (value.name().equals(e.name())) {
                     E[] newValues =
                             Arrays.copyOf(values, values.length - 1);
                     System.arraycopy(values, i + 1, newValues, i,
-                                     values.length - i - 1);
-                    for (int j = i; j < newValues.length; j++)
-                    {
+                            values.length - i - 1);
+                    for (int j = i; j < newValues.length; j++) {
                         setOrdinal(newValues[j], j);
                     }
                     Field valuesField = findValuesField();
@@ -199,8 +183,7 @@ public class EnumBuster<E extends Enum<E>>
                 }
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             throw new IllegalArgumentException(
                     "Could not set the enum", ex);
         }
@@ -211,10 +194,8 @@ public class EnumBuster<E extends Enum<E>>
      * Undo the state right back to the beginning when the
      * EnumBuster was created.
      */
-    public void restore()
-    {
-        while (undo())
-        {
+    public void restore() {
+        while (undo()) {
             //
         }
     }
@@ -222,25 +203,21 @@ public class EnumBuster<E extends Enum<E>>
     /**
      * Undo the previous operation.
      */
-    public boolean undo()
-    {
-        try
-        {
+    public boolean undo() {
+        try {
             Memento memento = undoStack.poll();
             if (memento == null) return false;
             memento.undo();
             return true;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalStateException("Could not undo", e);
         }
     }
 
     private ConstructorAccessor findConstructorAccessor(
             Class[] additionalParameterTypes,
-            Class<E> clazz) throws NoSuchMethodException
-    {
+            Class<E> clazz) throws NoSuchMethodException {
         Class[] parameterTypes =
                 new Class[additionalParameterTypes.length + 2];
         parameterTypes[0] = String.class;
@@ -259,8 +236,7 @@ public class EnumBuster<E extends Enum<E>>
                             ConstructorAccessor ca,
                             String value, int ordinal,
                             Object[] additional)
-            throws Exception
-    {
+            throws Exception {
         Object[] parms = new Object[additional.length + 2];
         parms[0] = value;
         parms[1] = ordinal;
@@ -274,12 +250,9 @@ public class EnumBuster<E extends Enum<E>>
      * Thus all we need to do is expand the switch map arrays
      * by one empty slot.
      */
-    private void addSwitchCase()
-    {
-        try
-        {
-            for (Field switchField : switchFields)
-            {
+    private void addSwitchCase() {
+        try {
+            for (Field switchField : switchFields) {
                 int[] switches = (int[]) switchField.get(null);
                 switches = Arrays.copyOf(switches, switches.length + 1);
                 ReflectionHelper.setStaticFinalField(
@@ -287,21 +260,17 @@ public class EnumBuster<E extends Enum<E>>
                 );
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalArgumentException(
                     "Could not fix switch", e);
         }
     }
 
     private void replaceConstant(E e)
-            throws IllegalAccessException, NoSuchFieldException
-    {
+            throws IllegalAccessException, NoSuchFieldException {
         Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields)
-        {
-            if (field.getName().equals(e.name()))
-            {
+        for (Field field : fields) {
+            if (field.getName().equals(e.name())) {
                 ReflectionHelper.setStaticFinalField(
                         field, e
                 );
@@ -311,13 +280,10 @@ public class EnumBuster<E extends Enum<E>>
 
 
     private void blankOutConstant(E e)
-            throws IllegalAccessException, NoSuchFieldException
-    {
+            throws IllegalAccessException, NoSuchFieldException {
         Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields)
-        {
-            if (field.getName().equals(e.name()))
-            {
+        for (Field field : fields) {
+            if (field.getName().equals(e.name())) {
                 ReflectionHelper.setStaticFinalField(
                         field, null
                 );
@@ -326,8 +292,7 @@ public class EnumBuster<E extends Enum<E>>
     }
 
     private void setOrdinal(E e, int ordinal)
-            throws NoSuchFieldException, IllegalAccessException
-    {
+            throws NoSuchFieldException, IllegalAccessException {
         Field ordinalField = Enum.class.getDeclaredField(
                 ORDINAL_FIELD);
         ordinalField.setAccessible(true);
@@ -342,30 +307,24 @@ public class EnumBuster<E extends Enum<E>>
      * @throws NoSuchFieldException if the field could not be found
      */
     private Field findValuesField()
-            throws NoSuchFieldException
-    {
+            throws NoSuchFieldException {
         // first we find the static final array that holds
         // the values in the enum class
         Field valuesField = null;
-        try
-        {
+        try {
             valuesField = clazz.getDeclaredField(
                     VALUES_FIELD);
         }
-        catch (NoSuchFieldException e)
-        {
+        catch (NoSuchFieldException e) {
             Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields)
-            {
-                if (field.getName().contains(VALUES_FIELD))
-                {
+            for (Field field : fields) {
+                if (field.getName().contains(VALUES_FIELD)) {
                     valuesField = field;
                     break;
                 }
             }
         }
-        if (valuesField == null)
-        {
+        if (valuesField == null) {
             throw new RuntimeException("本地JVM不支持自定义词性");
         }
 
@@ -374,70 +333,56 @@ public class EnumBuster<E extends Enum<E>>
         return valuesField;
     }
 
-    public void registerSwitchClass(Class[] switchUsers)
-    {
+    public void registerSwitchClass(Class[] switchUsers) {
         switchFields.addAll(findRelatedSwitchFields(switchUsers));
     }
 
     private Collection<Field> findRelatedSwitchFields(
-            Class[] switchUsers)
-    {
+            Class[] switchUsers) {
         Collection<Field> result = new LinkedList<Field>();
-        try
-        {
-            for (Class switchUser : switchUsers)
-            {
+        try {
+            for (Class switchUser : switchUsers) {
                 String name = switchUser.getName();
                 int i = 0;
-                while (true)
-                {
-                    try
-                    {
+                while (true) {
+                    try {
                         Class suspect = Class.forName(String.format("%s$%d", name, ++i));
                         Field[] fields = suspect.getDeclaredFields();
-                        for (Field field : fields)
-                        {
+                        for (Field field : fields) {
                             String fieldName = field.getName();
-                            if (fieldName.startsWith("$SwitchMap$") && fieldName.endsWith(clazz.getSimpleName()))
-                            {
+                            if (fieldName.startsWith("$SwitchMap$") && fieldName.endsWith(clazz.getSimpleName())) {
                                 field.setAccessible(true);
                                 result.add(field);
                             }
                         }
                     }
-                    catch (ClassNotFoundException e)
-                    {
+                    catch (ClassNotFoundException e) {
                         break;
                     }
                 }
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalArgumentException(
                     "Could not fix switch", e);
         }
         return result;
     }
 
-    private void removeSwitchCase(int ordinal)
-    {
-        try
-        {
-            for (Field switchField : switchFields)
-            {
+    private void removeSwitchCase(int ordinal) {
+        try {
+            for (Field switchField : switchFields) {
                 int[] switches = (int[]) switchField.get(null);
                 int[] newSwitches = Arrays.copyOf(
                         switches, switches.length - 1);
                 System.arraycopy(switches, ordinal + 1, newSwitches,
-                                 ordinal, switches.length - ordinal - 1);
+                        ordinal, switches.length - ordinal - 1);
                 ReflectionHelper.setStaticFinalField(
                         switchField, newSwitches
                 );
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             throw new IllegalArgumentException(
                     "Could not fix switch", e);
         }
@@ -445,61 +390,50 @@ public class EnumBuster<E extends Enum<E>>
 
     @SuppressWarnings("unchecked")
     private E[] values()
-            throws NoSuchFieldException, IllegalAccessException
-    {
+            throws NoSuchFieldException, IllegalAccessException {
         Field valuesField = findValuesField();
         return (E[]) valuesField.get(null);
     }
 
-    private class Memento
-    {
+    private class Memento {
         private final E[] values;
         private final Map<Field, int[]> savedSwitchFieldValues =
                 new HashMap<Field, int[]>();
 
-        private Memento() throws IllegalAccessException
-        {
-            try
-            {
+        private Memento() throws IllegalAccessException {
+            try {
                 values = values().clone();
-                for (Field switchField : switchFields)
-                {
+                for (Field switchField : switchFields) {
                     int[] switchArray = (int[]) switchField.get(null);
                     savedSwitchFieldValues.put(switchField,
-                                               switchArray.clone());
+                            switchArray.clone());
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 throw new IllegalArgumentException(
                         "Could not create the class", e);
             }
         }
 
         private void undo() throws
-                NoSuchFieldException, IllegalAccessException
-        {
+                NoSuchFieldException, IllegalAccessException {
             Field valuesField = findValuesField();
             ReflectionHelper.setStaticFinalField(valuesField, values);
 
-            for (int i = 0; i < values.length; i++)
-            {
+            for (int i = 0; i < values.length; i++) {
                 setOrdinal(values[i], i);
             }
 
             // reset all of the constants defined inside the enum
             Map<String, E> valuesMap =
                     new HashMap<String, E>();
-            for (E e : values)
-            {
+            for (E e : values) {
                 valuesMap.put(e.name(), e);
             }
             Field[] constantEnumFields = clazz.getDeclaredFields();
-            for (Field constantEnumField : constantEnumFields)
-            {
+            for (Field constantEnumField : constantEnumFields) {
                 E en = valuesMap.get(constantEnumField.getName());
-                if (en != null)
-                {
+                if (en != null) {
                     ReflectionHelper.setStaticFinalField(
                             constantEnumField, en
                     );
@@ -507,8 +441,7 @@ public class EnumBuster<E extends Enum<E>>
             }
 
             for (Map.Entry<Field, int[]> entry :
-                    savedSwitchFieldValues.entrySet())
-            {
+                    savedSwitchFieldValues.entrySet()) {
                 Field field = entry.getKey();
                 int[] mappings = entry.getValue();
                 ReflectionHelper.setStaticFinalField(field, mappings);

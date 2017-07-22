@@ -6,7 +6,6 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.utility.LexiconUtility;
 import com.hankcs.hanlp.utility.TextUtility;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -151,13 +150,13 @@ public class WordAttribute implements Serializable {
         }
         return sb.toString();
     }
-
-    public void save(DataOutputStream out) throws IOException {
-        out.writeInt(totalFrequency);
-        out.writeInt(nature.length);
-        for (int i = 0; i < nature.length; ++i) {
-            out.writeInt(nature[i].ordinal());
-            out.writeInt(frequency[i]);
-        }
-    }
+//
+//    public void save(DataOutputStream out) throws IOException {
+//        out.writeInt(totalFrequency);
+//        out.writeInt(nature.length);
+//        for (int i = 0; i < nature.length; ++i) {
+//            out.writeInt(nature[i].ordinal());
+//            out.writeInt(frequency[i]);
+//        }
+//    }
 }

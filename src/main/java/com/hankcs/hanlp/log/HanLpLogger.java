@@ -1,57 +1,71 @@
 package com.hankcs.hanlp.log;
 
 
+import org.elasticsearch.common.logging.ESLoggerFactory;
+
 public class HanLpLogger {
 
     public static void debug(Object object, String message) {
-        info(object, message);
+        if (object instanceof Class) {
+            ESLoggerFactory.getLogger((Class) object).debug(message);
+        }
+        else {
+            ESLoggerFactory.getLogger(object.getClass()).debug(message);
+        }
     }
 
     public static void info(Object object, String message) {
         if (object instanceof Class) {
-            System.out.println(
-                    String.format("[%s] %s",
-                            ((Class) object).getName(), message));
+            ESLoggerFactory.getLogger((Class) object).info(message);
         }
         else {
-            System.out.println(
-                    String.format("[%s.%s] %s",
-                            object.getClass().getPackage().getName(),
-                            object.getClass().getName(), message)
-            );
+            ESLoggerFactory.getLogger(object.getClass()).info(message);
         }
     }
 
     public static void info(Object object, String message, Throwable t) {
         if (object instanceof Class) {
-            System.out.println(
-                    String.format("[%s] %s",
-                            ((Class) object).getName(), message));
+            ESLoggerFactory.getLogger((Class) object).info(message, t);
         }
         else {
-            System.out.println(
-                    String.format("[%s.%s] %s",
-                            object.getClass().getPackage().getName(),
-                            object.getClass().getName(), message)
-            );
+            ESLoggerFactory.getLogger(object.getClass()).info(message, t);
         }
-        t.printStackTrace();
     }
 
 
     public static void warn(Object object, String message) {
-        info(object, message);
+        if (object instanceof Class) {
+            ESLoggerFactory.getLogger((Class) object).warn(message);
+        }
+        else {
+            ESLoggerFactory.getLogger(object.getClass()).warn(message);
+        }
     }
 
-    public static void warn(Object object, String message, Throwable e) {
-        info(object, message, e);
+    public static void warn(Object object, String message, Throwable t) {
+        if (object instanceof Class) {
+            ESLoggerFactory.getLogger((Class) object).warn(message, t);
+        }
+        else {
+            ESLoggerFactory.getLogger(object.getClass()).warn(message, t);
+        }
     }
 
     public static void error(Object object, String message) {
-        info(object, message);
+        if (object instanceof Class) {
+            ESLoggerFactory.getLogger((Class) object).error(message);
+        }
+        else {
+            ESLoggerFactory.getLogger(object.getClass()).error(message);
+        }
     }
 
     public static void error(Object object, String message, Throwable t) {
-        info(object, message, t);
+        if (object instanceof Class) {
+            ESLoggerFactory.getLogger((Class) object).error(message, t);
+        }
+        else {
+            ESLoggerFactory.getLogger(object.getClass()).error(message, t);
+        }
     }
 }

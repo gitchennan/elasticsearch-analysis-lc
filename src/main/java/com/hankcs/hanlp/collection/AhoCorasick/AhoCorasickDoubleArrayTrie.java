@@ -14,10 +14,8 @@ package com.hankcs.hanlp.collection.AhoCorasick;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -155,55 +153,55 @@ public class AhoCorasickDoubleArrayTrie<V>
         }
     }
 
-    /**
-     * 持久化
-     *
-     * @param out 一个DataOutputStream
-     * @throws Exception 可能的IO异常等
-     */
-    public void save(DataOutputStream out) throws Exception
-    {
-        out.writeInt(size);
-        for (int i = 0; i < size; i++)
-        {
-            out.writeInt(base[i]);
-            out.writeInt(check[i]);
-            out.writeInt(fail[i]);
-            int output[] = this.output[i];
-            if (output == null)
-            {
-                out.writeInt(0);
-            }
-            else
-            {
-                out.writeInt(output.length);
-                for (int o : output)
-                {
-                    out.writeInt(o);
-                }
-            }
-        }
-        out.writeInt(l.length);
-        for (int length : l)
-        {
-            out.writeInt(length);
-        }
-    }
+//    /**
+//     * 持久化
+//     *
+//     * @param out 一个DataOutputStream
+//     * @throws Exception 可能的IO异常等
+//     */
+//    public void save(DataOutputStream out) throws Exception
+//    {
+//        out.writeInt(size);
+//        for (int i = 0; i < size; i++)
+//        {
+//            out.writeInt(base[i]);
+//            out.writeInt(check[i]);
+//            out.writeInt(fail[i]);
+//            int output[] = this.output[i];
+//            if (output == null)
+//            {
+//                out.writeInt(0);
+//            }
+//            else
+//            {
+//                out.writeInt(output.length);
+//                for (int o : output)
+//                {
+//                    out.writeInt(o);
+//                }
+//            }
+//        }
+//        out.writeInt(l.length);
+//        for (int length : l)
+//        {
+//            out.writeInt(length);
+//        }
+//    }
 
-    /**
-     * 持久化
-     *
-     * @param out 一个ObjectOutputStream
-     * @throws IOException 可能的IO异常
-     */
-    public void save(ObjectOutputStream out) throws IOException
-    {
-        out.writeObject(base);
-        out.writeObject(check);
-        out.writeObject(fail);
-        out.writeObject(output);
-        out.writeObject(l);
-    }
+//    /**
+//     * 持久化
+//     *
+//     * @param out 一个ObjectOutputStream
+//     * @throws IOException 可能的IO异常
+//     */
+//    public void save(ObjectOutputStream out) throws IOException
+//    {
+//        out.writeObject(base);
+//        out.writeObject(check);
+//        out.writeObject(fail);
+//        out.writeObject(output);
+//        out.writeObject(l);
+//    }
 
     /**
      * 载入

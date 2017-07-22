@@ -11,12 +11,12 @@
  */
 package com.hankcs.hanlp.corpus.dictionary;
 
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.corpus.occurrence.TermFrequency;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * 词频词典

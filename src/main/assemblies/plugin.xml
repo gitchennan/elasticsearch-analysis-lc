@@ -6,14 +6,19 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/data</directory>
-            <outputDirectory>/data</outputDirectory>
+            <directory>${project.basedir}/config</directory>
+            <outputDirectory>/config</outputDirectory>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/plugin-descriptor.properties</source>
+            <outputDirectory></outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/plugin-security.policy</source>
             <outputDirectory></outputDirectory>
             <filtered>true</filtered>
         </file>
@@ -26,6 +31,14 @@
             <excludes>
                 <exclude>org.elasticsearch:elasticsearch</exclude>
             </excludes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.google.guava:guava</include>
+            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

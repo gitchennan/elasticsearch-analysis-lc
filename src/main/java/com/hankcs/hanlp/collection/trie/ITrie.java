@@ -13,7 +13,6 @@ package com.hankcs.hanlp.collection.trie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.DataOutputStream;
 import java.util.TreeMap;
 
 /**

@@ -3,6 +3,8 @@ package com.hankcs.hanlp.io;
 import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.io.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 public class IOSafeHelper {
 
@@ -65,35 +67,45 @@ public class IOSafeHelper {
     }
 
     public static boolean openAutoCloseableInputStream(InputStreamCreator creator, InputStreamOperator operator) {
-        InputStream inputStream = null;
-        try {
-            inputStream = creator.create();
-            operator.process(inputStream);
-            return true;
-        }
-        catch (Throwable t) {
-            operator.onError(t);
-        }
-        finally {
-            safeClose(inputStream);
-        }
-        return false;
+        return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+            @Override
+            public Boolean run() {
+                InputStream inputStream = null;
+                try {
+                    inputStream = creator.create();
+                    operator.process(inputStream);
+                    return true;
+                }
+                catch (Throwable t) {
+                    operator.onError(t);
+                }
+                finally {
+                    safeClose(inputStream);
+                }
+                return false;
+            }
+        });
     }
 
     public static boolean openAutoCloseableOutputStream(OutputStreamCreator creator, OutputStreamOperator operator) {
-        OutputStream outputStream = null;
-        try {
-            outputStream = creator.create();
-            operator.process(outputStream);
-            return true;
-        }
-        catch (Throwable t) {
-            operator.onError(t);
-        }
-        finally {
-            safeClose(outputStream);
-        }
-        return false;
+        return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+            @Override
+            public Boolean run() {
+                OutputStream outputStream = null;
+                try {
+                    outputStream = creator.create();
+                    operator.process(outputStream);
+                    return true;
+                }
+                catch (Throwable t) {
+                    operator.onError(t);
+                }
+                finally {
+                    safeClose(outputStream);
+                }
+                return false;
+            }
+        });
     }
 
     public static boolean openAutoCloseableFileInputStream(String filePath, InputStreamOperator operator) {

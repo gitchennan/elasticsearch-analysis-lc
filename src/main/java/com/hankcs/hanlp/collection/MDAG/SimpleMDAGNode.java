@@ -24,8 +24,6 @@ package com.hankcs.hanlp.collection.MDAG;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.DataOutputStream;
-
 /**
  * The class capable of representing a MDAG node, its _transition set, and one of its incoming transitions;
  * objects of this class are used to represent a MDAG after its been simplified in order to save space.

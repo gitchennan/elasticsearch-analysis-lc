@@ -39,6 +39,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment {
 
         List<Vertex> vertexList = viterbi(wordNetAll);
 
+        // 自定义词库匹配
         if (config.useCustomDictionary) {
             if (config.indexMode) {
                 combineByCustomDictionary(vertexList, wordNetAll);
@@ -47,7 +48,6 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment {
                 combineByCustomDictionary(vertexList);
             }
         }
-
 
         // 数字识别
         if (config.numberQuantifierRecognize) {

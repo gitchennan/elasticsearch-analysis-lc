@@ -45,7 +45,6 @@ public class CoreBiGramTableDictionary {
         long start = System.currentTimeMillis();
         if (!load(path)) {
             HanLpLogger.error(CoreBiGramTableDictionary.class, "二元词典加载失败");
-            System.exit(-1);
         }
         else {
             HanLpLogger.info(CoreBiGramTableDictionary.class, path + ".table" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");

@@ -17,6 +17,17 @@ public class HanLpAnalyzerTest {
     }
 
     @Test
+    public void test_indexSegment() {
+        List<Term> terms = HanLP.newSegment()
+                .enableIndexMode(true)
+                .seg("对上海陆金所金融科技有限公司的稳盈e享计划是高收益产品");
+
+        for (Term term : terms) {
+            System.out.print(term.word + "/" + term.nature.name() + " ");
+        }
+    }
+
+    @Test
     public void test_standardSegment2() {
         List<Term> terms = HanLP.newSegment()
                 .enablePlaceRecognize(true)
