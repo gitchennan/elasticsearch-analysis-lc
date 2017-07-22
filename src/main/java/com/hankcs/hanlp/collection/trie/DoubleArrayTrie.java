@@ -16,23 +16,24 @@
 package com.hankcs.hanlp.collection.trie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.ByteArrayStream;
 import com.hankcs.hanlp.corpus.io.IOUtil;
+import com.hankcs.hanlp.io.IOSafeHelper;
+import com.hankcs.hanlp.io.InputStreamOperator;
+import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.utility.ByteUtil;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.*;
-
-import static com.hankcs.hanlp.api.HanLP.Config.IOAdapter;
 
 /**
  * 双数组Trie树
  */
+@SuppressWarnings("ALL")
 public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
     private final static int BUF_SIZE = 16384;
-    private final static int UNIT_SIZE = 8; // size of int + int
+    // size of int + int
+    private final static int UNIT_SIZE = 8;
+    private final static int EXTRA_BYTE_SIZE = 65535;
 
     private static class Node {
         int code;
@@ -50,8 +51,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
                     '}';
         }
     }
-
-    ;
 
     protected int check[];
     protected int base[];
@@ -73,26 +72,21 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
     int error_;
 
     // int (*progressfunc_) (size_t, size_t);
-
     // inline _resize expanded
 
     /**
      * 拓展数组
-     *
-     * @param newSize
-     * @return
      */
     private int resize(int newSize) {
-        int[] base2 = new int[newSize];
-        int[] check2 = new int[newSize];
+        int[] newBaseArray = new int[newSize];
+        int[] newCheckArray = new int[newSize];
         if (allocSize > 0) {
-            System.arraycopy(base, 0, base2, 0, allocSize);
-            System.arraycopy(check, 0, check2, 0, allocSize);
+            System.arraycopy(base, 0, newBaseArray, 0, allocSize);
+            System.arraycopy(check, 0, newCheckArray, 0, allocSize);
         }
 
-        base = base2;
-        check = check2;
-
+        base = newBaseArray;
+        check = newCheckArray;
         return allocSize = newSize;
     }
 
@@ -179,13 +173,11 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
                 first = 1;
             }
 
-            begin = pos - siblings.get(0).code; // 当前位置离第一个兄弟节点的距离
+            begin = pos - siblings.get(0).code;
             if (allocSize <= (begin + siblings.get(siblings.size() - 1).code)) {
                 resize(begin + siblings.get(siblings.size() - 1).code + Character.MAX_VALUE);
             }
 
-            //if (used[begin])
-            //   continue;
             if (used.get(begin)) {
                 continue;
             }
@@ -212,9 +204,8 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         size = (size > begin + siblings.get(siblings.size() - 1).code + 1) ? size
                 : begin + siblings.get(siblings.size() - 1).code + 1;
 
-        for (int i = 0; i < siblings.size(); i++) {
-            check[begin + siblings.get(i).code] = begin;
-//            System.out.println(this);
+        for (Node sibling : siblings) {
+            check[begin + sibling.code] = begin;
         }
 
         for (int i = 0; i < siblings.size(); i++) {
@@ -222,9 +213,8 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
             if (fetch(siblings.get(i), new_siblings) == 0)  // 一个词的终止且不为其他词的前缀
             {
-                base[begin + siblings.get(i).code] = (value != null) ? (-value[siblings
-                        .get(i).left] - 1) : (-siblings.get(i).left - 1);
-//                System.out.println(this);
+                base[begin + siblings.get(i).code] = (value != null) ?
+                        (-value[siblings.get(i).left] - 1) : (-siblings.get(i).left - 1);
 
                 if (value != null && (-value[siblings.get(i).left] - 1) >= 0) {
                     error_ = -2;
@@ -232,13 +222,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
                 }
 
                 progress++;
-                // if (progress_func_) (*progress_func_) (progress,
-                // keySize);
+
             }
             else {
                 int h = insert(new_siblings);   // dfs
                 base[begin + siblings.get(i).code] = h;
-//                System.out.println(this);
+
             }
         }
         return begin;
@@ -254,7 +243,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         error_ = 0;
     }
 
-    // no deconstructor
+    // no deConstructor
 
     // set_result omitted
     // the search methods returns (the list of) the value(s) instead
@@ -287,9 +276,11 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     public int getNonzeroSize() {
         int result = 0;
-        for (int i = 0; i < check.length; ++i)
-            if (check[i] != 0)
+        for (int aCheck : check) {
+            if (aCheck != 0) {
                 ++result;
+            }
+        }
         return result;
     }
 
@@ -311,7 +302,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * 构建DAT
      *
      * @param entrySet 注意此entrySet一定要是字典序的！否则会失败
-     * @return
      */
     public int build(Set<Map.Entry<String, V>> entrySet) {
         List<String> keyList = new ArrayList<String>(entrySet.size());
@@ -347,8 +337,9 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      */
     public int build(List<String> _key, int _length[], int _value[],
                      int _keySize) {
-        if (_keySize > _key.size() || _key == null)
+        if (_key == null || _keySize > _key.size()) {
             return 0;
+        }
 
         // progress_func_ = progress_func;
         key = _key;
@@ -387,73 +378,17 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         check = new int[size];
         base = new int[size];
 
-        DataInputStream is = null;
-        try {
-            is = new DataInputStream(new BufferedInputStream(
-                    IOUtil.newInputStream(fileName), BUF_SIZE));
-            for (int i = 0; i < size; i++) {
-                base[i] = is.readInt();
-                check[i] = is.readInt();
+        IOSafeHelper.openAutoCloseableFileInputStream(fileName, new InputStreamOperator() {
+            @Override
+            public void process(InputStream input) throws Exception {
+                DataInputStream is = new DataInputStream(new BufferedInputStream(input, BUF_SIZE));
+                for (int i = 0; i < size; i++) {
+                    base[i] = is.readInt();
+                    check[i] = is.readInt();
+                }
             }
-        }
-        finally {
-            if (is != null)
-                is.close();
-        }
+        });
     }
-//
-//    public boolean save(String fileName)
-//    {
-//        DataOutputStream out;
-//        try
-//        {
-//            out = new DataOutputStream(new BufferedOutputStream(IOUtil.newOutputStream(fileName)));
-//            out.writeInt(size);
-//            for (int i = 0; i < size; i++)
-//            {
-//                out.writeInt(base[i]);
-//                out.writeInt(check[i]);
-//            }
-//            out.close();
-//        }
-//        catch (Exception e)
-//        {
-//            return false;
-//        }
-//
-//        return true;
-//    }
-
-//    /**
-//     * 将base和check保存下来
-//     *
-//     * @param out
-//     * @return
-//     */
-//    public boolean save(DataOutputStream out)
-//    {
-//        try
-//        {
-//            out.writeInt(size);
-//            for (int i = 0; i < size; i++)
-//            {
-//                out.writeInt(base[i]);
-//                out.writeInt(check[i]);
-//            }
-//        }
-//        catch (Exception e)
-//        {
-//            return false;
-//        }
-//
-//        return true;
-//    }
-//
-//    public void save(ObjectOutputStream out) throws IOException
-//    {
-//        out.writeObject(base);
-//        out.writeObject(check);
-//    }
 
     /**
      * 从磁盘加载，需要额外提供值
@@ -463,7 +398,9 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @return
      */
     public boolean load(String path, List<V> value) {
-        if (!loadBaseAndCheck(path)) return false;
+        if (!loadBaseAndCheck(path)) {
+            return false;
+        }
         v = (V[]) value.toArray();
         return true;
     }
@@ -476,9 +413,9 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @return
      */
     public boolean load(String path, V[] value) {
-        if (!(IOAdapter == null ? loadBaseAndCheckByFileChannel(path) :
-                load(ByteArrayStream.createByteArrayStream(path), value)
-        )) return false;
+        if (!loadBaseAndCheckArray(path)) {
+            return false;
+        }
         v = value;
         return true;
     }
@@ -486,8 +423,8 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
     public boolean load(ByteArray byteArray, V[] value) {
         if (byteArray == null) return false;
         size = byteArray.nextInt();
-        base = new int[size + 65535];   // 多留一些，防止越界
-        check = new int[size + 65535];
+        base = new int[size + EXTRA_BYTE_SIZE];   // 多留一些，防止越界
+        check = new int[size + EXTRA_BYTE_SIZE];
         for (int i = 0; i < size; i++) {
             base[i] = byteArray.nextInt();
             check[i] = byteArray.nextInt();
@@ -499,68 +436,45 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 载入双数组，但是不提供值，此时本trie相当于一个set
-     *
-     * @param path
-     * @return
      */
     public boolean load(String path) {
-        return loadBaseAndCheckByFileChannel(path);
+        HanLpLogger.info(this,
+                String.format("begin to load base/check array from:%s", path));
+        boolean loadResult = loadBaseAndCheckArray(path);
+
+        HanLpLogger.info(this,
+                String.format("begin to load base/check array from:%s", path));
+        return loadResult;
     }
 
     /**
      * 从磁盘加载双数组
-     *
-     * @param path
-     * @return
      */
     private boolean loadBaseAndCheck(String path) {
-        try {
-            DataInputStream in = new DataInputStream(new BufferedInputStream(IOAdapter == null ?
-                    new FileInputStream(path) :
-                    IOAdapter.open(path)
-            ));
-            size = in.readInt();
-            base = new int[size + 65535];   // 多留一些，防止越界
-            check = new int[size + 65535];
-            for (int i = 0; i < size; i++) {
-                base[i] = in.readInt();
-                check[i] = in.readInt();
+        return IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
+            @Override
+            public void process(InputStream input) throws Exception {
+                DataInputStream dataInput = new DataInputStream(new BufferedInputStream(input));
+                size = dataInput.readInt();
+                // 多留一些，防止越界
+                base = new int[size + EXTRA_BYTE_SIZE];
+                check = new int[size + EXTRA_BYTE_SIZE];
+                for (int i = 0; i < size; i++) {
+                    base[i] = dataInput.readInt();
+                    check[i] = dataInput.readInt();
+                }
             }
-        }
-        catch (Exception e) {
-            return false;
-        }
-        return true;
+        });
     }
 
-    private boolean loadBaseAndCheckByFileChannel(String path) {
+    private boolean loadBaseAndCheckArray(String path) {
         try {
-            FileInputStream fis = new FileInputStream(path);
-            // 1.从FileInputStream对象获取文件通道FileChannel
-            FileChannel channel = fis.getChannel();
-            int fileSize = (int) channel.size();
-
-            // 2.从通道读取文件内容
-            ByteBuffer byteBuffer = ByteBuffer.allocate(fileSize);
-
-            // channel.read(ByteBuffer) 方法就类似于 inputstream.read(byte)
-            // 每次read都将读取 allocate 个字节到ByteBuffer
-            channel.read(byteBuffer);
-            // 注意先调用flip方法反转Buffer,再从Buffer读取数据
-            byteBuffer.flip();
-            // 有几种方式可以操作ByteBuffer
-            // 可以将当前Buffer包含的字节数组全部读取出来
-            byte[] bytes = byteBuffer.array();
-            byteBuffer.clear();
-            // 关闭通道和文件流
-            channel.close();
-            fis.close();
-
+            byte[] bytes = IOSafeHelper.readBytes(path);
             int index = 0;
             size = ByteUtil.bytesHighFirstToInt(bytes, index);
             index += 4;
-            base = new int[size + 65535];   // 多留一些，防止越界
-            check = new int[size + 65535];
+            base = new int[size + EXTRA_BYTE_SIZE];
+            check = new int[size + EXTRA_BYTE_SIZE];
             for (int i = 0; i < size; i++) {
                 base[i] = ByteUtil.bytesHighFirstToInt(bytes, index);
                 index += 4;
@@ -568,44 +482,14 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
                 index += 4;
             }
         }
-        catch (Exception e) {
+        catch (Exception ex) {
+            HanLpLogger.error(this,
+                    String.format("Failed to load base/check array from:%s", path));
             return false;
         }
         return true;
     }
 
-//    /**
-//     * 将自己序列化到
-//     *
-//     * @param path
-//     * @return
-//     */
-//    public boolean serializeTo(String path)
-//    {
-//        ObjectOutputStream out = null;
-//        try
-//        {
-//            out = new ObjectOutputStream(IOUtil.newOutputStream(path));
-//            out.writeObject(this);
-//        }
-//        catch (Exception e)
-//        {
-//            return false;
-//        }
-//        return true;
-//    }
-
-    public static <T> DoubleArrayTrie<T> unSerialize(String path) {
-        ObjectInputStream in;
-        try {
-            in = new ObjectInputStream(IOAdapter == null ? new FileInputStream(path) : IOAdapter.open(path));
-            return (DoubleArrayTrie<T>) in.readObject();
-        }
-        catch (Exception e) {
-//            e.printStackTrace();
-            return null;
-        }
-    }
 
     /**
      * 精确匹配

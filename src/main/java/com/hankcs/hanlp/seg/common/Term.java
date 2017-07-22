@@ -12,6 +12,7 @@
 package com.hankcs.hanlp.seg.common;
 
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.utility.LexiconUtility;
 
@@ -50,7 +51,7 @@ public class Term
     @Override
     public String toString()
     {
-        if (HanLP.Config.ShowTermNature)
+        if (HanLpGlobalSettings.ShowTermNature)
             return word + "/" + nature;
         return word;
     }

@@ -15,6 +15,7 @@ import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.corpus.util.CustomNatureUtility;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.seg.common.Term;
 
 import java.util.Arrays;
@@ -25,17 +26,15 @@ import java.util.LinkedHashSet;
  *
  * @author hankcs
  */
-public class LexiconUtility
-{
+public class LexiconUtility {
     /**
      * 从HanLP的词库中提取某个单词的属性（包括核心词典和用户词典）
      *
      * @param word 单词
      * @return 包含词性与频次的信息
      */
-    public static CoreDictionary.Attribute getAttribute(String word)
-    {
-        CoreDictionary.Attribute attribute = CoreDictionary.get(word);
+    public static WordAttribute getAttribute(String word) {
+        WordAttribute attribute = CoreDictionary.INSTANCE.get(word);
         if (attribute != null) return attribute;
         return CustomDictionary.get(word);
     }
@@ -46,37 +45,32 @@ public class LexiconUtility
      * @param term 单词
      * @return 包含词性与频次的信息
      */
-    public static CoreDictionary.Attribute getAttribute(Term term)
-    {
+    public static WordAttribute getAttribute(Term term) {
         return getAttribute(term.word);
     }
 
     /**
      * 获取某个单词的词频
-     * @param word
-     * @return
      */
-    public static int getFrequency(String word)
-    {
-        CoreDictionary.Attribute attribute = getAttribute(word);
+    public static int getFrequency(String word) {
+        WordAttribute attribute = getAttribute(word);
         if (attribute == null) return 0;
         return attribute.totalFrequency;
     }
 
     /**
      * 设置某个单词的属性
-     * @param word
-     * @param attribute
-     * @return
      */
-    public static boolean setAttribute(String word, CoreDictionary.Attribute attribute)
-    {
+    public static boolean setAttribute(String word, WordAttribute attribute) {
         if (attribute == null) return false;
 
-        if (CoreDictionary.trie.set(word, attribute)) return true;
-        if (CustomDictionary.dat.set(word, attribute)) return true;
-        if (CustomDictionary.trie == null)
-        {
+        if (CoreDictionary.INSTANCE.updateWordAttribute(word, attribute)) {
+            return true;
+        }
+        if (CustomDictionary.dat.set(word, attribute)) {
+            return true;
+        }
+        if (CustomDictionary.trie == null) {
             CustomDictionary.add(word);
         }
         CustomDictionary.trie.put(word, attribute);
@@ -85,15 +79,11 @@ public class LexiconUtility
 
     /**
      * 设置某个单词的属性
-     * @param word
-     * @param natures
-     * @return
      */
-    public static boolean setAttribute(String word, Nature... natures)
-    {
+    public static boolean setAttribute(String word, Nature... natures) {
         if (natures == null) return false;
 
-        CoreDictionary.Attribute attribute = new CoreDictionary.Attribute(natures, new int[natures.length]);
+        WordAttribute attribute = new WordAttribute(natures, new int[natures.length]);
         Arrays.fill(attribute.frequency, 1);
 
         return setAttribute(word, attribute);
@@ -101,17 +91,12 @@ public class LexiconUtility
 
     /**
      * 设置某个单词的属性
-     * @param word
-     * @param natures
-     * @return
      */
-    public static boolean setAttribute(String word, String... natures)
-    {
+    public static boolean setAttribute(String word, String... natures) {
         if (natures == null) return false;
 
         Nature[] natureArray = new Nature[natures.length];
-        for (int i = 0; i < natureArray.length; i++)
-        {
+        for (int i = 0; i < natureArray.length; i++) {
             natureArray[i] = Nature.create(natures[i]);
         }
 
@@ -121,30 +106,24 @@ public class LexiconUtility
 
     /**
      * 设置某个单词的属性
-     * @param word
-     * @param natureWithFrequency
-     * @return
      */
-    public static boolean setAttribute(String word, String natureWithFrequency)
-    {
-        CoreDictionary.Attribute attribute = CoreDictionary.Attribute.create(natureWithFrequency);
+    public static boolean setAttribute(String word, String natureWithFrequency) {
+        WordAttribute attribute = WordAttribute.create(natureWithFrequency);
         return setAttribute(word, attribute);
     }
 
     /**
      * 将字符串词性转为Enum词性
-     * @param name 词性名称
+     *
+     * @param name                  词性名称
      * @param customNatureCollector 一个收集集合
      * @return 转换结果
      */
-    public static Nature convertStringToNature(String name, LinkedHashSet<Nature> customNatureCollector)
-    {
-        try
-        {
+    public static Nature convertStringToNature(String name, LinkedHashSet<Nature> customNatureCollector) {
+        try {
             return Nature.valueOf(name);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             Nature nature = CustomNatureUtility.addNature(name);
             if (customNatureCollector != null) customNatureCollector.add(nature);
             return nature;

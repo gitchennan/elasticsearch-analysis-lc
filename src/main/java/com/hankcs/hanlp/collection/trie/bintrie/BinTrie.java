@@ -14,10 +14,8 @@ package com.hankcs.hanlp.collection.trie.bintrie;
 import com.hankcs.hanlp.collection.trie.ITrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.io.IOUtil;
+import com.hankcs.hanlp.io.IOSafeHelper;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.*;
 
 /**
@@ -25,8 +23,7 @@ import java.util.*;
  *
  * @author hankcs
  */
-public class BinTrie<V> extends BaseNode<V> implements ITrie<V>//, Externalizable
-{
+public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
     private int size;
 
     public BinTrie() {
@@ -358,8 +355,10 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>//, Externalizabl
      * @return 是否成功
      */
     public boolean load(String path, V[] value) {
-        byte[] bytes = IOUtil.readBytes(path);
-        if (bytes == null) return false;
+        byte[] bytes = IOSafeHelper.readBytes(path);
+        if (bytes == null) {
+            return false;
+        }
         _ValueArray valueArray = new _ValueArray(value);
         ByteArray byteArray = new ByteArray(bytes);
         for (int i = 0; i < child.length; ++i) {
@@ -381,8 +380,10 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V>//, Externalizabl
      * @return
      */
     public boolean load(String path) {
-        byte[] bytes = IOUtil.readBytes(path);
-        if (bytes == null) return false;
+        byte[] bytes = IOSafeHelper.readBytes(path);
+        if (bytes == null) {
+            return false;
+        }
         _ValueArray valueArray = new _EmptyValueArray();
         ByteArray byteArray = new ByteArray(bytes);
         for (int i = 0; i < child.length; ++i) {

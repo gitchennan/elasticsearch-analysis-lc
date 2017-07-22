@@ -11,7 +11,6 @@
  */
 package com.hankcs.hanlp.seg.Dijkstra;
 
-import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.recognition.nr.JapanesePersonRecognition;
 import com.hankcs.hanlp.recognition.nr.PersonRecognition;
 import com.hankcs.hanlp.recognition.nr.TranslatedPersonRecognition;
@@ -36,25 +35,17 @@ public class DijkstraSegment extends WordBasedGenerativeModelSegment {
     public List<Term> segSentence(char[] sentence) {
         WordNet wordNetOptimum = new WordNet(sentence);
         WordNet wordNetAll = new WordNet(wordNetOptimum.charArray);
-        ////////////////生成词网////////////////////
-        GenerateWordNet(wordNetAll);
-        ///////////////生成词图////////////////////
-        Graph graph = GenerateBiGraph(wordNetAll);
-        if (HanLP.Config.DEBUG) {
-            System.out.printf("粗分词图：%s\n", graph.printByTo());
-        }
-        List<Vertex> vertexList = dijkstra(graph);
-//        fixResultByRule(vertexList);
 
+        GenerateWordNet(wordNetAll);
+        Graph graph = GenerateBiGraph(wordNetAll);
+
+        List<Vertex> vertexList = dijkstra(graph);
         if (config.useCustomDictionary) {
             if (config.indexMode)
                 combineByCustomDictionary(vertexList, wordNetAll);
             else combineByCustomDictionary(vertexList);
         }
 
-        if (HanLP.Config.DEBUG) {
-            System.out.println("粗分结果" + convert(vertexList, false));
-        }
 
         // 数字识别
         if (config.numberQuantifierRecognize) {
@@ -89,10 +80,6 @@ public class DijkstraSegment extends WordBasedGenerativeModelSegment {
             if (wordNetOptimum.size() != preSize) {
                 graph = GenerateBiGraph(wordNetOptimum);
                 vertexList = dijkstra(graph);
-                if (HanLP.Config.DEBUG) {
-                    System.out.printf("细分词网：\n%s\n", wordNetOptimum);
-                    System.out.printf("细分词图：%s\n", graph.printByTo());
-                }
             }
         }
 

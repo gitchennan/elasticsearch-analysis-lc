@@ -14,13 +14,14 @@ package com.hankcs.hanlp.dictionary.common;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
+import com.hankcs.hanlp.io.IOSafeHelper;
+import com.hankcs.hanlp.io.InputStreamOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-
-import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 通用的词典，对应固定格式的词典，但是标签可以泛型化
@@ -39,25 +40,20 @@ public abstract class CommonDictionary<V> {
             return false;
         }
         HanLpLogger.info(this.getClass(), "加载值" + path + "成功，耗时" + (System.currentTimeMillis() - start) + "ms");
-//        start = System.currentTimeMillis();
-//        if (loadDat(path + ".trie.dat", valueArray))
-//        {
-//            logger.info("加载键" + path + ".trie.dat成功，耗时" + (System.currentTimeMillis() - start) + "ms");
-//            return true;
-//        }
+
         List<String> keyList = new ArrayList<String>(valueArray.length);
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] paramArray = line.split("\\s");
-                keyList.add(paramArray[0]);
+        IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
+            @Override
+            public void process(InputStream input) throws Exception {
+                BufferedReader br = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] paramArray = line.split("\\s");
+                    keyList.add(paramArray[0]);
+                }
             }
-            br.close();
-        }
-        catch (Exception e) {
-            logger.warning("读取" + path + "失败" + e);
-        }
+        });
+
         int resultCode = trie.build(keyList, valueArray);
         if (resultCode != 0) {
             HanLpLogger.warn(this.getClass(), "trie建立失败" + resultCode + ",正在尝试排序后重载");
@@ -72,22 +68,15 @@ public abstract class CommonDictionary<V> {
                 valueArray[i++] = v;
             }
         }
-//        trie.save(path + ".trie.dat");
-//        onSaveValue(valueArray, path);
-        logger.info(path + "加载成功");
+
+        HanLpLogger.info(CommonDictionary.class, path + "加载成功");
         return true;
     }
 
-//    private boolean loadDat(String path, V[] valueArray)
-//    {
-//        if (trie.load(path, valueArray)) return true;
-//        return false;
-//    }
 
     /**
      * 查询一个单词
      *
-     * @param key
      * @return 单词对应的条目
      */
     public V get(String key) {
@@ -96,9 +85,6 @@ public abstract class CommonDictionary<V> {
 
     /**
      * 是否含有键
-     *
-     * @param key
-     * @return
      */
     public boolean contains(String key) {
         return get(key) != null;
@@ -106,53 +92,16 @@ public abstract class CommonDictionary<V> {
 
     /**
      * 词典大小
-     *
-     * @return
      */
     public int size() {
         return trie.size();
     }
 
-//    /**
-//     * 排序这个词典
-//     *
-//     * @param path
-//     * @return
-//     */
-//    public static boolean sort(String path) {
-//        TreeMap<String, String> map = new TreeMap<String, String>();
-//        try {
-//            BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.newInputStream(path), "UTF-8"));
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                String[] argArray = line.split("\\s");
-//                map.put(argArray[0], line);
-//            }
-//            br.close();
-//            // 输出它们
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
-//            for (Map.Entry<String, String> entry : map.entrySet()) {
-//                bw.write(entry.getValue());
-//                bw.newLine();
-//            }
-//            bw.close();
-//        }
-//        catch (Exception e) {
-//            logger.warning("读取" + path + "失败" + e);
-//            return false;
-//        }
-//        return true;
-//    }
 
     /**
      * 实现此方法来加载值
-     *
-     * @param path
-     * @return
      */
     protected abstract V[] doLoadDictionary(String path);
-
-//    protected abstract boolean onSaveValue(V[] valueArray, String path);
 
     public BaseSearcher getSearcher(String text) {
         return new Searcher(text);

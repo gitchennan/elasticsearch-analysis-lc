@@ -11,12 +11,13 @@
  */
 package com.hankcs.hanlp.dictionary.nt;
 
-import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NT;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.TransformMatrixDictionary;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
@@ -46,11 +47,11 @@ public class OrganizationDictionary {
     /**
      * 本词典专注的词的ID
      */
-    static final int WORD_ID = CoreDictionary.getWordID(Predefine.TAG_GROUP);
+    static final int WORD_ID = CoreDictionary.INSTANCE.getWordID(Predefine.TAG_GROUP);
     /**
      * 本词典专注的词的属性
      */
-    static final CoreDictionary.Attribute ATTRIBUTE = CoreDictionary.get(WORD_ID);
+    static final WordAttribute ATTRIBUTE = CoreDictionary.INSTANCE.get(WORD_ID);
 
     private static void addKeyword(TreeMap<String, String> patternMap, String keyword) {
         patternMap.put(keyword, keyword);
@@ -59,12 +60,12 @@ public class OrganizationDictionary {
     static {
         long start = System.currentTimeMillis();
         dictionary = new NTDictionary();
-        dictionary.load(HanLP.Config.OrganizationDictionaryPath);
+        dictionary.load(HanLpGlobalSettings.OrganizationDictionaryPath);
 
 
-        HanLpLogger.info(OrganizationDictionary.class, HanLP.Config.OrganizationDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        HanLpLogger.info(OrganizationDictionary.class, HanLpGlobalSettings.OrganizationDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
         transformMatrixDictionary = new TransformMatrixDictionary<NT>(NT.class);
-        transformMatrixDictionary.load(HanLP.Config.OrganizationDictionaryTrPath);
+        transformMatrixDictionary.load(HanLpGlobalSettings.OrganizationDictionaryTrPath);
         trie = new AhoCorasickDoubleArrayTrie<String>();
         TreeMap<String, String> patternMap = new TreeMap<String, String>();
         addKeyword(patternMap, "CCCCCCCCD");
@@ -3756,12 +3757,10 @@ public class OrganizationDictionary {
                 }
                 String name = sbName.toString();
                 // 对一些bad case做出调整
-                if (isBadCase(name)) return;
-
-                // 正式算它是一个名字
-                if (HanLP.Config.DEBUG) {
-                    System.out.printf("识别出机构名：%s %s\n", name, keyword);
+                if (isBadCase(name)) {
+                    return;
                 }
+
                 int offset = 0;
                 for (int i = 0; i < begin; ++i) {
                     offset += wordArray[i].realWord.length();

@@ -47,11 +47,29 @@ public class IOSafeHelper {
         }
     }
 
-    public static void openAutoCloseableInputStream(InputStreamCreator creator, InputStreamOperator operator) {
+    public static boolean openAutoCloseableFileReader(String filePath, LineOperator lineOperator) {
+        return openAutoCloseableFileReader(filePath, lineOperator, "UTF-8");
+    }
+
+    public static boolean openAutoCloseableFileReader(String filePath, LineOperator lineOperator, String encoding) {
+        return openAutoCloseableFileInputStream(filePath, new InputStreamOperator() {
+            @Override
+            public void process(InputStream input) throws Exception {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input, encoding));
+                String line;
+                while (null != (line = bufferedReader.readLine())) {
+                    lineOperator.process(line);
+                }
+            }
+        });
+    }
+
+    public static boolean openAutoCloseableInputStream(InputStreamCreator creator, InputStreamOperator operator) {
         InputStream inputStream = null;
         try {
             inputStream = creator.create();
             operator.process(inputStream);
+            return true;
         }
         catch (Throwable t) {
             operator.onError(t);
@@ -59,13 +77,15 @@ public class IOSafeHelper {
         finally {
             safeClose(inputStream);
         }
+        return false;
     }
 
-    public static void openAutoCloseableOutputStream(OutputStreamCreator creator, OutputStreamOperator operator) {
+    public static boolean openAutoCloseableOutputStream(OutputStreamCreator creator, OutputStreamOperator operator) {
         OutputStream outputStream = null;
         try {
             outputStream = creator.create();
             operator.process(outputStream);
+            return true;
         }
         catch (Throwable t) {
             operator.onError(t);
@@ -73,10 +93,11 @@ public class IOSafeHelper {
         finally {
             safeClose(outputStream);
         }
+        return false;
     }
 
-    public static void openAutoCloseableFileInputStream(String filePath, InputStreamOperator operator) {
-        openAutoCloseableInputStream(new InputStreamCreator() {
+    public static boolean openAutoCloseableFileInputStream(String filePath, InputStreamOperator operator) {
+        return openAutoCloseableInputStream(new InputStreamCreator() {
             @Override
             public InputStream create() throws IOException {
                 return new FileInputStream(filePath);
@@ -84,8 +105,8 @@ public class IOSafeHelper {
         }, operator);
     }
 
-    public static void openAutoCloseableFileOutputStream(String filePath, OutputStreamOperator operator) {
-        openAutoCloseableOutputStream(new OutputStreamCreator() {
+    public static boolean openAutoCloseableFileOutputStream(String filePath, OutputStreamOperator operator) {
+        return openAutoCloseableOutputStream(new OutputStreamCreator() {
             @Override
             public OutputStream create() throws IOException {
                 return new FileOutputStream(filePath);

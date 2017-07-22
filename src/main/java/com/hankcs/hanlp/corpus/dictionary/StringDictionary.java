@@ -12,14 +12,10 @@
 package com.hankcs.hanlp.corpus.dictionary;
 
 
-import com.hankcs.hanlp.corpus.io.IOUtil;
+import com.hankcs.hanlp.log.HanLpLogger;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.util.AbstractMap;
 import java.util.Map;
-import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * 满足 key=value 格式的词典，其中“=”可以自定义
  * @author hankcs
@@ -47,7 +43,7 @@ public class StringDictionary extends SimpleDictionary<String>
         String[] paramArray = line.split(separator, 2);
         if (paramArray.length != 2)
         {
-            logger.warning("词典有一行读取错误： " + line);
+            HanLpLogger.error(StringDictionary.class, "词典有一行读取错误： " + line);
             return null;
         }
         return new AbstractMap.SimpleEntry<String, String>(paramArray[0], paramArray[1]);
@@ -63,7 +59,7 @@ public class StringDictionary extends SimpleDictionary<String>
 //        try
 //        {
 //            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
-//            for (Map.Entry<String, String> entry : trie.entrySet())
+//            for (Map.Entry<String, String> entry : doubleArrayTrie.entrySet())
 //            {
 //                bw.write(entry.getKey());
 //                bw.write(separator);
@@ -82,7 +78,6 @@ public class StringDictionary extends SimpleDictionary<String>
 
     /**
      * 将自己逆转过来返回
-     * @return
      */
     public StringDictionary reverse()
     {

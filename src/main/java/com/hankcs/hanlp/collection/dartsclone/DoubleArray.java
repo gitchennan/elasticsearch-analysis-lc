@@ -83,7 +83,7 @@ public class DoubleArray
     }
 
     /**
-     * Saves the trie data into a stream.
+     * Saves the doubleArrayTrie data into a stream.
      *
      * @param stream
      * @throws java.io.IOException

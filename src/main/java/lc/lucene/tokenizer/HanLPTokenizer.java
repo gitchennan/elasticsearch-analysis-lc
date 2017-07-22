@@ -1,7 +1,7 @@
 //package lc.lucene.tokenizer;
 //
 //
-//import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
+//import com.hankcs.hanlp.collection.doubleArrayTrie.bintrie.BinTrie;
 //import com.hankcs.hanlp.corpus.tag.Nature;
 //import com.hankcs.hanlp.seg.BaseSegment;
 //import com.hankcs.hanlp.seg.common.Term;

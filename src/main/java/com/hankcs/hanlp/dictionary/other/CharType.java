@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.other;
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -19,10 +20,7 @@ import com.hankcs.hanlp.utility.TextUtility;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
-
-import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 字符类型
@@ -69,25 +67,18 @@ public class CharType {
 
     static {
         type = new byte[65536];
-//        logger.info("字符类型对应表开始加载 " + HanLP.Config.CharTypePath);
+
         long start = System.currentTimeMillis();
-//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CharTypePath);
-//        if (byteArray == null)
-//        {
+
         ByteArray byteArray = null;
         try {
             byteArray = generate();
         }
         catch (IOException e) {
-            e.printStackTrace();
-            logger.severe("字符类型对应表 " + " 加载失败： " + TextUtility.exceptionToString(e));
-            System.exit(-1);
+            HanLpLogger.error(CharType.class, "字符类型对应表 " + " 加载失败： " + TextUtility.exceptionToString(e));
         }
-//    }
 
-        while (byteArray.hasMore())
-
-        {
+        while (byteArray.hasMore()) {
             int b = byteArray.nextChar();
             int e = byteArray.nextChar();
             byte t = byteArray.nextByte();
@@ -96,54 +87,42 @@ public class CharType {
             }
         }
 
-        logger.info("字符类型对应表加载成功，耗时" + (System.currentTimeMillis() - start) + " ms");
+        HanLpLogger.info(CharType.class,
+                "字符类型对应表加载成功，耗时" + (System.currentTimeMillis() - start) + " ms");
     }
 
     private static ByteArray generate() throws IOException {
         int preType = 5;
         int preChar = 0;
-        List<int[]> typeList = new LinkedList<int[]>();
+        List<int[]> typeList = Lists.newLinkedList();
         for (int i = 0; i <= Character.MAX_VALUE; ++i) {
             int type = TextUtility.charType((char) i);
-//            System.out.printf("%d %d\n", i, TextUtility.charType((char) i));
             if (type != preType) {
                 int[] array = new int[3];
                 array[0] = preChar;
                 array[1] = i - 1;
                 array[2] = preType;
                 typeList.add(array);
-//                System.out.printf("%d %d %d\n", array[0], array[1], array[2]);
                 preChar = i;
             }
             preType = type;
         }
-        {
-            int[] array = new int[3];
-            array[0] = preChar;
-            array[1] = (int) Character.MAX_VALUE;
-            array[2] = preType;
-            typeList.add(array);
-        }
 
-//        DataOutputStream out = new DataOutputStream(new FileOutputStream(HanLP.Config.CharTypePath));
-//        for (int[] array : typeList) {
-//            out.writeChar(array[0]);
-//            out.writeChar(array[1]);
-//            out.writeByte(array[2]);
-//        }
-//        out.close();
+        int[] array = new int[3];
+        array[0] = preChar;
+        array[1] = (int) Character.MAX_VALUE;
+        array[2] = preType;
+        typeList.add(array);
 
-//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CharTypePath);
-//        return byteArray;
 
         ByteArrayOutputStream byteArrayOut = null;
         try {
             byteArrayOut = new ByteArrayOutputStream();
             DataOutputStream out = new DataOutputStream(byteArrayOut);
-            for (int[] array : typeList) {
-                out.writeChar(array[0]);
-                out.writeChar(array[1]);
-                out.writeByte(array[2]);
+            for (int[] tArray : typeList) {
+                out.writeChar(tArray[0]);
+                out.writeChar(tArray[1]);
+                out.writeByte(tArray[2]);
             }
             out.flush();
             byteArrayOut.flush();

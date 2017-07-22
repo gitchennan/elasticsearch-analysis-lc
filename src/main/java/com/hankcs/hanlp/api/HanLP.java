@@ -11,31 +11,15 @@
  */
 package com.hankcs.hanlp.api;
 
-import com.hankcs.hanlp.corpus.io.IIOAdapter;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
 import com.hankcs.hanlp.dictionary.ts.*;
-import com.hankcs.hanlp.io.IOSafeHelper;
-import com.hankcs.hanlp.io.InputStreamCreator;
-import com.hankcs.hanlp.io.InputStreamOperator;
-import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.Viterbi.ViterbiSegment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
-import com.hankcs.hanlp.utility.Predefine;
-import com.hankcs.hanlp.utility.TextUtility;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-
-import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * HanLP: Han Language Processing <br>
@@ -45,281 +29,31 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  * @author hankcs
  */
 public class HanLP {
-    /**
-     * 库的全局配置，既可以用代码修改，也可以通过hanlp.properties配置（按照 变量名=值 的形式）
-     */
-    public static final class Config {
-        /**
-         * 开发模式
-         */
-        public static boolean DEBUG = false;
-        /**
-         * 核心词典路径
-         */
-        public static String CoreDictionaryPath = "data/dictionary/CoreNatureDictionary.txt";
-        /**
-         * 核心词典词性转移矩阵路径
-         */
-        public static String CoreDictionaryTransformMatrixDictionaryPath = "data/dictionary/CoreNatureDictionary.tr.txt";
-        /**
-         * 用户自定义词典路径
-         */
-        public static String CustomDictionaryPath[] = new String[]{"data/dictionary/custom/CustomDictionary.txt"};
-        /**
-         * 2元语法词典路径
-         */
-        public static String BiGramDictionaryPath = "data/dictionary/CoreNatureDictionary.ngram.txt";
 
-        /**
-         * 停用词词典路径
-         */
-        public static String CoreStopWordDictionaryPath = "data/dictionary/stopwords.txt";
-        /**
-         * 同义词词典路径
-         */
-        public static String CoreSynonymDictionaryDictionaryPath = "data/dictionary/synonym/CoreSynonym.txt";
-        /**
-         * 人名词典路径
-         */
-        public static String PersonDictionaryPath = "data/dictionary/person/nr.txt";
-        /**
-         * 人名词典转移矩阵路径
-         */
-        public static String PersonDictionaryTrPath = "data/dictionary/person/nr.tr.txt";
-        /**
-         * 地名词典路径
-         */
-        public static String PlaceDictionaryPath = "data/dictionary/place/ns.txt";
-        /**
-         * 地名词典转移矩阵路径
-         */
-        public static String PlaceDictionaryTrPath = "data/dictionary/place/ns.tr.txt";
-        /**
-         * 地名词典路径
-         */
-        public static String OrganizationDictionaryPath = "data/dictionary/organization/nt.txt";
-        /**
-         * 地名词典转移矩阵路径
-         */
-        public static String OrganizationDictionaryTrPath = "data/dictionary/organization/nt.tr.txt";
-        /**
-         * 简繁转换词典根目录
-         */
-        public static String tcDictionaryRoot = "data/dictionary/tc/";
-        /**
-         * 声母韵母语调词典
-         */
-        public static String SYTDictionaryPath = "data/dictionary/pinyin/SYTDictionary.txt";
+    private HanLP() {
 
-        /**
-         * 拼音词典路径
-         */
-        public static String PinyinDictionaryPath = "data/dictionary/pinyin/pinyin.txt";
-
-        /**
-         * 音译人名词典
-         */
-        public static String TranslatedPersonDictionaryPath = "data/dictionary/person/nrf.txt";
-
-        /**
-         * 日本人名词典路径
-         */
-        public static String JapanesePersonDictionaryPath = "data/dictionary/person/nrj.txt";
-
-        /**
-         * 字符类型对应表
-         */
-//        public static String CharTypePath = "data/dictionary/other/CharType.bin";
-
-        /**
-         * 字符正规化表（全角转半角，繁体转简体）
-         */
-        public static String CharTablePath = "data/dictionary/other/CharTable.txt";
-
-        /**
-         * 词-词性-依存关系模型
-         */
-        public static String WordNatureModelPath = "data/model/dependency/WordNature.txt";
-
-        /**
-         * 最大熵-依存关系模型
-         */
-        public static String MaxEntModelPath = "data/model/dependency/MaxEntModel.txt";
-        /**
-         * 神经网络依存模型路径
-         */
-        public static String NNParserModelPath = "data/model/dependency/NNParserModel.txt";
-        /**
-         * CRF分词模型
-         */
-        public static String CRFSegmentModelPath = "data/model/segment/CRFSegmentModel.txt";
-        /**
-         * HMM分词模型
-         */
-//        public static String HMMSegmentModelPath = "data/model/segment/HMMSegmentModel.bin";
-        /**
-         * CRF依存模型
-         */
-        public static String CRFDependencyModelPath = "data/model/dependency/CRFDependencyModelMini.txt";
-        /**
-         * 分词结果是否展示词性
-         */
-        public static boolean ShowTermNature = true;
-        /**
-         * 是否执行字符正规化（繁体->简体，全角->半角，大写->小写），切换配置后必须删CustomDictionary.txt.bin缓存
-         */
-        public static boolean Normalization = false;
-        /**
-         * IO适配器（默认null，表示从本地文件系统读取），实现com.hankcs.hanlp.corpus.io.IIOAdapter接口
-         * 以在不同的平台（Hadoop、Redis等）上运行HanLP
-         */
-        public static IIOAdapter IOAdapter;
-
-        static {
-            // 自动读取配置
-            Properties p = new Properties();
-            try {
-                IOSafeHelper.openAutoCloseableInputStream(new InputStreamCreator() {
-                    @Override
-                    public InputStream create() throws Exception {
-                        if (Predefine.HANLP_PROPERTIES_PATH == null) {
-                            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                            if (loader == null) {
-                                loader = HanLP.Config.class.getClassLoader();
-                            }
-                            InputStream inputStream = loader.getResourceAsStream("hanlp.properties");
-                            if (inputStream == null) {
-                                throw new FileNotFoundException("HanLp setting file[hanlp.properties] not found");
-                            }
-                        }
-                        return new FileInputStream(Predefine.HANLP_PROPERTIES_PATH);
-                    }
-                }, new InputStreamOperator() {
-                    @Override
-                    public void process(InputStream input) throws Exception {
-                        p.load(new InputStreamReader(input, "UTF-8"));
-                    }
-                });
-
-                String root = p.getProperty("root", "").replaceAll("\\\\", "/");
-                if (root.length() > 0 && !root.endsWith("/")) root += "/";
-                CoreDictionaryPath = root + p.getProperty("CoreDictionaryPath", CoreDictionaryPath);
-                CoreDictionaryTransformMatrixDictionaryPath = root + p.getProperty("CoreDictionaryTransformMatrixDictionaryPath", CoreDictionaryTransformMatrixDictionaryPath);
-                BiGramDictionaryPath = root + p.getProperty("BiGramDictionaryPath", BiGramDictionaryPath);
-                CoreStopWordDictionaryPath = root + p.getProperty("CoreStopWordDictionaryPath", CoreStopWordDictionaryPath);
-                CoreSynonymDictionaryDictionaryPath = root + p.getProperty("CoreSynonymDictionaryDictionaryPath", CoreSynonymDictionaryDictionaryPath);
-                PersonDictionaryPath = root + p.getProperty("PersonDictionaryPath", PersonDictionaryPath);
-                PersonDictionaryTrPath = root + p.getProperty("PersonDictionaryTrPath", PersonDictionaryTrPath);
-                String[] pathArray = p.getProperty("CustomDictionaryPath", "data/dictionary/custom/CustomDictionary.txt").split(";");
-                String prePath = root;
-                for (int i = 0; i < pathArray.length; ++i) {
-                    if (pathArray[i].startsWith(" ")) {
-                        pathArray[i] = prePath + pathArray[i].trim();
-                    }
-                    else {
-                        pathArray[i] = root + pathArray[i];
-                        int lastSplash = pathArray[i].lastIndexOf('/');
-                        if (lastSplash != -1) {
-                            prePath = pathArray[i].substring(0, lastSplash + 1);
-                        }
-                    }
-                }
-                CustomDictionaryPath = pathArray;
-                tcDictionaryRoot = root + p.getProperty("tcDictionaryRoot", tcDictionaryRoot);
-                if (!tcDictionaryRoot.endsWith("/")) tcDictionaryRoot += '/';
-                SYTDictionaryPath = root + p.getProperty("SYTDictionaryPath", SYTDictionaryPath);
-                PinyinDictionaryPath = root + p.getProperty("PinyinDictionaryPath", PinyinDictionaryPath);
-                TranslatedPersonDictionaryPath = root + p.getProperty("TranslatedPersonDictionaryPath", TranslatedPersonDictionaryPath);
-                JapanesePersonDictionaryPath = root + p.getProperty("JapanesePersonDictionaryPath", JapanesePersonDictionaryPath);
-                PlaceDictionaryPath = root + p.getProperty("PlaceDictionaryPath", PlaceDictionaryPath);
-                PlaceDictionaryTrPath = root + p.getProperty("PlaceDictionaryTrPath", PlaceDictionaryTrPath);
-                OrganizationDictionaryPath = root + p.getProperty("OrganizationDictionaryPath", OrganizationDictionaryPath);
-                OrganizationDictionaryTrPath = root + p.getProperty("OrganizationDictionaryTrPath", OrganizationDictionaryTrPath);
-//                CharTypePath = root + p.getProperty("CharTypePath", CharTypePath);
-                CharTablePath = root + p.getProperty("CharTablePath", CharTablePath);
-                WordNatureModelPath = root + p.getProperty("WordNatureModelPath", WordNatureModelPath);
-                MaxEntModelPath = root + p.getProperty("MaxEntModelPath", MaxEntModelPath);
-                NNParserModelPath = root + p.getProperty("NNParserModelPath", NNParserModelPath);
-                CRFSegmentModelPath = root + p.getProperty("CRFSegmentModelPath", CRFSegmentModelPath);
-                CRFDependencyModelPath = root + p.getProperty("CRFDependencyModelPath", CRFDependencyModelPath);
-//                HMMSegmentModelPath = root + p.getProperty("HMMSegmentModelPath", HMMSegmentModelPath);
-                ShowTermNature = "true".equals(p.getProperty("ShowTermNature", "true"));
-                Normalization = "true".equals(p.getProperty("Normalization", "false"));
-
-                String ioAdapterClassName = p.getProperty("IOAdapter");
-                if (ioAdapterClassName != null) {
-                    try {
-                        Class<?> clazz = Class.forName(ioAdapterClassName);
-                        Constructor<?> ctor = clazz.getConstructor();
-                        Object instance = ctor.newInstance();
-                        IOAdapter = (IIOAdapter) instance;
-                    }
-                    catch (ClassNotFoundException e) {
-                        logger.warning(String.format("找不到IO适配器类： %s ，请检查第三方插件jar包", ioAdapterClassName));
-                    }
-                    catch (NoSuchMethodException e) {
-                        logger.warning(String.format("工厂类[%s]没有默认构造方法，不符合要求", ioAdapterClassName));
-                    }
-                    catch (SecurityException e) {
-                        logger.warning(String.format("工厂类[%s]默认构造方法无法访问，不符合要求", ioAdapterClassName));
-                    }
-                    catch (Exception e) {
-                        logger.warning(String.format("工厂类[%s]构造失败：%s\n", ioAdapterClassName, TextUtility.exceptionToString(e)));
-                    }
-                }
-            }
-            catch (Exception e) {
-                HanLpLogger.error(HanLP.class, "Failed to load hanLp settings", e);
-//                StringBuilder sbInfo = new StringBuilder("========Tips========\n请将hanlp.properties放在下列目录：\n"); // 打印一些友好的tips
-//                String classPath = (String) System.getProperties().get("java.class.path");
-//                if (classPath != null)
-//                {
-//                    for (String path : classPath.split(File.pathSeparator))
-//                    {
-//                        if (new File(path).isDirectory())
-//                        {
-//                            sbInfo.append(path).append('\n');
-//                        }
-//                    }
-//                }
-//                sbInfo.append("Web项目则请放到下列目录：\n" +
-//                                      "Webapp/WEB-INF/lib\n" +
-//                                      "Webapp/WEB-INF/classes\n" +
-//                                      "Appserver/lib\n" +
-//                                      "JRE/lib\n");
-//                sbInfo.append("并且编辑root=PARENT/path/to/your/data\n");
-//                sbInfo.append("现在HanLP将尝试从").append(System.getProperties().get("user.dir")).append("读取data……");
-//                logger.severe("没有找到hanlp.properties，可能会导致找不到data\n" + sbInfo);
-            }
-        }
-
-        /**
-         * 开启调试模式(会降低性能)
-         */
-        public static void enableDebug() {
-            enableDebug(true);
-        }
-
-        /**
-         * 开启调试模式(会降低性能)
-         *
-         * @param enable
-         */
-        public static void enableDebug(boolean enable) {
-            DEBUG = enable;
-            if (DEBUG) {
-                logger.setLevel(Level.ALL);
-            }
-            else {
-                logger.setLevel(Level.OFF);
-            }
-        }
     }
 
     /**
-     * 工具类，不需要生成实例
+     * 分词
+     *
+     * @param text 文本
+     * @return 切分后的单词
      */
-    private HanLP() {
+    public static List<Term> segment(String text) {
+        return StandardTokenizer.segment(text.toCharArray());
+    }
+
+    /**
+     * 创建一个分词器<br>
+     * 这是一个工厂方法<br>
+     * 与直接new一个分词器相比，使用本方法的好处是，以后HanLP升级了，总能用上最合适的分词器
+     *
+     * @return 一个分词器
+     */
+    public static Segment newSegment() {
+        // Viterbi分词器是目前效率和效果的最佳平衡
+        return new ViterbiSegment();
     }
 
     /**
@@ -521,82 +255,4 @@ public class HanLP {
         }
         return sb.toString();
     }
-
-    /**
-     * 分词
-     *
-     * @param text 文本
-     * @return 切分后的单词
-     */
-    public static List<Term> segment(String text) {
-        return StandardTokenizer.segment(text.toCharArray());
-    }
-
-    /**
-     * 创建一个分词器<br>
-     * 这是一个工厂方法<br>
-     * 与直接new一个分词器相比，使用本方法的好处是，以后HanLP升级了，总能用上最合适的分词器
-     *
-     * @return 一个分词器
-     */
-    public static Segment newSegment() {
-        return new ViterbiSegment();   // Viterbi分词器是目前效率和效果的最佳平衡
-    }
-
-//    /**
-//     * 依存文法分析
-//     *
-//     * @param sentence 待分析的句子
-//     * @return CoNLL格式的依存关系树
-//     */
-//    public static CoNLLSentence parseDependency(String sentence) {
-//        return NeuralNetworkDependencyParser.compute(sentence);
-//    }
-//
-//    /**
-//     * 提取短语
-//     *
-//     * @param text 文本
-//     * @param size 需要多少个短语
-//     * @return 一个短语列表，大小 <= size
-//     */
-//    public static List<String> extractPhrase(String text, int size) {
-//        IPhraseExtractor extractor = new MutualInformationEntropyPhraseExtractor();
-//        return extractor.extractPhrase(text, size);
-//    }
-//
-//    /**
-//     * 提取关键词
-//     *
-//     * @param document 文档内容
-//     * @param size     希望提取几个关键词
-//     * @return 一个列表
-//     */
-//    public static List<String> extractKeyword(String document, int size) {
-//        return TextRankKeyword.getKeywordList(document, size);
-//    }
-//
-//    /**
-//     * 自动摘要
-//     *
-//     * @param document 目标文档
-//     * @param size     需要的关键句的个数
-//     * @return 关键句列表
-//     */
-//    public static List<String> extractSummary(String document, int size) {
-//        return TextRankSentence.getTopSentenceList(document, size);
-//    }
-//
-//    /**
-//     * 自动摘要
-//     *
-//     * @param document   目标文档
-//     * @param max_length 需要摘要的长度
-//     * @return 摘要文本
-//     */
-//    public static String getSummary(String document, int max_length) {
-//        // Parameter size in this method refers to the string length of the summary required;
-//        // The actual length of the summary generated may be short than the required length, but never longer;
-//        return TextRankSentence.getSummary(document, max_length);
-//    }
 }

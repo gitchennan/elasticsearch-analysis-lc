@@ -118,7 +118,7 @@ public class Viterbi
             int curIndex = 0;
             for (Nature cur : item.attribute.nature)
             {
-                cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.attribute.frequency[curIndex] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                cost[0][j] = transformMatrixDictionary.transition_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.attribute.frequency[curIndex] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                 ++j;
                 ++curIndex;
             }
@@ -141,7 +141,7 @@ public class Viterbi
                 int j = 0;
                 for (Nature p : preTagSet)
                 {
-                    double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[p.ordinal()][cur.ordinal()] - Math.log((item.attribute.frequency[k] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                    double now = cost[index_i_1][j] + transformMatrixDictionary.transition_probability[p.ordinal()][cur.ordinal()] - Math.log((item.attribute.frequency[k] + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                     if (now < cost[index_i][k])
                     {
                         cost[index_i][k] = now;
@@ -187,7 +187,7 @@ public class Viterbi
             int j = 0;
             for (E cur : item.labelMap.keySet())
             {
-                cost[0][j] = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                cost[0][j] = transformMatrixDictionary.transition_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                 ++j;
             }
             preTagSet = item.labelMap.keySet();
@@ -208,7 +208,7 @@ public class Viterbi
                 int j = 0;
                 for (E p : preTagSet)
                 {
-                    double now = cost[index_i_1][j] + transformMatrixDictionary.transititon_probability[p.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                    double now = cost[index_i_1][j] + transformMatrixDictionary.transition_probability[p.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                     if (now < cost[index_i][k])
                     {
                         cost[index_i][k] = now;
@@ -253,7 +253,7 @@ public class Viterbi
             EnumItem<E> item = iterator.next();
             for (E cur : item.labelMap.keySet())
             {
-                double now = transformMatrixDictionary.transititon_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
+                double now = transformMatrixDictionary.transition_probability[pre.ordinal()][cur.ordinal()] - Math.log((item.getFrequency(cur) + 1e-8) / transformMatrixDictionary.getTotalFrequency(cur));
                 if (perfect_cost > now)
                 {
                     perfect_cost = now;

@@ -13,7 +13,7 @@
 //
 //import com.hankcs.hanlp.api.HanLP;
 //import com.hankcs.hanlp.algorithm.Viterbi;
-//import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
+//import com.hankcs.hanlp.collection.doubleArrayTrie.bintrie.BinTrie;
 //import com.hankcs.hanlp.corpus.tag.Nature;
 //import com.hankcs.hanlp.dictionary.CoreDictionary;
 //import com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary;
@@ -70,7 +70,7 @@
 //
 //    public CRFSegment()
 //    {
-//        this(HanLP.Config.CRFSegmentModelPath);
+//        this(HanLpGlobalSettings.CRFSegmentModelPath);
 //    }
 //
 //    @Override
@@ -82,7 +82,7 @@
 //        table.v = atomSegmentToTable(sentenceConverted);
 //        crfModel.tag(table);
 //        List<Term> termList = new LinkedList<Term>();
-//        if (HanLP.Config.DEBUG)
+//        if (HanLpGlobalSettings.DEBUG)
 //        {
 //            System.out.println("CRF标注结果");
 //            System.out.println(table);
@@ -151,11 +151,11 @@
 //        if (appendStart) vertexList.add(Vertex.B);
 //        for (Term term : termList)
 //        {
-//            CoreDictionary.Attribute attribute = CoreDictionary.get(term.word);
+//            WordAttribute attribute = CoreDictionary.get(term.word);
 //            if (attribute == null)
 //            {
-//                if (term.word.trim().length() == 0) attribute = new CoreDictionary.Attribute(Nature.x);
-//                else attribute = new CoreDictionary.Attribute(Nature.nz);
+//                if (term.word.trim().length() == 0) attribute = new WordAttribute(Nature.x);
+//                else attribute = new WordAttribute(Nature.nz);
 //            }
 //            else term.nature = attribute.nature[0];
 //            Vertex vertex = new Vertex(term.word, attribute);

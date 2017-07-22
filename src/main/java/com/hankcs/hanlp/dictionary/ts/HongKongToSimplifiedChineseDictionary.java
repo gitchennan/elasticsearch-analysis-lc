@@ -11,47 +11,43 @@
  */
 package com.hankcs.hanlp.dictionary.ts;
 
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
+import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.util.TreeMap;
 
-import static com.hankcs.hanlp.utility.Predefine.logger;
-
 /**
  * 香港繁体转简体
+ *
  * @author hankcs
  */
-public class HongKongToSimplifiedChineseDictionary extends BaseChineseDictionary
-{
+public class HongKongToSimplifiedChineseDictionary extends BaseChineseDictionary {
     static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
-    static
-    {
+
+    static {
         long start = System.currentTimeMillis();
-        String datPath = HanLP.Config.tcDictionaryRoot + "hk2s";
-//        if (!loadDat(datPath, trie))
-//        {
-            TreeMap<String, String> t2s = new TreeMap<String, String>();
-            TreeMap<String, String> hk2t = new TreeMap<String, String>();
-            if (!load(t2s, false, HanLP.Config.tcDictionaryRoot + "t2s.txt") ||
-                    !load(hk2t, true, HanLP.Config.tcDictionaryRoot + "t2hk.txt"))
-            {
-                throw new IllegalArgumentException("香港繁体转简体加载失败");
-            }
-            combineReverseChain(t2s, hk2t, true);
-            trie.build(t2s);
-//            saveDat(datPath, trie, t2s.entrySet());
-//        }
-        logger.info("香港繁体转简体加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+
+        TreeMap<String, String> t2s = Maps.newTreeMap();
+        TreeMap<String, String> hk2t = Maps.newTreeMap();
+        if (!load(t2s, false, HanLpGlobalSettings.tcDictionaryRoot + "t2s.txt") ||
+                !load(hk2t, true, HanLpGlobalSettings.tcDictionaryRoot + "t2hk.txt")) {
+            throw new IllegalArgumentException("香港繁体转简体加载失败");
+        }
+        combineReverseChain(t2s, hk2t, true);
+        trie.build(t2s);
+
+        HanLpLogger.info(HongKongToSimplifiedChineseDictionary.class,
+                "香港繁体转简体加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
-    public static String convertToSimplifiedChinese(String traditionalHongKongChineseString)
-    {
+    public static String convertToSimplifiedChinese(String traditionalHongKongChineseString) {
         return segLongest(traditionalHongKongChineseString.toCharArray(), trie);
     }
 
-    public static String convertToSimplifiedChinese(char[] traditionalHongKongChineseString)
-    {
+    public static String convertToSimplifiedChinese(char[] traditionalHongKongChineseString) {
         return segLongest(traditionalHongKongChineseString, trie);
     }
 }

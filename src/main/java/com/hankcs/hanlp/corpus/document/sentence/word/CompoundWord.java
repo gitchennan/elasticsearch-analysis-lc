@@ -12,15 +12,18 @@
 package com.hankcs.hanlp.corpus.document.sentence.word;
 
 
-import java.util.LinkedList;
+import com.google.common.collect.Lists;
+import com.hankcs.hanlp.corpus.util.HanLpContants;
+import com.hankcs.hanlp.log.HanLpLogger;
+
 import java.util.List;
-import static com.hankcs.hanlp.utility.Predefine.logger;
+
 /**
  * 复合词，由两个或以上的word构成
+ *
  * @author hankcs
  */
-public class CompoundWord implements IWord
-{
+public class CompoundWord implements IWord {
     /**
      * 由这些词复合而来
      */
@@ -29,46 +32,38 @@ public class CompoundWord implements IWord
     public String label;
 
     @Override
-    public String getValue()
-    {
+    public String getValue() {
         StringBuilder sb = new StringBuilder();
-        for (Word word : innerList)
-        {
+        for (Word word : innerList) {
             sb.append(word.value);
         }
         return sb.toString();
     }
 
     @Override
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
     @Override
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
     @Override
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         innerList.clear();
         innerList.add(new Word(value, label));
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         int i = 1;
-        for (Word word : innerList)
-        {
+        for (Word word : innerList) {
             sb.append(word.toString());
-            if (i != innerList.size())
-            {
+            if (i != innerList.size()) {
                 sb.append(' ');
             }
             ++i;
@@ -80,33 +75,32 @@ public class CompoundWord implements IWord
 
     /**
      * 转换为一个简单词
-     * @return
      */
-    public Word toWord()
-    {
+    public Word toWord() {
         return new Word(getValue(), getLabel());
     }
 
-    public CompoundWord(List<Word> innerList, String label)
-    {
+    public CompoundWord(List<Word> innerList, String label) {
         this.innerList = innerList;
         this.label = label;
     }
 
-    public static CompoundWord create(String param)
-    {
+    public static CompoundWord create(String param) {
         if (param == null) return null;
         int cutIndex = param.lastIndexOf('/');
-        if (cutIndex <= 2 || cutIndex == param.length() - 1) return null;
-        String wordParam  = param.substring(1, cutIndex - 1);
-        List<Word> wordList = new LinkedList<Word>();
-        for (String single : wordParam.split(" "))
-        {
-            if (single.length() == 0) continue;
+        if (cutIndex <= 2 || cutIndex == param.length() - 1) {
+            return null;
+        }
+        String wordParam = param.substring(1, cutIndex - 1);
+        List<Word> wordList = Lists.newLinkedList();
+        for (String single : wordParam.split(HanLpContants.WHITESPACE)) {
+            if (single.length() == 0) {
+                continue;
+            }
             Word word = Word.create(single);
-            if (word == null)
-            {
-                logger.warning("使用参数" + single + "构造单词时发生错误");
+            if (word == null) {
+                HanLpLogger.warn(CompoundWord.class,
+                        String.format("using param[%s] create word failed", single));
                 return null;
             }
             wordList.add(word);

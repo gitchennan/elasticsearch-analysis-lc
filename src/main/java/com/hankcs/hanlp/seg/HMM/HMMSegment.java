@@ -31,7 +31,7 @@
 //    CharacterBasedGenerativeModel model;
 //
 //    public HMMSegment() {
-//        this(HanLP.Config.HMMSegmentModelPath);
+//        this(HanLpGlobalSettings.HMMSegmentModelPath);
 //    }
 //
 //    public HMMSegment(String modelPath) {

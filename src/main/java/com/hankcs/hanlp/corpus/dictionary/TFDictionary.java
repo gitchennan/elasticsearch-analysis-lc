@@ -74,7 +74,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
 //    public static int combine(String... path) {
 //        TFDictionary dictionaryMain = new TFDictionary();
 //        dictionaryMain.load(path[0]);
-//        int preSize = dictionaryMain.trie.size();
+//        int preSize = dictionaryMain.doubleArrayTrie.size();
 //        for (int i = 1; i < path.length; ++i) {
 //            TFDictionary dictionary = new TFDictionary();
 //            dictionary.load(path[i]);
@@ -82,7 +82,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
 //        }
 //        try {
 //            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path[0]), "UTF-8"));
-//            for (Map.Entry<String, TermFrequency> entry : dictionaryMain.trie.entrySet()) {
+//            for (Map.Entry<String, TermFrequency> entry : dictionaryMain.doubleArrayTrie.entrySet()) {
 //                bw.write(entry.getKey());
 //                bw.write(' ');
 //                bw.write(String.valueOf(entry.getValue().getValue()));
@@ -95,7 +95,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
 //            return -1;
 //        }
 //
-//        return dictionaryMain.trie.size() - preSize;
+//        return dictionaryMain.doubleArrayTrie.size() - preSize;
 //    }
 
     /**
@@ -125,14 +125,14 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
 //    public boolean saveTxtTo(String path) {
 //        if ("=".equals(delimeter)) {
 //            LinkedList<TermFrequency> termFrequencyLinkedList = new LinkedList<TermFrequency>();
-//            for (Map.Entry<String, TermFrequency> entry : trie.entrySet()) {
+//            for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
 //                termFrequencyLinkedList.add(entry.getValue());
 //            }
 //            return IOUtil.saveCollectionToTxt(termFrequencyLinkedList, path);
 //        }
 //        else {
 //            ArrayList<String> outList = new ArrayList<String>(size());
-//            for (Map.Entry<String, TermFrequency> entry : trie.entrySet()) {
+//            for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
 //                outList.add(entry.getKey() + delimeter + entry.getValue().getFrequency());
 //            }
 //            return IOUtil.saveCollectionToTxt(outList, path);
@@ -147,7 +147,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
 //     */
 //    public boolean saveKeyTo(String path) {
 //        LinkedList<String> keyList = new LinkedList<String>();
-//        for (Map.Entry<String, TermFrequency> entry : trie.entrySet()) {
+//        for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
 //            keyList.add(entry.getKey());
 //        }
 //        return IOUtil.saveCollectionToTxt(keyList, path);

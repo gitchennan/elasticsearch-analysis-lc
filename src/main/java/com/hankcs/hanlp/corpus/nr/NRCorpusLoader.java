@@ -86,7 +86,7 @@
 //
 //    public static void combine()
 //    {
-//        DictionaryMaker dictionaryMaker = DictionaryMaker.combine(HanLP.Config.CoreDictionaryPath, "XXXDictionary.txt");
-//        dictionaryMaker.saveTxtTo(HanLP.Config.CoreDictionaryPath);
+//        DictionaryMaker dictionaryMaker = DictionaryMaker.combine(HanLpGlobalSettings.CoreDictionaryPath, "XXXDictionary.txt");
+//        dictionaryMaker.saveTxtTo(HanLpGlobalSettings.CoreDictionaryPath);
 //    }
 //}

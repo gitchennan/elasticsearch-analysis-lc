@@ -15,6 +15,7 @@ package com.hankcs.hanlp.dictionary.nr;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NR;
 import com.hankcs.hanlp.dictionary.common.CommonDictionary;
+import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -23,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 一个好用的人名词典
@@ -49,64 +49,10 @@ public class NRDictionary extends CommonDictionary<EnumItem<NR>> {
             br.close();
         }
         catch (Exception e) {
-            logger.severe("读取" + path + "失败[" + e + "]\n该词典这一行格式不对：" + line);
+            HanLpLogger.error(NRDictionary.class, "读取" + path + "失败[" + e + "]\n该词典这一行格式不对：" + line);
             return null;
         }
         return valueList.toArray(new EnumItem[0]);
     }
 
-//    @Override
-//    protected boolean onSaveValue(EnumItem<NR>[] valueArray, String path) {
-//        return saveDat(path + ".value.dat", valueArray);
-//        return true;
-//    }
-//
-//    private EnumItem<NR>[] loadDat(String path) {
-//        byte[] bytes = IOUtil.readBytes(path);
-//        if (bytes == null) return null;
-//        NR[] nrArray = NR.values();
-//        int index = 0;
-//        int size = ByteUtil.bytesHighFirstToInt(bytes, index);
-//        index += 4;
-//        EnumItem<NR>[] valueArray = new EnumItem[size];
-//        for (int i = 0; i < size; ++i) {
-//            int currentSize = ByteUtil.bytesHighFirstToInt(bytes, index);
-//            index += 4;
-//            EnumItem<NR> item = new EnumItem<NR>();
-//            for (int j = 0; j < currentSize; ++j) {
-//                NR nr = nrArray[ByteUtil.bytesHighFirstToInt(bytes, index)];
-//                index += 4;
-//                int frequency = ByteUtil.bytesHighFirstToInt(bytes, index);
-//                index += 4;
-//                item.labelMap.put(nr, frequency);
-//            }
-//            valueArray[i] = item;
-//        }
-//        return valueArray;
-//    }
-
-//    private boolean saveDat(String path, EnumItem<NR>[] valueArray)
-//    {
-//        try
-//        {
-//            DataOutputStream out = new DataOutputStream(new FileOutputStream(path));
-//            out.writeInt(valueArray.length);
-//            for (EnumItem<NR> item : valueArray)
-//            {
-//                out.writeInt(item.labelMap.size());
-//                for (Map.Entry<NR, Integer> entry : item.labelMap.entrySet())
-//                {
-//                    out.writeInt(entry.getKey().ordinal());
-//                    out.writeInt(entry.getValue());
-//                }
-//            }
-//            out.close();
-//        }
-//        catch (Exception e)
-//        {
-//            logger.warning("保存失败" + e);
-//            return false;
-//        }
-//        return true;
-//    }
 }

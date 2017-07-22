@@ -11,13 +11,14 @@
  */
 package com.hankcs.hanlp.dictionary.nr;
 
-import com.hankcs.hanlp.api.HanLP;
+import com.google.common.collect.Maps;
+import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NR;
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.TransformMatrixDictionary;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
@@ -30,7 +31,6 @@ import java.util.TreeMap;
 
 import static com.hankcs.hanlp.corpus.tag.NR.B;
 import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
-import static com.hankcs.hanlp.utility.Predefine.logger;
 
 /**
  * 人名识别用的词典，实际上是对两个词典的包装
@@ -51,24 +51,26 @@ public class PersonDictionary {
      */
     public static AhoCorasickDoubleArrayTrie<NRPattern> trie;
 
-    public static final CoreDictionary.Attribute ATTRIBUTE = new CoreDictionary.Attribute(Nature.nr, 100);
+    public static final WordAttribute ATTRIBUTE = new WordAttribute(Nature.nr, 100);
 
     static {
         long start = System.currentTimeMillis();
         dictionary = new NRDictionary();
-        if (!dictionary.load(HanLP.Config.PersonDictionaryPath)) {
-            HanLpLogger.error(PersonDictionary.class, "人名词典加载失败：" + HanLP.Config.PersonDictionaryPath);
-            System.exit(-1);
+        if (!dictionary.load(HanLpGlobalSettings.PersonDictionaryPath)) {
+            HanLpLogger.error(PersonDictionary.class, "人名词典加载失败：" + HanLpGlobalSettings.PersonDictionaryPath);
+
         }
         transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
-        transformMatrixDictionary.load(HanLP.Config.PersonDictionaryTrPath);
+        transformMatrixDictionary.load(HanLpGlobalSettings.PersonDictionaryTrPath);
         trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
-        TreeMap<String, NRPattern> map = new TreeMap<String, NRPattern>();
+
+        TreeMap<String, NRPattern> map = Maps.newTreeMap();
         for (NRPattern pattern : NRPattern.values()) {
             map.put(pattern.toString(), pattern);
         }
         trie.build(map);
-        logger.info(HanLP.Config.PersonDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        HanLpLogger.info(PersonDictionary.class, HanLpGlobalSettings.PersonDictionaryPath
+                + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**
@@ -148,34 +150,27 @@ public class PersonDictionary {
         for (int i = 1; i < wordArray.length; ++i) {
             offsetArray[i] = offsetArray[i - 1] + wordArray[i - 1].realWord.length();
         }
+
         trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<NRPattern>() {
             @Override
             public void hit(int begin, int end, NRPattern value) {
-//            logger.trace("匹配到：{}", keyword);
+
                 StringBuilder sbName = new StringBuilder();
                 for (int i = begin; i < end; ++i) {
                     sbName.append(wordArray[i].realWord);
                 }
                 String name = sbName.toString();
-//            logger.trace("识别出：{}", name);
+
                 // 对一些bad case做出调整
                 switch (value) {
                     case BCD:
-                        if (name.charAt(0) == name.charAt(2)) return; // 姓和最后一个名不可能相等的
-//                        String cd = name.substring(1);
-//                        if (CoreDictionary.contains(cd))
-//                        {
-//                            EnumItem<NR> item = PersonDictionary.dictionary.get(cd);
-//                            if (item == null || !item.containsLabel(Z)) return; // 三字名字但是后两个字不在词典中，有很大可能性是误命中
-//                        }
+                        if (name.charAt(0) == name.charAt(2)) {
+                            return;
+                        }
                         break;
                 }
                 if (isBadCase(name)) return;
 
-                // 正式算它是一个名字
-                if (HanLP.Config.DEBUG) {
-                    System.out.printf("识别出人名：%s %s\n", name, value);
-                }
                 int offset = offsetArray[begin];
                 wordNetOptimum.insert(offset, new Vertex(Predefine.TAG_PEOPLE, name, ATTRIBUTE, WORD_ID), wordNetAll);
             }

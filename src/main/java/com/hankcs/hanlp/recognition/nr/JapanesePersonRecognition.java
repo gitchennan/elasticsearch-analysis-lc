@@ -13,7 +13,7 @@ package com.hankcs.hanlp.recognition.nr;
 
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
-import com.hankcs.hanlp.dictionary.CoreDictionary;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.dictionary.nr.JapanesePersonDictionary;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.seg.common.WordNet;
@@ -22,7 +22,6 @@ import com.hankcs.hanlp.utility.Predefine;
 import java.util.List;
 import java.util.Map;
 
-import static com.hankcs.hanlp.dictionary.nr.NRConstant.ATTRIBUTE;
 import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
 
 /**
@@ -30,8 +29,7 @@ import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
  *
  * @author hankcs
  */
-public class JapanesePersonRecognition
-{
+public class JapanesePersonRecognition {
     /**
      * 执行识别
      *
@@ -39,8 +37,7 @@ public class JapanesePersonRecognition
      * @param wordNetOptimum 粗分结果对应的词图
      * @param wordNetAll     全词图
      */
-    public static void Recognition(List<Vertex> segResult, WordNet wordNetOptimum, WordNet wordNetAll)
-    {
+    public static void Recognition(List<Vertex> segResult, WordNet wordNetOptimum, WordNet wordNetAll) {
         StringBuilder sbName = new StringBuilder();
         int appendTimes = 0;
         char[] charArray = wordNetAll.charArray;
@@ -48,13 +45,11 @@ public class JapanesePersonRecognition
         Map.Entry<String, Character> entry;
         int activeLine = 1;
         int preOffset = 0;
-        while ((entry = searcher.next()) != null)
-        {
+        while ((entry = searcher.next()) != null) {
             Character label = entry.getValue();
             String key = entry.getKey();
             int offset = searcher.getOffset();
-            if (preOffset != offset)
-            {
+            if (preOffset != offset) {
                 if (appendTimes > 1 && sbName.length() > 2) // 日本人名最短为3字
                 {
                     insertName(sbName.toString(), activeLine, wordNetOptimum, wordNetAll);
@@ -62,26 +57,20 @@ public class JapanesePersonRecognition
                 sbName.setLength(0);
                 appendTimes = 0;
             }
-            if (appendTimes == 0)
-            {
-                if (label == JapanesePersonDictionary.X)
-                {
+            if (appendTimes == 0) {
+                if (label == JapanesePersonDictionary.X) {
                     sbName.append(key);
                     ++appendTimes;
                     activeLine = offset + 1;
                 }
             }
-            else
-            {
-                if (label == JapanesePersonDictionary.M)
-                {
+            else {
+                if (label == JapanesePersonDictionary.M) {
                     sbName.append(key);
                     ++appendTimes;
                 }
-                else
-                {
-                    if (appendTimes > 1 && sbName.length() > 2)
-                    {
+                else {
+                    if (appendTimes > 1 && sbName.length() > 2) {
                         insertName(sbName.toString(), activeLine, wordNetOptimum, wordNetAll);
                     }
                     sbName.setLength(0);
@@ -90,10 +79,8 @@ public class JapanesePersonRecognition
             }
             preOffset = offset + key.length();
         }
-        if (sbName.length() > 0)
-        {
-            if (appendTimes > 1)
-            {
+        if (sbName.length() > 0) {
+            if (appendTimes > 1) {
                 insertName(sbName.toString(), activeLine, wordNetOptimum, wordNetAll);
             }
         }
@@ -101,11 +88,8 @@ public class JapanesePersonRecognition
 
     /**
      * 是否是bad case
-     * @param name
-     * @return
      */
-    public static boolean isBadCase(String name)
-    {
+    public static boolean isBadCase(String name) {
         Character label = JapanesePersonDictionary.get(name);
         if (label == null) return false;
         return label.equals(JapanesePersonDictionary.A);
@@ -113,14 +97,11 @@ public class JapanesePersonRecognition
 
     /**
      * 插入日本人名
-     * @param name
-     * @param activeLine
-     * @param wordNetOptimum
-     * @param wordNetAll
      */
-    private static void insertName(String name, int activeLine, WordNet wordNetOptimum, WordNet wordNetAll)
-    {
-        if (isBadCase(name)) return;
-        wordNetOptimum.insert(activeLine, new Vertex(Predefine.TAG_PEOPLE, name, new CoreDictionary.Attribute(Nature.nrj), WORD_ID), wordNetAll);
+    private static void insertName(String name, int activeLine, WordNet wordNetOptimum, WordNet wordNetAll) {
+        if (isBadCase(name)) {
+            return;
+        }
+        wordNetOptimum.insert(activeLine, new Vertex(Predefine.TAG_PEOPLE, name, new WordAttribute(Nature.nrj), WORD_ID), wordNetAll);
     }
 }

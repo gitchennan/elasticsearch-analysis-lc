@@ -16,9 +16,9 @@ import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.seg.DictionaryBasedSegment;
 import com.hankcs.hanlp.seg.NShort.Path.AtomNode;
-import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 
 import java.util.Arrays;
@@ -30,41 +30,31 @@ import java.util.List;
  *
  * @author hankcs
  */
-public class DoubleArrayTrieSegment extends DictionaryBasedSegment
-{
+public class DoubleArrayTrieSegment extends DictionaryBasedSegment {
     @Override
-    protected List<Term> segSentence(char[] sentence)
-    {
+    protected List<Term> segSentence(char[] sentence) {
         char[] charArray = sentence;
         final int[] wordNet = new int[charArray.length];
         Arrays.fill(wordNet, 1);
         final Nature[] natureArray = config.speechTagging ? new Nature[charArray.length] : null;
-        DoubleArrayTrie<CoreDictionary.Attribute>.Searcher searcher = CoreDictionary.trie.getSearcher(sentence, 0);
-        while (searcher.next())
-        {
+        DoubleArrayTrie<WordAttribute>.Searcher searcher = CoreDictionary.INSTANCE.getSearcher(sentence, 0);
+        while (searcher.next()) {
             int length = searcher.length;
-            if (length > wordNet[searcher.begin])
-            {
+            if (length > wordNet[searcher.begin]) {
                 wordNet[searcher.begin] = length;
-                if (config.speechTagging)
-                {
+                if (config.speechTagging) {
                     natureArray[searcher.begin] = searcher.value.nature[0];
                 }
             }
         }
-        if (config.useCustomDictionary)
-        {
-            CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<CoreDictionary.Attribute>()
-            {
+        if (config.useCustomDictionary) {
+            CustomDictionary.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<WordAttribute>() {
                 @Override
-                public void hit(int begin, int end, CoreDictionary.Attribute value)
-                {
+                public void hit(int begin, int end, WordAttribute value) {
                     int length = end - begin;
-                    if (length > wordNet[begin])
-                    {
+                    if (length > wordNet[begin]) {
                         wordNet[begin] = length;
-                        if (config.speechTagging)
-                        {
+                        if (config.speechTagging) {
                             natureArray[begin] = value.nature[0];
                         }
                     }
@@ -72,22 +62,16 @@ public class DoubleArrayTrieSegment extends DictionaryBasedSegment
             });
         }
         LinkedList<Term> termList = new LinkedList<Term>();
-        if (config.speechTagging)
-        {
-            for (int i = 0; i < natureArray.length; )
-            {
-                if (natureArray[i] == null)
-                {
+        if (config.speechTagging) {
+            for (int i = 0; i < natureArray.length; ) {
+                if (natureArray[i] == null) {
                     int j = i + 1;
-                    for (; j < natureArray.length; ++j)
-                    {
+                    for (; j < natureArray.length; ++j) {
                         if (natureArray[j] != null) break;
                     }
                     List<AtomNode> atomNodeList = quickAtomSegment(charArray, i, j);
-                    for (AtomNode atomNode : atomNodeList)
-                    {
-                        if (atomNode.sWord.length() >= wordNet[i])
-                        {
+                    for (AtomNode atomNode : atomNodeList) {
+                        if (atomNode.sWord.length() >= wordNet[i]) {
                             wordNet[i] = atomNode.sWord.length();
                             natureArray[i] = atomNode.getNature();
                             i += wordNet[i];
@@ -95,15 +79,16 @@ public class DoubleArrayTrieSegment extends DictionaryBasedSegment
                     }
                     i = j;
                 }
-                else
-                {
+                else {
                     ++i;
                 }
             }
         }
-        for (int i = 0; i < wordNet.length; )
-        {
-            Term term = new Term(new String(charArray, i, wordNet[i]), config.speechTagging ? (natureArray[i] == null ? Nature.nz : natureArray[i]) : null);
+        for (int i = 0; i < wordNet.length; ) {
+            Term term = new Term(
+                    new String(charArray, i, wordNet[i]),
+                    config.speechTagging ? (natureArray[i] == null ? Nature.nz : natureArray[i]) : null
+            );
             term.offset = i;
             termList.add(term);
             i += wordNet[i];
@@ -111,8 +96,7 @@ public class DoubleArrayTrieSegment extends DictionaryBasedSegment
         return termList;
     }
 
-    public DoubleArrayTrieSegment()
-    {
+    public DoubleArrayTrieSegment() {
         super();
         config.useCustomDictionary = false;
     }
