@@ -42,8 +42,13 @@ public class HanLPNLPAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment().enableNameRecognize(true).enableTranslatedNameRecognize(true)
-                .enableJapaneseNameRecognize(true).enablePlaceRecognize(true).enableOrganizationRecognize(true)
+        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment()
+                .enableOffset(true)
+                .enableNameRecognize(true)
+                .enableTranslatedNameRecognize(true)
+                .enableJapaneseNameRecognize(true)
+                .enablePlaceRecognize(true)
+                .enableOrganizationRecognize(true)
                 .enablePartOfSpeechTagging(true), filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }

@@ -34,7 +34,9 @@ public class HanLPIndexAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment().enableIndexMode(true), filter, pstemming);
+        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment()
+                .enableOffset(true)
+                .enableIndexMode(true), filter, pstemming);
         return new TokenStreamComponents(tokenizer);
     }
 }

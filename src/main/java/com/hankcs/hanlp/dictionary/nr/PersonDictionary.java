@@ -58,7 +58,6 @@ public class PersonDictionary {
         dictionary = new NRDictionary();
         if (!dictionary.load(HanLpGlobalSettings.PersonDictionaryPath)) {
             HanLpLogger.error(PersonDictionary.class, "人名词典加载失败：" + HanLpGlobalSettings.PersonDictionaryPath);
-
         }
         transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
         transformMatrixDictionary.load(HanLpGlobalSettings.PersonDictionaryTrPath);
@@ -144,7 +143,7 @@ public class PersonDictionary {
 //            logger.warn("人名识别模式串有bug", pattern, vertexList);
 //            return;
 //        }
-        final Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
+        final Vertex[] wordArray = vertexList.toArray(new Vertex[vertexList.size()]);
         final int[] offsetArray = new int[wordArray.length];
         offsetArray[0] = 0;
         for (int i = 1; i < wordArray.length; ++i) {
@@ -186,7 +185,9 @@ public class PersonDictionary {
      */
     static boolean isBadCase(String name) {
         EnumItem<NR> nrEnumItem = dictionary.get(name);
-        if (nrEnumItem == null) return false;
+        if (nrEnumItem == null) {
+            return false;
+        }
         return nrEnumItem.containsLabel(NR.A);
     }
 }

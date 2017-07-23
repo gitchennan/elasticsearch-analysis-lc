@@ -36,7 +36,8 @@ public class HanLPAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment().enableOffset(true), filter, enablePorterStemming);
+        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment()
+                .enableOffset(true), filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }
 }

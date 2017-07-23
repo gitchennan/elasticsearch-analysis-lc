@@ -13,7 +13,6 @@ package com.hankcs.hanlp.dictionary;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
-import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.tag.Nature;

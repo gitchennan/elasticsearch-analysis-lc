@@ -46,10 +46,6 @@ public class HanLPTokenizerFactory extends AbstractTokenizerFactory {
         return new HanLPTokenizerFactory(indexSettings, name, settings, HanLPType.DIJKSTRA);
     }
 
-//    public static HanLPTokenizerFactory getHanLPCRFTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-//        return new HanLPTokenizerFactory(indexSettings, name, settings, HanLPType.CRF);
-//    }
-
     public static HanLPTokenizerFactory getHanLPSpeedTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         return new HanLPTokenizerFactory(indexSettings, name, settings, HanLPType.SPEED);
     }

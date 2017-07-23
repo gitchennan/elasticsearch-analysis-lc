@@ -12,6 +12,7 @@
 package com.hankcs.hanlp.dictionary.nr;
 
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NR;
 import com.hankcs.hanlp.dictionary.common.CommonDictionary;
@@ -20,7 +21,6 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class NRDictionary extends CommonDictionary<EnumItem<NR>> {
     @Override
     @SuppressWarnings("unchecked")
     protected EnumItem<NR>[] doLoadDictionary(String path) {
-        List<EnumItem<NR>> valueList = new LinkedList<EnumItem<NR>>();
+        List<EnumItem<NR>> valueList = Lists.newArrayList();
         String line = null;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
@@ -52,7 +52,7 @@ public class NRDictionary extends CommonDictionary<EnumItem<NR>> {
             HanLpLogger.error(NRDictionary.class, "读取" + path + "失败[" + e + "]\n该词典这一行格式不对：" + line);
             return null;
         }
-        return valueList.toArray(new EnumItem[0]);
+        return valueList.toArray(new EnumItem[valueList.size()]);
     }
 
 }

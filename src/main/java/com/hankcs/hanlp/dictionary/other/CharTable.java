@@ -12,12 +12,9 @@
 package com.hankcs.hanlp.dictionary.other;
 
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.LineOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
-
-import java.io.ObjectInputStream;
 
 /**
  * 字符正规化表

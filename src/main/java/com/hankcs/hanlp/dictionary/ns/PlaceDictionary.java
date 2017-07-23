@@ -85,7 +85,7 @@ public class PlaceDictionary {
             sbPattern.append(ns.toString());
         }
         String pattern = sbPattern.toString();
-        final Vertex[] wordArray = vertexList.toArray(new Vertex[0]);
+        final Vertex[] wordArray = vertexList.toArray(new Vertex[vertexList.size()]);
         trie.parseText(pattern, new AhoCorasickDoubleArrayTrie.IHit<String>() {
             @Override
             public void hit(int begin, int end, String value) {

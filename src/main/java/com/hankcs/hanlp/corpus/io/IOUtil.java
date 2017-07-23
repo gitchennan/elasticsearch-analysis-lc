@@ -9,25 +9,25 @@
  * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
  * </copyright>
  */
-package com.hankcs.hanlp.corpus.io;
-
-
-import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.WordAttribute;
-import com.hankcs.hanlp.log.HanLpLogger;
-import com.hankcs.hanlp.utility.TextUtility;
-
-import java.io.*;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.TreeMap;
-
-/**
- * 一些常用的IO操作
- *
- * @author hankcs
- */
-public class IOUtil {
+//package com.hankcs.hanlp.corpus.io;
+//
+//
+//import com.hankcs.hanlp.corpus.tag.Nature;
+//import com.hankcs.hanlp.dictionary.WordAttribute;
+//import com.hankcs.hanlp.log.HanLpLogger;
+//import com.hankcs.hanlp.utility.TextUtility;
+//
+//import java.io.*;
+//import java.util.Iterator;
+//import java.util.LinkedList;
+//import java.util.TreeMap;
+//
+///**
+// * 一些常用的IO操作
+// *
+// * @author hankcs
+// */
+//public class IOUtil {
 
 //
 //    /**
@@ -150,24 +150,24 @@ public class IOUtil {
 //        return data.toByteArray();
 //    }
 
-    /**
-     * 从InputStream读取指定长度的字节出来
-     *
-     * @param is          流
-     * @param targetArray output
-     * @return 实际读取了多少字节，返回0表示遇到了文件尾部
-     * @throws IOException
-     */
-    public static int readBytesFromOtherInputStream(InputStream is, byte[] targetArray) throws IOException {
-        assert targetArray != null;
-        assert targetArray.length > 0;
-        int len;
-        int off = 0;
-        while (off < targetArray.length && (len = is.read(targetArray, off, targetArray.length - off)) != -1) {
-            off += len;
-        }
-        return off;
-    }
+//    /**
+//     * 从InputStream读取指定长度的字节出来
+//     *
+//     * @param is          流
+//     * @param targetArray output
+//     * @return 实际读取了多少字节，返回0表示遇到了文件尾部
+//     * @throws IOException
+//     */
+//    public static int readBytesFromOtherInputStream(InputStream is, byte[] targetArray) throws IOException {
+//        assert targetArray != null;
+//        assert targetArray.length > 0;
+//        int len;
+//        int off = 0;
+//        while (off < targetArray.length && (len = is.read(targetArray, off, targetArray.length - off)) != -1) {
+//            off += len;
+//        }
+//        return off;
+//    }
 
 //    public static LinkedList<String> readLineList(String path) {
 //        LinkedList<String> result = new LinkedList<String>();
@@ -389,4 +389,4 @@ public class IOUtil {
 //            TextUtility.writeString(nature.toString(), out);
 //        }
 //    }
-}
+//}

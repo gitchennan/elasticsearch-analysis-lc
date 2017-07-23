@@ -42,8 +42,11 @@ public class HanLPDijkstraAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(new DijkstraSegment().enableCustomDictionary(false)
-                .enablePlaceRecognize(true).enableOrganizationRecognize(true), filter, enablePorterStemming);
+        Tokenizer tokenizer = new HanLPTokenizer(new DijkstraSegment()
+                .enableOffset(true)
+                .enableCustomDictionary(false)
+                .enablePlaceRecognize(true)
+                .enableOrganizationRecognize(true), filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }
 

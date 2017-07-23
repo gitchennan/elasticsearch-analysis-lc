@@ -16,7 +16,6 @@
 package com.hankcs.hanlp.collection.trie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -335,8 +334,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @param _keySize key的长度，应该设为_key.size
      * @return 是否出错
      */
-    public int build(List<String> _key, int _length[], int _value[],
-                     int _keySize) {
+    public int build(List<String> _key, int _length[], int _value[], int _keySize) {
         if (_key == null || _keySize > _key.size()) {
             return 0;
         }

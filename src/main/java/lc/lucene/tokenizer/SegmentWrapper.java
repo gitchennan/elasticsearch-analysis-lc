@@ -34,8 +34,6 @@ public class SegmentWrapper {
 
     /**
      * 重置分词器
-     *
-     * @param reader
      */
     public void reset(Reader reader) {
         scanner = createScanner(reader);
@@ -61,7 +59,7 @@ public class SegmentWrapper {
 
         List<Term> termList = segment.seg(line);
         if (termList.size() == 0) return null;
-        termArray = termList.toArray(new Term[0]);
+        termArray = termList.toArray(new Term[termList.size()]);
         for (Term term : termArray) {
             term.offset += offset;
         }
@@ -73,9 +71,6 @@ public class SegmentWrapper {
 
     /**
      * 判断字符串是否为空（null和空格）
-     *
-     * @param cs
-     * @return
      */
     private static boolean isBlank(CharSequence cs) {
         int strLen;

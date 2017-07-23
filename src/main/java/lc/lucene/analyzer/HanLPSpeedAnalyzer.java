@@ -42,7 +42,10 @@ public class HanLPSpeedAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(new DoubleArrayTrieSegment().enableCustomDictionary(true).enablePartOfSpeechTagging(true), filter,
+        Tokenizer tokenizer = new HanLPTokenizer(new DoubleArrayTrieSegment()
+                .enableOffset(true)
+                .enableCustomDictionary(true)
+                .enablePartOfSpeechTagging(true), filter,
                 enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }

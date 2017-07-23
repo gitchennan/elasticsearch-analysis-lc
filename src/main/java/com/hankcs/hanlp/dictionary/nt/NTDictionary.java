@@ -34,7 +34,7 @@ public class NTDictionary extends CommonDictionary<EnumItem<NT>> {
     @Override
     @SuppressWarnings("unchecked")
     protected EnumItem<NT>[] doLoadDictionary(String path) {
-        List<EnumItem<NT>> valueList = Lists.newLinkedList();
+        List<EnumItem<NT>> valueList = Lists.newArrayList();
 
         IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
             @Override

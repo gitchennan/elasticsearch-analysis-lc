@@ -147,7 +147,7 @@ public class PinyinUtil
      */
     public static Pinyin[] convertList2Array(List<Pinyin> pinyinList)
     {
-        return pinyinList.toArray(new Pinyin[0]);
+        return pinyinList.toArray(new Pinyin[pinyinList.size()]);
     }
 
     public static Pinyin removeTone(Pinyin p)

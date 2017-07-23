@@ -11,8 +11,8 @@
  */
 package com.hankcs.hanlp.dictionary.common;
 
+import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
@@ -21,7 +21,11 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 通用的词典，对应固定格式的词典，但是标签可以泛型化
@@ -29,48 +33,46 @@ import java.util.*;
  * @author hankcs
  */
 public abstract class CommonDictionary<V> {
-    DoubleArrayTrie<V> trie;
+
+    protected DoubleArrayTrie<V> trie;
 
     public boolean load(String path) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         trie = new DoubleArrayTrie<V>();
-        long start = System.currentTimeMillis();
+
         V[] valueArray = doLoadDictionary(path);
         if (valueArray == null) {
-            HanLpLogger.info(this.getClass(), "加载值" + path + "失败，耗时" + (System.currentTimeMillis() - start) + "ms");
+            HanLpLogger.error(this.getClass(),
+                    String.format("Failed to load values from:[%s], takes %sms",
+                            path, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
             return false;
         }
-        HanLpLogger.info(this.getClass(), "加载值" + path + "成功，耗时" + (System.currentTimeMillis() - start) + "ms");
 
-        List<String> keyList = new ArrayList<String>(valueArray.length);
+        HanLpLogger.info(this.getClass(),
+                String.format("Load values from:[%s], takes %sms",
+                        path, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+
+        TreeMap<String, V> dictionaryMap = new TreeMap<String, V>();
         IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
             @Override
             public void process(InputStream input) throws Exception {
                 BufferedReader br = new BufferedReader(new InputStreamReader(input, "UTF-8"));
                 String line;
+                int i = 0;
                 while ((line = br.readLine()) != null) {
                     String[] paramArray = line.split("\\s");
-                    keyList.add(paramArray[0]);
+                    dictionaryMap.put(paramArray[0], valueArray[i]);
+                    i++;
                 }
             }
         });
+        int buildTrieResult = trie.build(dictionaryMap);
 
-        int resultCode = trie.build(keyList, valueArray);
-        if (resultCode != 0) {
-            HanLpLogger.warn(this.getClass(), "trie建立失败" + resultCode + ",正在尝试排序后重载");
-            TreeMap<String, V> map = new TreeMap<String, V>();
-            for (int i = 0; i < valueArray.length; ++i) {
-                map.put(keyList.get(i), valueArray[i]);
-            }
-            trie = new DoubleArrayTrie<V>();
-            trie.build(map);
-            int i = 0;
-            for (V v : map.values()) {
-                valueArray[i++] = v;
-            }
+        if (buildTrieResult != 0) {
+            HanLpLogger.error(this.getClass(),
+                    String.format("Failed to build DAT, takes %sms", stopwatch.elapsed(TimeUnit.MILLISECONDS)));
         }
-
-        HanLpLogger.info(CommonDictionary.class, path + "加载成功");
-        return true;
+        return buildTrieResult == 0;
     }
 
 

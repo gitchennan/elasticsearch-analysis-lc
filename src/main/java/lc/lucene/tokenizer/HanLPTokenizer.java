@@ -92,4 +92,8 @@ public class HanLPTokenizer extends Tokenizer {
         segment.reset(new BufferedReader(this.input));
     }
 
+    @Override
+    public void end() throws IOException {
+        super.end();
+    }
 }

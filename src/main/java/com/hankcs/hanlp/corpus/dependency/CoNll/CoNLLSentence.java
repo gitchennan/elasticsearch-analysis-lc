@@ -31,7 +31,7 @@ public class CoNLLSentence implements Iterable<CoNLLWord>
      */
     public CoNLLSentence(List<CoNllLine> lineList)
     {
-        CoNllLine[] lineArray = lineList.toArray(new CoNllLine[0]);
+        CoNllLine[] lineArray = lineList.toArray(new CoNllLine[lineList.size()]);
         this.word = new CoNLLWord[lineList.size()];
         int i = 0;
         for (CoNllLine line : lineList)

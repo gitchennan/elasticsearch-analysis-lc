@@ -38,7 +38,6 @@ public class CommonSynonymDictionaryEx {
         if (dictionary.load(inputStream)) {
             return dictionary;
         }
-
         return null;
     }
 
@@ -67,7 +66,7 @@ public class CommonSynonymDictionaryEx {
             }
             List<Long[]> valueList = new ArrayList<Long[]>(treeMap.size());
             for (Set<Long> idSet : treeMap.values()) {
-                valueList.add(idSet.toArray(new Long[0]));
+                valueList.add(idSet.toArray(new Long[idSet.size()]));
             }
             int resultCode = trie.build(keyList, valueList);
             if (resultCode != 0) {

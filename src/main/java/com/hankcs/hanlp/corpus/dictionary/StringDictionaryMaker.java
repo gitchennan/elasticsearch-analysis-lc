@@ -71,6 +71,6 @@ public class StringDictionaryMaker
             dictionaryList.add(dictionary);
         }
 
-        return combine(dictionaryList.toArray(new StringDictionary[0]));
+        return combine(dictionaryList.toArray(new StringDictionary[dictionaryList.size()]));
     }
 }

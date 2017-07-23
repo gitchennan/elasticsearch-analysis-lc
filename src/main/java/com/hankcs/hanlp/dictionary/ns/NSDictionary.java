@@ -12,6 +12,7 @@
 package com.hankcs.hanlp.dictionary.ns;
 
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
 import com.hankcs.hanlp.corpus.tag.NS;
 import com.hankcs.hanlp.dictionary.common.CommonDictionary;
@@ -21,7 +22,6 @@ import com.hankcs.hanlp.io.InputStreamOperator;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class NSDictionary extends CommonDictionary<EnumItem<NS>> {
     @Override
     @SuppressWarnings("unchecked")
     protected EnumItem<NS>[] doLoadDictionary(String path) {
-        List<EnumItem<NS>> valueList = new LinkedList<EnumItem<NS>>();
+        List<EnumItem<NS>> valueList = Lists.newArrayList();
 
         IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
             @Override

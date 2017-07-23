@@ -13,7 +13,6 @@ package com.hankcs.hanlp.collection.trie.bintrie;
 
 import com.hankcs.hanlp.collection.trie.ITrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.io.IOSafeHelper;
 
 import java.util.*;

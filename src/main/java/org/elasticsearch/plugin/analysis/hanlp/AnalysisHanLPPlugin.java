@@ -26,7 +26,6 @@ public class AnalysisHanLPPlugin extends Plugin implements AnalysisPlugin {
         extra.put("hanlp_nlp", HanLPTokenizerFactory::getHanLPNLPTokenizerFactory);
         extra.put("hanlp_n_short", HanLPTokenizerFactory::getHanLPNShortTokenizerFactory);
         extra.put("hanlp_dijkstra", HanLPTokenizerFactory::getHanLPDijkstraTokenizerFactory);
-//        extra.put("hanlp_crf", HanLPTokenizerFactory::getHanLPCRFTokenizerFactory);
         extra.put("hanlp_speed", HanLPTokenizerFactory::getHanLPSpeedTokenizerFactory);
 
         return extra;
@@ -42,7 +41,6 @@ public class AnalysisHanLPPlugin extends Plugin implements AnalysisPlugin {
         extra.put("hanlp_nlp", HanLPAnalyzerProvider::getHanLPNLPAnalyzerProvider);
         extra.put("hanlp_n_short", HanLPAnalyzerProvider::getHanLPNShortAnalyzerProvider);
         extra.put("hanlp_dijkstra", HanLPAnalyzerProvider::getHanLPDijkstraAnalyzerProvider);
-//        extra.put("hanlp_crf", HanLPAnalyzerProvider::getHanLPCRFAnalyzerProvider);
         extra.put("hanlp_speed", HanLPAnalyzerProvider::getHanLPSpeedAnalyzerProvider);
 
         return extra;

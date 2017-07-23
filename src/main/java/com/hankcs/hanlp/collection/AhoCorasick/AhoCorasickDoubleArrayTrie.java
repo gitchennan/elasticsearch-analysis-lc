@@ -14,8 +14,6 @@ package com.hankcs.hanlp.collection.AhoCorasick;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -203,23 +201,23 @@ public class AhoCorasickDoubleArrayTrie<V>
 //        out.writeObject(l);
 //    }
 
-    /**
-     * 载入
-     *
-     * @param in    一个ObjectInputStream
-     * @param value 值（持久化的时候并没有持久化值，现在需要额外提供）
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public void load(ObjectInputStream in, V[] value) throws IOException, ClassNotFoundException
-    {
-        base = (int[]) in.readObject();
-        check = (int[]) in.readObject();
-        fail = (int[]) in.readObject();
-        output = (int[][]) in.readObject();
-        l = (int[]) in.readObject();
-        v = value;
-    }
+//    /**
+//     * 载入
+//     *
+//     * @param in    一个ObjectInputStream
+//     * @param value 值（持久化的时候并没有持久化值，现在需要额外提供）
+//     * @throws IOException
+//     * @throws ClassNotFoundException
+//     */
+//    public void load(ObjectInputStream in, V[] value) throws IOException, ClassNotFoundException
+//    {
+//        base = (int[]) in.readObject();
+//        check = (int[]) in.readObject();
+//        fail = (int[]) in.readObject();
+//        output = (int[][]) in.readObject();
+//        l = (int[]) in.readObject();
+//        v = value;
+//    }
 
     /**
      * 载入
