@@ -6,12 +6,13 @@ import com.hankcs.hanlp.io.LineOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class FileSystemDictionary implements Dictionary {
+public abstract class FileSystemTxtDictionary implements Dictionary {
 
     private String[] dictionaryLocations;
 
-    public FileSystemDictionary(String... dictionaryLocations) {
+    public FileSystemTxtDictionary(String... dictionaryLocations) {
         this.dictionaryLocations = dictionaryLocations;
     }
 
@@ -26,24 +27,26 @@ public abstract class FileSystemDictionary implements Dictionary {
         Stopwatch stopwatch = Stopwatch.createUnstarted();
         for (String dictionaryLocation : dictionaryLocations) {
             stopwatch.start();
+            AtomicInteger wordCount = new AtomicInteger(0);
             boolean loadResult = IOSafeHelper.openAutoCloseableFileReader(dictionaryLocation, new LineOperator() {
                 @Override
                 public void process(String line) throws Exception {
                     loadLine(line);
+                    wordCount.incrementAndGet();
                 }
 
                 @Override
                 public void onError(Throwable t) {
                     HanLpLogger.error(this,
-                            String.format("Failed to load dictionary, path[%s]", dictionaryLocation), t);
+                            String.format("Failed to load dictionary[%s], path[%s]", dictionaryName(), dictionaryLocation), t);
                 }
             });
             stopwatch.stop();
 
             if (loadResult) {
                 HanLpLogger.info(this,
-                        String.format("Load dictionary, takes %sms, path[%s] ",
-                                stopwatch.elapsed(TimeUnit.MILLISECONDS), dictionaryLocation));
+                        String.format("Load dictionary[%-25s], takes %s ms, word count[%d] path[%s] ",
+                                dictionaryName(), stopwatch.elapsed(TimeUnit.MILLISECONDS), wordCount.get(), dictionaryLocation));
             }
             stopwatch.reset();
         }
@@ -54,7 +57,7 @@ public abstract class FileSystemDictionary implements Dictionary {
     @Override
     public final synchronized void reLoad() {
         try {
-            HanLpLogger.info(this,
+            HanLpLogger.debug(this,
                     String.format("Begin to reload dictionary[%s]", dictionaryName()));
             releaseResource();
         }
@@ -65,7 +68,7 @@ public abstract class FileSystemDictionary implements Dictionary {
         }
         load();
 
-        HanLpLogger.info(this,
+        HanLpLogger.debug(this,
                 String.format("Finish reload dictionary[%s]", dictionaryName()));
     }
 }

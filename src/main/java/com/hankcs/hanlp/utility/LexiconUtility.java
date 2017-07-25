@@ -62,12 +62,14 @@ public class LexiconUtility {
      * 设置某个单词的属性
      */
     public static boolean setAttribute(String word, WordAttribute attribute) {
-        if (attribute == null) return false;
+        if (attribute == null) {
+            return false;
+        }
 
         if (CoreDictionary.INSTANCE.updateWordAttribute(word, attribute)) {
             return true;
         }
-        if (CustomDictionary.dat.set(word, attribute)) {
+        if (CustomDictionary.datTrie.set(word, attribute)) {
             return true;
         }
         if (CustomDictionary.trie == null) {
@@ -81,7 +83,9 @@ public class LexiconUtility {
      * 设置某个单词的属性
      */
     public static boolean setAttribute(String word, Nature... natures) {
-        if (natures == null) return false;
+        if (natures == null) {
+            return false;
+        }
 
         WordAttribute attribute = new WordAttribute(natures, new int[natures.length]);
         Arrays.fill(attribute.frequency, 1);
@@ -93,7 +97,9 @@ public class LexiconUtility {
      * 设置某个单词的属性
      */
     public static boolean setAttribute(String word, String... natures) {
-        if (natures == null) return false;
+        if (natures == null) {
+            return false;
+        }
 
         Nature[] natureArray = new Nature[natures.length];
         for (int i = 0; i < natureArray.length; i++) {
@@ -125,7 +131,9 @@ public class LexiconUtility {
         }
         catch (Exception e) {
             Nature nature = CustomNatureUtility.addNature(name);
-            if (customNatureCollector != null) customNatureCollector.add(nature);
+            if (customNatureCollector != null) {
+                customNatureCollector.add(nature);
+            }
             return nature;
         }
     }

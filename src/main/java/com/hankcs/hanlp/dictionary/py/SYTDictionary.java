@@ -11,7 +11,8 @@
  */
 package com.hankcs.hanlp.dictionary.py;
 
-import com.hankcs.hanlp.api.HanLP;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.set.UnEmptyStringSet;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
@@ -19,7 +20,7 @@ import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 声母韵母音调词典
@@ -30,18 +31,23 @@ public class SYTDictionary {
     static Set<String> smSet = new UnEmptyStringSet();
     static Set<String> ymSet = new UnEmptyStringSet();
     static Set<String> ydSet = new UnEmptyStringSet();
-    static Map<String, String[]> map = new TreeMap<String, String[]>();
+    static Map<String, String[]> map = Maps.newTreeMap();
 
     static {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         StringDictionary dictionary = new StringDictionary();
         if (dictionary.load(HanLpGlobalSettings.SYTDictionaryPath)) {
-            HanLpLogger.info(SYTDictionary.class,
-                    "载入声母韵母音调词典" + HanLpGlobalSettings.SYTDictionaryPath + "成功");
+            HanLpLogger.info(HanLpGlobalSettings.class,
+                    String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                            "SYTDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.SYTDictionaryPath));
+
             for (Map.Entry<String, String> entry : dictionary.entrySet()) {
                 //      0  1 2
                 // bai1=b,ai,1
                 String[] args = entry.getValue().split(",");
-                if (args[0].length() == 0) args[0] = "none";
+                if (args[0].length() == 0) {
+                    args[0] = "none";
+                }
                 smSet.add(args[0]);
                 ymSet.add(args[1]);
                 ydSet.add(args[2]);
@@ -52,7 +58,9 @@ public class SYTDictionary {
             }
         }
         else {
-            HanLpLogger.warn(SYTDictionary.class, "载入声母韵母音调词典" + HanLpGlobalSettings.SYTDictionaryPath + "失败");
+            HanLpLogger.error(HanLpGlobalSettings.class,
+                    String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                            "SYTDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.SYTDictionaryPath));
         }
     }
 

@@ -48,7 +48,7 @@ public abstract class CommonDictionary<V> {
             return false;
         }
 
-        HanLpLogger.info(this.getClass(),
+        HanLpLogger.debug(this.getClass(),
                 String.format("Load values from:[%s], takes %sms",
                         path, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
 

@@ -11,7 +11,6 @@
  */
 package com.hankcs.hanlp.dictionary.stopword;
 
-import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.common.Term;

@@ -6,7 +6,6 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.utility.LexiconUtility;
 import com.hankcs.hanlp.utility.TextUtility;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /**

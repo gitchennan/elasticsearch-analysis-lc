@@ -25,12 +25,12 @@
 // */
 //public class NameDictionaryMaker
 //{
-//    public static DictionaryMaker create(String path)
+//    public static DictionaryMaker create(String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        DictionaryMaker dictionaryMaker = new DictionaryMaker();
 //        try
 //        {
-//            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+//            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CUSTOM_DICTIONARY_PATHS), "UTF-8"));
 //            String line;
 //            while ((line = br.readLine()) != null)
 //            {
@@ -71,7 +71,7 @@
 //        }
 //        catch (Exception e)
 //        {
-//            logger.warning("读取" + path + "发生错误");
+//            logger.warning("读取" + CUSTOM_DICTIONARY_PATHS + "发生错误");
 //            return null;
 //        }
 //

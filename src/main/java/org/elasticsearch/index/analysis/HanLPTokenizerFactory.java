@@ -1,14 +1,12 @@
 package org.elasticsearch.index.analysis;
 
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.HanLPTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
-import com.hankcs.hanlp.seg.Dijkstra.DijkstraSegment;
-import com.hankcs.hanlp.seg.NShort.NShortSegment;
-import com.hankcs.hanlp.seg.Other.DoubleArrayTrieSegment;
 
 public class HanLPTokenizerFactory extends AbstractTokenizerFactory {
 
@@ -52,33 +50,64 @@ public class HanLPTokenizerFactory extends AbstractTokenizerFactory {
 
     @Override
     public Tokenizer create() {
+        Segment segment = null;
         switch (hanLPType) {
             case HANLP:
-                return new HanLPTokenizer(HanLP.newSegment(), null, enablePorterStemming);
+                segment = HanLP.newViterbiSegment()
+                        .enableOffset(true)
+                        .enablePlaceRecognize(true)
+                        .enableOrganizationRecognize(true)
+                        .enableCustomDictionary(true)
+                        .enablePartOfSpeechTagging(true)
+                        .enableNumberQuantifierRecognize(true);
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
             case STANDARD:
-                return new HanLPTokenizer(HanLP.newSegment(), null, enablePorterStemming);
+                segment = HanLP.newViterbiSegment()
+                        .enableOffset(true)
+                        .enablePlaceRecognize(true)
+                        .enableOrganizationRecognize(true)
+                        .enableCustomDictionary(true)
+                        .enablePartOfSpeechTagging(true)
+                        .enableNumberQuantifierRecognize(true);
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
             case INDEX:
-                return new HanLPTokenizer(HanLP.newSegment().enableIndexMode(true), null, enablePorterStemming);
+                segment = HanLP.newViterbiSegment()
+                        .enableOffset(true)
+                        .enableAllNamedEntityRecognize(true)
+                        .enableIndexMode(true);
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
             case NLP:
-                return new HanLPTokenizer(
-                        HanLP.newSegment().enableNameRecognize(true).enableTranslatedNameRecognize(true)
-                                .enableJapaneseNameRecognize(true).enablePlaceRecognize(true)
-                                .enableOrganizationRecognize(true).enablePartOfSpeechTagging(true),
-                        null, enablePorterStemming);
-            case N_SHORT:
-                return new HanLPTokenizer(new NShortSegment().enableCustomDictionary(false)
-                        .enablePlaceRecognize(true).enableOrganizationRecognize(true), null,
-                        enablePorterStemming);
-            case DIJKSTRA:
-                return new HanLPTokenizer(new DijkstraSegment().enableCustomDictionary(false)
-                        .enablePlaceRecognize(true).enableOrganizationRecognize(true), null,
-                        enablePorterStemming);
-//            case CRF:
-//                return new HanLPTokenizer(new CRFSegment(), null, enablePorterStemming);
+                segment = HanLP.newViterbiSegment()
+                        .enableOffset(true)
+                        .enableAllNamedEntityRecognize(true)
+                        .enablePartOfSpeechTagging(true)
+                        .enableCustomDictionary(true)
+                        .enableNumberQuantifierRecognize(true);
 
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
+            case N_SHORT:
+                segment = HanLP.newNShortSegment()
+                        .enableOffset(true)
+                        .enableCustomDictionary(false)
+                        .enablePlaceRecognize(true)
+                        .enableOrganizationRecognize(true);
+
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
+            case DIJKSTRA:
+                segment = HanLP.newDijkstraSegment()
+                        .enableOffset(true)
+                        .enableCustomDictionary(false)
+                        .enablePlaceRecognize(true)
+                        .enableOrganizationRecognize(true);
+
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
             case SPEED:
-                return new HanLPTokenizer(new DoubleArrayTrieSegment().enableCustomDictionary(true).enablePartOfSpeechTagging(true), null,
-                        enablePorterStemming);
+                segment = HanLP.newDoubleArrayTrieSegment()
+                        .enableOffset(true)
+                        .enableCustomDictionary(true)
+                        .enablePartOfSpeechTagging(true);
+
+                return new HanLPTokenizer(segment, null, enablePorterStemming);
             default:
                 return null;
         }

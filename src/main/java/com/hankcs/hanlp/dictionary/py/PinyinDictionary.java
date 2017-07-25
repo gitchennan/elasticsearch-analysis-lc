@@ -11,7 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.py;
 
-import com.hankcs.hanlp.api.HanLP;
+import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
@@ -20,6 +20,7 @@ import com.hankcs.hanlp.dictionary.BaseSearcher;
 import com.hankcs.hanlp.log.HanLpLogger;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author hankcs
@@ -29,20 +30,24 @@ public class PinyinDictionary {
     public static final Pinyin[] pinyins = Integer2PinyinConverter.pinyins;
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         if (!load(HanLpGlobalSettings.PinyinDictionaryPath)) {
-            throw new IllegalArgumentException("拼音词典" + HanLpGlobalSettings.PinyinDictionaryPath + "加载失败");
+            HanLpLogger.error(PinyinDictionary.class,
+                    String.format("Load dictionary[%s], takes %s ms, path[%s] ",
+                            "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PinyinDictionaryPath));
         }
-
-        HanLpLogger.info(PinyinDictionary.class,
-                "拼音词典" + HanLpGlobalSettings.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        else {
+            HanLpLogger.info(PinyinDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %s ms, path[%s] ",
+                            "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PinyinDictionaryPath));
+        }
     }
 
     /**
      * 读取词典
      */
     static boolean load(String path) {
-//        if (loadDat(path)) return true;
+//        if (loadDat(CUSTOM_DICTIONARY_PATHS)) return true;
         // 从文本中载入并且尝试生成dat
         StringDictionary dictionary = new StringDictionary("=");
         if (!dictionary.load(path)) return false;

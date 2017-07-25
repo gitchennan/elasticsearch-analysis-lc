@@ -27,7 +27,6 @@ import java.util.*;
 /**
  * 双数组Trie树
  */
-@SuppressWarnings("ALL")
 public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
     private final static int BUF_SIZE = 16384;
     // size of int + int
@@ -240,6 +239,10 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         allocSize = 0;
         // no_delete_ = false;
         error_ = 0;
+    }
+
+    public static <Value> DoubleArrayTrie<Value> newDoubleArrayTrie() {
+        return new DoubleArrayTrie<Value>();
     }
 
     // no deConstructor

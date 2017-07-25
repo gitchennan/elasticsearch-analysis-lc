@@ -46,7 +46,7 @@
 //        List<WordAttribute> attributeList = new ArrayList<WordAttribute>();
 //        BufferedReader br = null;
 //        try {
-//            br = new BufferedReader(new InputStreamReader(IOAdapter == null ? new FileInputStream(path) : IOAdapter.open(path), "UTF-8"));
+//            br = new BufferedReader(new InputStreamReader(IOAdapter == null ? new FileInputStream(CUSTOM_DICTIONARY_PATHS) : IOAdapter.open(CUSTOM_DICTIONARY_PATHS), "UTF-8"));
 //            String line;
 //            while ((line = br.readLine()) != null) {
 //                String param[] = line.split(" ");

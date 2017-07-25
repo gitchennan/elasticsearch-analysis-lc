@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author hankcs, chennan
  */
-public class CoreDictionary extends FileSystemDictionary {
+public class CoreDictionary extends FileSystemTxtDictionary {
     /**
      * core dictionary's name
      */
@@ -85,7 +85,7 @@ public class CoreDictionary extends FileSystemDictionary {
             int buildResult = doubleArrayTrie.build(wordAttributeMap);
             stopwatch.stop();
             if (buildResult == 0) {
-                HanLpLogger.info(this,
+                HanLpLogger.debug(this,
                         String.format("Build doubleArrayTrie dictionary, takes %sms build_result[%s]",
                                 stopwatch.elapsed(TimeUnit.MILLISECONDS), buildResult));
             }

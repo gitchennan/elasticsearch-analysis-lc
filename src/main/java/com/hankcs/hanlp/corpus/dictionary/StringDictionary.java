@@ -51,14 +51,14 @@ public class StringDictionary extends SimpleDictionary<String>
 
 //    /**
 //     * 保存词典
-//     * @param path
+//     * @param CUSTOM_DICTIONARY_PATHS
 //     * @return 是否成功
 //     */
-//    public boolean save(String path)
+//    public boolean save(String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        try
 //        {
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(CUSTOM_DICTIONARY_PATHS)));
 //            for (Map.Entry<String, String> entry : doubleArrayTrie.entrySet())
 //            {
 //                bw.write(entry.getKey());
@@ -70,7 +70,7 @@ public class StringDictionary extends SimpleDictionary<String>
 //        }
 //        catch (Exception e)
 //        {
-//            logger.warning("保存词典到" + path + "失败");
+//            logger.warning("保存词典到" + CUSTOM_DICTIONARY_PATHS + "失败");
 //            return true;
 //        }
 //        return false;

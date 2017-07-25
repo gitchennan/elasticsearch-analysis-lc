@@ -19,10 +19,10 @@
 // */
 //public class CoNLLFixer
 //{
-//    public static boolean fix(String path)
+//    public static boolean fix(String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        StringBuilder sbOut = new StringBuilder();
-//        for (String line : IOUtil.readLineListWithLessMemory(path))
+//        for (String line : IOUtil.readLineListWithLessMemory(CUSTOM_DICTIONARY_PATHS))
 //        {
 //            if (line.trim().length() == 0)
 //            {
@@ -38,6 +38,6 @@
 //            sbOut.append(line);
 //            sbOut.append('\n');
 //        }
-//        return IOUtil.saveTxt(path + ".fixed.txt", sbOut.toString());
+//        return IOUtil.saveTxt(CUSTOM_DICTIONARY_PATHS + ".fixed.txt", sbOut.toString());
 //    }
 //}

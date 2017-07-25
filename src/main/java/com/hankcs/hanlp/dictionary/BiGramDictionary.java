@@ -116,10 +116,10 @@ public class BiGramDictionary {
 //     * 将NGram词典重新写回去
 //     *
 //     * @param map
-//     * @param path
+//     * @param CUSTOM_DICTIONARY_PATHS
 //     * @return
 //     */
-//    private static boolean reSaveDictionary(TreeMap<String, Integer> map, String path)
+//    private static boolean reSaveDictionary(TreeMap<String, Integer> map, String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        StringBuilder sbOut = new StringBuilder();
 //        for (Map.Entry<String, Integer> entry : map.entrySet())
@@ -130,7 +130,7 @@ public class BiGramDictionary {
 //            sbOut.append('\n');
 //        }
 //
-//        return IOUtil.saveTxt(path, sbOut.toString());
+//        return IOUtil.saveTxt(CUSTOM_DICTIONARY_PATHS, sbOut.toString());
 //    }
 
 //    /**
@@ -139,7 +139,7 @@ public class BiGramDictionary {
 //     * @param wordList
 //     * @param freqList
 //     */
-//    private static void sortListForBuildTrie(List<String> wordList, List<Integer> freqList, String path)
+//    private static void sortListForBuildTrie(List<String> wordList, List<Integer> freqList, String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        BinTrie<Integer> binTrie = new BinTrie<Integer>();
 //        for (int i = 0; i < wordList.size(); ++i)
@@ -149,8 +149,8 @@ public class BiGramDictionary {
 //        Collections.sort(wordList);
 //        try
 //        {
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
-////            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path + "_sort.txt")));
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(CUSTOM_DICTIONARY_PATHS)));
+////            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(CUSTOM_DICTIONARY_PATHS + "_sort.txt")));
 //            for (String w : wordList)
 //            {
 //                bw.write(w + '\t' + binTrie.get(w));

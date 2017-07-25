@@ -26,7 +26,7 @@ public class NLPTokenizer {
     /**
      * 预置分词器
      */
-    public static final Segment SEGMENT = HanLP.newSegment()
+    public static final Segment SEGMENT = HanLP.newViterbiSegment()
             .enableNameRecognize(true)
             .enableTranslatedNameRecognize(true)
             .enableJapaneseNameRecognize(true)

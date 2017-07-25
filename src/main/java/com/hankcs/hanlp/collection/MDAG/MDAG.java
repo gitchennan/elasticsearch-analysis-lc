@@ -171,7 +171,7 @@ public class MDAG //implements ICacheAble
                 while ((currentString = dataFileBufferedReader.readLine()) != null) {
                     int mpsIndex = calculateMinimizationProcessingStartIndex(previousString, currentString);
 
-                    //If the _transition path of the previousString needs to be examined for minimization or
+                    //If the _transition CUSTOM_DICTIONARY_PATHS of the previousString needs to be examined for minimization or
                     //equivalence class representation after a certain point, call replaceOrRegister to do so.
                     if (mpsIndex != -1) {
                         String transitionSubstring = previousString.substring(0, mpsIndex);             // 公共前缀
@@ -234,7 +234,7 @@ public class MDAG //implements ICacheAble
             for (String currentString : strCollection) {
                 int mpsIndex = calculateMinimizationProcessingStartIndex(previousString, currentString);
 
-                //If the _transition path of the previousString needs to be examined for minimization or
+                //If the _transition CUSTOM_DICTIONARY_PATHS of the previousString needs to be examined for minimization or
                 //equivalence class representation after a certain point, call replaceOrRegister to do so.
                 if (mpsIndex != -1) {
 
@@ -297,23 +297,23 @@ public class MDAG //implements ICacheAble
 
 
     /**
-     * Calculates the length of the the sub-path in a _transition path, that is used only by a given string.
+     * Calculates the length of the the sub-CUSTOM_DICTIONARY_PATHS in a _transition CUSTOM_DICTIONARY_PATHS, that is used only by a given string.
      *
-     * @param str a String corresponding to a _transition path from sourceNode
-     * @return an int denoting the size of the sub-path in the _transition path
+     * @param str a String corresponding to a _transition CUSTOM_DICTIONARY_PATHS from sourceNode
+     * @return an int denoting the size of the sub-CUSTOM_DICTIONARY_PATHS in the _transition CUSTOM_DICTIONARY_PATHS
      * corresponding to {@code str} that is only used by {@code str}
      */
     private int calculateSoleTransitionPathLength(String str) {
         Stack<MDAGNode> transitionPathNodeStack = sourceNode.getTransitionPathNodes(str);
         transitionPathNodeStack.pop();  //The MDAGNode at the top of the stack is not needed
-        //(we are processing the outgoing transitions of nodes inside str's _transition path,
-        //the outgoing transitions of the MDAGNode at the top of the stack are outside this path)
+        //(we are processing the outgoing transitions of nodes inside str's _transition CUSTOM_DICTIONARY_PATHS,
+        //the outgoing transitions of the MDAGNode at the top of the stack are outside this CUSTOM_DICTIONARY_PATHS)
 
         transitionPathNodeStack.trimToSize();
 
         //Process each node in transitionPathNodeStack, using each to determine whether the
-        //_transition path corresponding to str is only used by str.  This is true if and only if
-        //each node in the _transition path has a single outgoing _transition and is not an accept state.
+        //_transition CUSTOM_DICTIONARY_PATHS corresponding to str is only used by str.  This is true if and only if
+        //each node in the _transition CUSTOM_DICTIONARY_PATHS has a single outgoing _transition and is not an accept state.
         while (!transitionPathNodeStack.isEmpty()) {
             MDAGNode currentNode = transitionPathNodeStack.peek();
             if (currentNode.getOutgoingTransitions().size() <= 1 && !currentNode.isAcceptNode())
@@ -334,14 +334,14 @@ public class MDAG //implements ICacheAble
      */
     public void removeString(String str) {
         if (sourceNode != null) {
-            //Split the _transition path corresponding to str to ensure that
+            //Split the _transition CUSTOM_DICTIONARY_PATHS corresponding to str to ensure that
             //any other _transition paths sharing nodes with it are not affected
             splitTransitionPath(sourceNode, str);
 
-            //Remove from equivalenceClassMDAGNodeHashMap, the entries of all the nodes in the _transition path corresponding to str.
+            //Remove from equivalenceClassMDAGNodeHashMap, the entries of all the nodes in the _transition CUSTOM_DICTIONARY_PATHS corresponding to str.
             removeTransitionPathRegisterEntries(str);
 
-            //Get the last node in the _transition path corresponding to str
+            //Get the last node in the _transition CUSTOM_DICTIONARY_PATHS corresponding to str
             MDAGNode strEndNode = sourceNode.transition(str);
             if (strEndNode == null) return;
 
@@ -354,7 +354,7 @@ public class MDAG //implements ICacheAble
                     transitionCount -= str.length();
                 }
                 else {
-                    //Remove the sub-path in str's _transition path that is only used by str
+                    //Remove the sub-CUSTOM_DICTIONARY_PATHS in str's _transition CUSTOM_DICTIONARY_PATHS that is only used by str
                     int toBeRemovedTransitionLabelCharIndex = (internalTransitionPathLength - soleInternalTransitionPathLength);
                     MDAGNode latestNonSoloTransitionPathNode = sourceNode.transition(str.substring(0, toBeRemovedTransitionLabelCharIndex));
                     latestNonSoloTransitionPathNode.removeOutgoingTransition(str.charAt(toBeRemovedTransitionLabelCharIndex));
@@ -379,26 +379,26 @@ public class MDAG //implements ICacheAble
     /**
      * 计算最小化的执行位置，其实是prevStr和currStr的第一个分叉点<br>
      * Determines the start index of the substring in the String most recently added to the MDAG
-     * that corresponds to the _transition path that will be next up for minimization processing.
+     * that corresponds to the _transition CUSTOM_DICTIONARY_PATHS that will be next up for minimization processing.
      * <p>
      * The "minimization processing start index" is defined as the index in {@code prevStr} which starts the substring
-     * corresponding to the _transition path that doesn't have its right language extended by {@code currStr}. The _transition path of
+     * corresponding to the _transition CUSTOM_DICTIONARY_PATHS that doesn't have its right language extended by {@code currStr}. The _transition CUSTOM_DICTIONARY_PATHS of
      * the substring before this point is not considered for minimization in order to limit the amount of times the
      * equivalence classes of its nodes will need to be reassigned during the processing of Strings which share prefixes.
      *
      * @param prevStr the String most recently added to the MDAG
      * @param currStr the String next to be added to the MDAG
      * @return an int of the index in {@code prevStr} that starts the substring corresponding
-     * to the _transition path next up for minimization processing
+     * to the _transition CUSTOM_DICTIONARY_PATHS next up for minimization processing
      */
     private int calculateMinimizationProcessingStartIndex(String prevStr, String currStr) {
         int mpsIndex;
 
         if (!currStr.startsWith(prevStr)) {
             //Loop through the corresponding indices of both Strings in search of the first index containing differing characters.
-            //The _transition path of the substring of prevStr from this point will need to be submitted for minimization processing.
+            //The _transition CUSTOM_DICTIONARY_PATHS of the substring of prevStr from this point will need to be submitted for minimization processing.
             //The substring before this point, however, does not, since currStr will simply be extending the right languages of the 
-            //nodes on its _transition path.
+            //nodes on its _transition CUSTOM_DICTIONARY_PATHS.
             int shortestStringLength = Math.min(prevStr.length(), currStr.length());
             for (mpsIndex = 0; mpsIndex < shortestStringLength && prevStr.charAt(mpsIndex) == currStr.charAt(mpsIndex); mpsIndex++) {
             }
@@ -406,7 +406,7 @@ public class MDAG //implements ICacheAble
             /////
         }
         else
-            mpsIndex = -1;    //If the prevStr is a prefix of currStr, then currStr simply extends the right language of the _transition path of prevStr.
+            mpsIndex = -1;    //If the prevStr is a prefix of currStr, then currStr simply extends the right language of the _transition CUSTOM_DICTIONARY_PATHS of prevStr.
 
         return mpsIndex;
     }
@@ -444,13 +444,13 @@ public class MDAG //implements ICacheAble
     /**
      * Determines and retrieves data related to the first confluence node
      * (defined as a node with two or more incoming transitions) of a
-     * _transition path corresponding to a given String from a given node.
+     * _transition CUSTOM_DICTIONARY_PATHS corresponding to a given String from a given node.
      *
-     * @param originNode the MDAGNode from which the _transition path corresponding to str starts from
-     * @param str        a String corresponding to a _transition path in the MDAG
+     * @param originNode the MDAGNode from which the _transition CUSTOM_DICTIONARY_PATHS corresponding to str starts from
+     * @param str        a String corresponding to a _transition CUSTOM_DICTIONARY_PATHS in the MDAG
      * @return a HashMap of Strings to Objects containing:
-     * - an int denoting the length of the path to the first confluence node in the _transition path of interest
-     * - the MDAGNode which is the first confluence node in the _transition path of interest (or null if one does not exist)
+     * - an int denoting the length of the CUSTOM_DICTIONARY_PATHS to the first confluence node in the _transition CUSTOM_DICTIONARY_PATHS of interest
+     * - the MDAGNode which is the first confluence node in the _transition CUSTOM_DICTIONARY_PATHS of interest (or null if one does not exist)
      */
     private HashMap<String, Object> getTransitionPathFirstConfluenceNodeData(MDAGNode originNode, String str) {
         int currentIndex = 0;
@@ -472,7 +472,7 @@ public class MDAG //implements ICacheAble
         boolean noConfluenceNode = (currentNode == originNode || currentIndex == charCount);
 
         //Create a HashMap containing the index of the last char in the substring corresponding
-        //to the transitoin path to the confluence node, as well as the actual confluence node
+        //to the transitoin CUSTOM_DICTIONARY_PATHS to the confluence node, as well as the actual confluence node
         HashMap<String, Object> confluenceNodeDataHashMap = new HashMap<String, Object>(2);
         confluenceNodeDataHashMap.put("toConfluenceNodeTransitionCharIndex", (noConfluenceNode ? null : currentIndex));
         confluenceNodeDataHashMap.put("confluenceNode", noConfluenceNode ? null : currentNode);
@@ -484,21 +484,21 @@ public class MDAG //implements ICacheAble
 
     /**
      * 在从给定节点开始的一段路径上执行最小化<br>
-     * Performs minimization processing on a _transition path starting from a given node.
+     * Performs minimization processing on a _transition CUSTOM_DICTIONARY_PATHS starting from a given node.
      * <p>
-     * This entails either replacing a node in the path with one that has an equivalent right language/equivalence class
+     * This entails either replacing a node in the CUSTOM_DICTIONARY_PATHS with one that has an equivalent right language/equivalence class
      * (defined as set of _transition paths that can be traversed and nodes able to be reached from it), or making it
      * a representative of a right language/equivalence class if a such a node does not already exist.
      *
-     * @param originNode the MDAGNode that the _transition path corresponding to str starts from
-     * @param str        a String related to a _transition path
+     * @param originNode the MDAGNode that the _transition CUSTOM_DICTIONARY_PATHS corresponding to str starts from
+     * @param str        a String related to a _transition CUSTOM_DICTIONARY_PATHS
      */
     private void replaceOrRegister(MDAGNode originNode, String str) {
         char transitionLabelChar = str.charAt(0);
         MDAGNode relevantTargetNode = originNode.transition(transitionLabelChar);
 
         //If relevantTargetNode has transitions and there is at least one char left to process, recursively call 
-        //this on the next char in order to further processing down the _transition path corresponding to str
+        //this on the next char in order to further processing down the _transition CUSTOM_DICTIONARY_PATHS corresponding to str
         if (relevantTargetNode.hasTransitions() && !str.substring(1).isEmpty())
             replaceOrRegister(relevantTargetNode, str.substring(1));
         /////
@@ -522,10 +522,10 @@ public class MDAG //implements ICacheAble
 
     /**
      * 给节点添加一个转移路径<br>
-     * Adds a _transition path starting from a specific node in the MDAG.
+     * Adds a _transition CUSTOM_DICTIONARY_PATHS starting from a specific node in the MDAG.
      *
-     * @param originNode the MDAGNode which will serve as the start point of the to-be-created _transition path
-     * @param str        the String to be used to create a new _transition path from {@code originNode}
+     * @param originNode the MDAGNode which will serve as the start point of the to-be-created _transition CUSTOM_DICTIONARY_PATHS
+     * @param str        the String to be used to create a new _transition CUSTOM_DICTIONARY_PATHS from {@code originNode}
      */
     private void addTransitionPath(MDAGNode originNode, String str) {
         if (!str.isEmpty()) {
@@ -533,7 +533,7 @@ public class MDAG //implements ICacheAble
             int charCount = str.length();
 
             //Loop through the characters in str, iteratevely adding
-            // a _transition path corresponding to it from originNode
+            // a _transition CUSTOM_DICTIONARY_PATHS corresponding to it from originNode
             for (int i = 0; i < charCount; i++, transitionCount++) {
                 char currentChar = str.charAt(i);
                 boolean isLastChar = (i == charCount - 1);
@@ -550,9 +550,9 @@ public class MDAG //implements ICacheAble
 
     /**
      * 从登记簿中移除路径对应的状态们<br>
-     * Removes from equivalenceClassMDAGNodeHashmap the entries of all the nodes in a _transition path.
+     * Removes from equivalenceClassMDAGNodeHashmap the entries of all the nodes in a _transition CUSTOM_DICTIONARY_PATHS.
      *
-     * @param str a String corresponding to a _transition path from sourceNode
+     * @param str a String corresponding to a _transition CUSTOM_DICTIONARY_PATHS from sourceNode
      */
     private void removeTransitionPathRegisterEntries(String str) {
         MDAGNode currentNode = sourceNode;
@@ -574,19 +574,19 @@ public class MDAG //implements ICacheAble
 
     /**
      * 从给点节点开始克隆一条路径<br>
-     * Clones a _transition path from a given node.
+     * Clones a _transition CUSTOM_DICTIONARY_PATHS from a given node.
      *
      * @param pivotConfluenceNode         the MDAGNode that the cloning operation is to be based from
-     * @param transitionStringToPivotNode a String which corresponds with a _transition path from souceNode to {@code pivotConfluenceNode}
-     * @param str                         a String which corresponds to the _transition path from {@code pivotConfluenceNode} that is to be cloned
+     * @param transitionStringToPivotNode a String which corresponds with a _transition CUSTOM_DICTIONARY_PATHS from souceNode to {@code pivotConfluenceNode}
+     * @param str                         a String which corresponds to the _transition CUSTOM_DICTIONARY_PATHS from {@code pivotConfluenceNode} that is to be cloned
      */
     private void cloneTransitionPath(MDAGNode pivotConfluenceNode, String transitionStringToPivotNode, String str) {
         MDAGNode lastTargetNode = pivotConfluenceNode.transition(str);      //Will store the last node which was used as the base of a cloning operation
         MDAGNode lastClonedNode = null;                                     //Will store the last cloned node
-        char lastTransitionLabelChar = '\0';                                //Will store the char which labels the _transition to lastTargetNode from its parent node in the prefixString's _transition path
+        char lastTransitionLabelChar = '\0';                                //Will store the char which labels the _transition to lastTargetNode from its parent node in the prefixString's _transition CUSTOM_DICTIONARY_PATHS
 
         //Loop backwards through the indices of str, using each as a boundary to create substrings of str of decreasing length
-        //which will be used to _transition to, and duplicate the nodes in the _transition path of str from pivotConfluenceNode.
+        //which will be used to _transition to, and duplicate the nodes in the _transition CUSTOM_DICTIONARY_PATHS of str from pivotConfluenceNode.
         for (int i = str.length(); i >= 0; i--) {
             String currentTransitionString = (i > 0 ? str.substring(0, i) : null);
             MDAGNode currentTargetNode = (i > 0 ? pivotConfluenceNode.transition(currentTransitionString) : pivotConfluenceNode);
@@ -594,7 +594,7 @@ public class MDAG //implements ICacheAble
 
             if (i == 0)  //if we have reached pivotConfluenceNode
             {
-                //Clone pivotConfluenceNode in a way that reassigns the _transition of its parent node (in transitionStringToConfluenceNode's path) to the clone.
+                //Clone pivotConfluenceNode in a way that reassigns the _transition of its parent node (in transitionStringToConfluenceNode's CUSTOM_DICTIONARY_PATHS) to the clone.
                 String transitionStringToPivotNodeParent = transitionStringToPivotNode.substring(0, transitionStringToPivotNode.length() - 1);
                 char parentTransitionLabelChar = transitionStringToPivotNode.charAt(transitionStringToPivotNode.length() - 1);
                 clonedNode = pivotConfluenceNode.clone(sourceNode.transition(transitionStringToPivotNodeParent), parentTransitionLabelChar);
@@ -632,19 +632,19 @@ public class MDAG //implements ICacheAble
         String suffixString = str.substring(prefixString.length());
 
         //Retrive the data related to the first confluence node (a node with two or more incoming transitions)
-        //in the _transition path from sourceNode corresponding to prefixString.
+        //in the _transition CUSTOM_DICTIONARY_PATHS from sourceNode corresponding to prefixString.
         HashMap<String, Object> firstConfluenceNodeDataHashMap = getTransitionPathFirstConfluenceNodeData(sourceNode, prefixString);
         MDAGNode firstConfluenceNodeInPrefix = (MDAGNode) firstConfluenceNodeDataHashMap.get("confluenceNode");
         Integer toFirstConfluenceNodeTransitionCharIndex = (Integer) firstConfluenceNodeDataHashMap.get("toConfluenceNodeTransitionCharIndex");
         /////
 
-        //Remove the register entries of all the nodes in the prefixString _transition path up to the first confluence node
+        //Remove the register entries of all the nodes in the prefixString _transition CUSTOM_DICTIONARY_PATHS up to the first confluence node
         //(those past the confluence node will not need to be removed since they will be cloned and unaffected by the 
-        //addition of suffixString). If there is no confluence node in prefixString, then remove the register entries in prefixString's entire _transition path
+        //addition of suffixString). If there is no confluence node in prefixString, then remove the register entries in prefixString's entire _transition CUSTOM_DICTIONARY_PATHS
         removeTransitionPathRegisterEntries((toFirstConfluenceNodeTransitionCharIndex == null ? prefixString : prefixString.substring(0, toFirstConfluenceNodeTransitionCharIndex)));
 
-        //If there is a confluence node in the prefix, we must duplicate the _transition path
-        //of the prefix starting from that node, before we add suffixString (to the duplicate path).
+        //If there is a confluence node in the prefix, we must duplicate the _transition CUSTOM_DICTIONARY_PATHS
+        //of the prefix starting from that node, before we add suffixString (to the duplicate CUSTOM_DICTIONARY_PATHS).
         //This ensures that we do not disturb the other _transition paths containing this node.
         if (firstConfluenceNodeInPrefix != null) {
             String transitionStringOfPathToFirstConfluenceNode = prefixString.substring(0, toFirstConfluenceNodeTransitionCharIndex + 1);
@@ -653,7 +653,7 @@ public class MDAG //implements ICacheAble
         }
         /////
 
-        //Add the _transition based on suffixString to the end of the (possibly duplicated) _transition path corresponding to prefixString
+        //Add the _transition based on suffixString to the end of the (possibly duplicated) _transition CUSTOM_DICTIONARY_PATHS corresponding to prefixString
         addTransitionPath(sourceNode.transition(prefixString), suffixString);
     }
 
@@ -789,7 +789,7 @@ public class MDAG //implements ICacheAble
      *                              must have with {@code conditionString} in order to be included in the result set
      * @param searchConditionString the String that all Strings in the MDAG must be related with in the fashion denoted
      *                              by {@code searchCondition} in order to be included in the result set
-     * @param prefixString          the String corresponding to the currently traversed _transition path
+     * @param prefixString          the String corresponding to the currently traversed _transition CUSTOM_DICTIONARY_PATHS
      * @param transitionTreeMap     a TreeMap of Characters to MDAGNodes collectively representing an MDAGNode's _transition set
      */
     private void getStrings(HashSet<String> strHashSet, SearchCondition searchCondition, String searchConditionString, String prefixString, TreeMap<Character, MDAGNode> transitionTreeMap) {
@@ -818,7 +818,7 @@ public class MDAG //implements ICacheAble
      *                              must have with {@code conditionString} in order to be included in the result set
      * @param searchConditionString the String that all Strings in the MDAG must be related with in the fashion denoted
      *                              by {@code searchCondition} in order to be included in the result set
-     * @param prefixString          the String corresponding to the currently traversed _transition path
+     * @param prefixString          the String corresponding to the currently traversed _transition CUSTOM_DICTIONARY_PATHS
      * @param node                  an int denoting the starting index of a SimpleMDAGNode's _transition set in mdagDataArray
      */
     private void getStrings(HashSet<String> strHashSet, SearchCondition searchCondition, String searchConditionString, String prefixString, SimpleMDAGNode node) {
@@ -871,21 +871,21 @@ public class MDAG //implements ICacheAble
 
         if (sourceNode != null)      //if the MDAG hasn't been simplified
         {
-            MDAGNode originNode = sourceNode.transition(prefixStr);  //attempt to _transition down the path denoted by prefixStr
+            MDAGNode originNode = sourceNode.transition(prefixStr);  //attempt to _transition down the CUSTOM_DICTIONARY_PATHS denoted by prefixStr
 
-            if (originNode != null) //if there a _transition path corresponding to prefixString (one or more stored Strings begin with prefixString)
+            if (originNode != null) //if there a _transition CUSTOM_DICTIONARY_PATHS corresponding to prefixString (one or more stored Strings begin with prefixString)
             {
                 if (originNode.isAcceptNode()) strHashSet.add(prefixStr);
-                getStrings(strHashSet, SearchCondition.PREFIX_SEARCH_CONDITION, prefixStr, prefixStr, originNode.getOutgoingTransitions());   //retrieve all Strings that extend the _transition path denoted by prefixStr
+                getStrings(strHashSet, SearchCondition.PREFIX_SEARCH_CONDITION, prefixStr, prefixStr, originNode.getOutgoingTransitions());   //retrieve all Strings that extend the _transition CUSTOM_DICTIONARY_PATHS denoted by prefixStr
             }
         }
         else {
-            SimpleMDAGNode originNode = SimpleMDAGNode.traverseMDAG(mdagDataArray, simplifiedSourceNode, prefixStr);      //attempt to _transition down the path denoted by prefixStr
+            SimpleMDAGNode originNode = SimpleMDAGNode.traverseMDAG(mdagDataArray, simplifiedSourceNode, prefixStr);      //attempt to _transition down the CUSTOM_DICTIONARY_PATHS denoted by prefixStr
 
-            if (originNode != null)      //if there a _transition path corresponding to prefixString (one or more stored Strings begin with prefixStr)
+            if (originNode != null)      //if there a _transition CUSTOM_DICTIONARY_PATHS corresponding to prefixString (one or more stored Strings begin with prefixStr)
             {
                 if (originNode.isAcceptNode()) strHashSet.add(prefixStr);
-                getStrings(strHashSet, SearchCondition.PREFIX_SEARCH_CONDITION, prefixStr, prefixStr, originNode);        //retrieve all Strings that extend the _transition path denoted by prefixString
+                getStrings(strHashSet, SearchCondition.PREFIX_SEARCH_CONDITION, prefixStr, prefixStr, originNode);        //retrieve all Strings that extend the _transition CUSTOM_DICTIONARY_PATHS denoted by prefixString
             }
         }
 

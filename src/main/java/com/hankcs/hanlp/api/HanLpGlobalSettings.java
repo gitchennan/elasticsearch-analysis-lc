@@ -23,7 +23,10 @@ public class HanLpGlobalSettings {
     /**
      * 用户自定义词典路径
      */
-    public static String CustomDictionaryPath[] = new String[]{"data/dictionary/custom/CustomDictionary.txt"};
+    public static String[] CustomDictionaryPath = new String[]{
+            "data/dictionary/custom/CustomDictionary.txt",
+            "data/dictionary/custom/LuDictionary.txt"
+    };
     /**
      * 2元语法词典路径
      */
@@ -152,21 +155,13 @@ public class HanLpGlobalSettings {
             CoreSynonymDictionaryDictionaryPath = root + p.getProperty("CoreSynonymDictionaryDictionaryPath", CoreSynonymDictionaryDictionaryPath);
             PersonDictionaryPath = root + p.getProperty("PersonDictionaryPath", PersonDictionaryPath);
             PersonDictionaryTrPath = root + p.getProperty("PersonDictionaryTrPath", PersonDictionaryTrPath);
-            String[] pathArray = p.getProperty("CustomDictionaryPath", "data/dictionary/custom/CustomDictionary.txt").split(";");
-            String prePath = root;
-            for (int i = 0; i < pathArray.length; ++i) {
-                if (pathArray[i].startsWith(" ")) {
-                    pathArray[i] = prePath + pathArray[i].trim();
-                }
-                else {
-                    pathArray[i] = root + pathArray[i];
-                    int lastSplash = pathArray[i].lastIndexOf('/');
-                    if (lastSplash != -1) {
-                        prePath = pathArray[i].substring(0, lastSplash + 1);
-                    }
-                }
+
+            String[] newCustomDictionaryPath = new String[CustomDictionaryPath.length];
+            for (int idx = 0; idx < CustomDictionaryPath.length; idx ++) {
+                newCustomDictionaryPath[idx] = root + CustomDictionaryPath[idx];
             }
-            CustomDictionaryPath = pathArray;
+            CustomDictionaryPath = newCustomDictionaryPath;
+
             tcDictionaryRoot = root + p.getProperty("tcDictionaryRoot", tcDictionaryRoot);
             if (!tcDictionaryRoot.endsWith("/")) tcDictionaryRoot += '/';
             SYTDictionaryPath = root + p.getProperty("SYTDictionaryPath", SYTDictionaryPath);

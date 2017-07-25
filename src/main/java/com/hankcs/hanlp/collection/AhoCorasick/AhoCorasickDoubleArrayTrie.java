@@ -571,13 +571,13 @@ public class AhoCorasickDoubleArrayTrie<V>
 //        dfs(rootState, "", walker);
 //    }
 //
-//    private void dfs(State currentState, String path, IWalker walker)
+//    private void dfs(State currentState, String CUSTOM_DICTIONARY_PATHS, IWalker walker)
 //    {
-//        walker.meet(path, currentState);
+//        walker.meet(CUSTOM_DICTIONARY_PATHS, currentState);
 //        for (Character _transition : currentState.getTransitions())
 //        {
 //            State targetState = currentState.nextState(_transition);
-//            dfs(targetState, path + _transition, walker);
+//            dfs(targetState, CUSTOM_DICTIONARY_PATHS + _transition, walker);
 //        }
 //    }
 //
@@ -587,10 +587,10 @@ public class AhoCorasickDoubleArrayTrie<V>
 //        /**
 //         * 遇到了一个节点
 //         *
-//         * @param path
+//         * @param CUSTOM_DICTIONARY_PATHS
 //         * @param state
 //         */
-//        void meet(String path, State state);
+//        void meet(String CUSTOM_DICTIONARY_PATHS, State state);
 //    }
 //
 

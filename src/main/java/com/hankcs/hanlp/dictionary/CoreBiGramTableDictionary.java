@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary;
 
+import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 核心词典的二元接续词典，采用整型储存，高性能
@@ -41,18 +43,20 @@ public class CoreBiGramTableDictionary {
     public final static String path = HanLpGlobalSettings.BiGramDictionaryPath;
 
     static {
-        HanLpLogger.info(CoreBiGramTableDictionary.class, "开始加载二元词典" + path + ".table");
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         if (!load(path)) {
-            HanLpLogger.error(CoreBiGramTableDictionary.class, "二元词典加载失败");
+            HanLpLogger.error(CoreBiGramTableDictionary.class,
+                    String.format("Failed to load dictionary[CoreBiGramTableDictionary], path[%s]",
+                            HanLpGlobalSettings.BiGramDictionaryPath));
         }
         else {
-            HanLpLogger.info(CoreBiGramTableDictionary.class, path + ".table" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            HanLpLogger.error(CoreBiGramTableDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %s ms, path[%s.table]",
+                            "CoreBiGramTableDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.BiGramDictionaryPath));
         }
     }
 
     static boolean load(String path) {
-        BufferedReader br;
         TreeMap<Integer, TreeMap<Integer, Integer>> map = new TreeMap<Integer, TreeMap<Integer, Integer>>();
         int maxWordId = CoreDictionary.INSTANCE.getMaxWordID();
 

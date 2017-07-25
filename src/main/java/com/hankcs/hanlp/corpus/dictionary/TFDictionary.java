@@ -23,8 +23,7 @@ import java.util.TreeSet;
  *
  * @author hankcs
  */
-public class TFDictionary extends SimpleDictionary<TermFrequency> //implements ISaveAble
-{
+public class TFDictionary extends SimpleDictionary<TermFrequency> {
     String delimeter;
 
     public TFDictionary(String delimeter) {
@@ -65,44 +64,8 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
         return trie.size() - preSize;
     }
 
-//    /**
-//     * 合并多个词典
-//     *
-//     * @param path 多个词典的路径，第一个是主词典。主词典与其他词典的区别详见com.hankcs.hanlp.corpus.dictionary.TFDictionary#combine(com.hankcs.hanlp.corpus.dictionary.TFDictionary, int, boolean)
-//     * @return 词条的增量
-//     */
-//    public static int combine(String... path) {
-//        TFDictionary dictionaryMain = new TFDictionary();
-//        dictionaryMain.load(path[0]);
-//        int preSize = dictionaryMain.doubleArrayTrie.size();
-//        for (int i = 1; i < path.length; ++i) {
-//            TFDictionary dictionary = new TFDictionary();
-//            dictionary.load(path[i]);
-//            dictionaryMain.combine(dictionary, 1, true);
-//        }
-//        try {
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path[0]), "UTF-8"));
-//            for (Map.Entry<String, TermFrequency> entry : dictionaryMain.doubleArrayTrie.entrySet()) {
-//                bw.write(entry.getKey());
-//                bw.write(' ');
-//                bw.write(String.valueOf(entry.getValue().getValue()));
-//                bw.newLine();
-//            }
-//            bw.close();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            return -1;
-//        }
-//
-//        return dictionaryMain.doubleArrayTrie.size() - preSize;
-//    }
-
     /**
      * 获取频次
-     *
-     * @param key
-     * @return
      */
     public int getFrequency(String key) {
         TermFrequency termFrequency = get(key);
@@ -121,42 +84,8 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> //implements I
         }
     }
 
-//    @Override
-//    public boolean saveTxtTo(String path) {
-//        if ("=".equals(delimeter)) {
-//            LinkedList<TermFrequency> termFrequencyLinkedList = new LinkedList<TermFrequency>();
-//            for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
-//                termFrequencyLinkedList.add(entry.getValue());
-//            }
-//            return IOUtil.saveCollectionToTxt(termFrequencyLinkedList, path);
-//        }
-//        else {
-//            ArrayList<String> outList = new ArrayList<String>(size());
-//            for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
-//                outList.add(entry.getKey() + delimeter + entry.getValue().getFrequency());
-//            }
-//            return IOUtil.saveCollectionToTxt(outList, path);
-//        }
-//    }
-//
-//    /**
-//     * 仅仅将值保存到文件
-//     *
-//     * @param path
-//     * @return
-//     */
-//    public boolean saveKeyTo(String path) {
-//        LinkedList<String> keyList = new LinkedList<String>();
-//        for (Map.Entry<String, TermFrequency> entry : doubleArrayTrie.entrySet()) {
-//            keyList.add(entry.getKey());
-//        }
-//        return IOUtil.saveCollectionToTxt(keyList, path);
-//    }
-
     /**
      * 按照频率从高到低排序的条目
-     *
-     * @return
      */
     public TreeSet<TermFrequency> values() {
         TreeSet<TermFrequency> set = new TreeSet<TermFrequency>(Collections.reverseOrder());

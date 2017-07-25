@@ -40,12 +40,7 @@ public class IOSafeHelper {
             return bos.toByteArray();
         }
         finally {
-            try {
-                bos.close();
-            }
-            catch (Exception ex) {
-                // ignore
-            }
+            IOSafeHelper.safeClose(bos);
         }
     }
 
@@ -112,6 +107,9 @@ public class IOSafeHelper {
         return openAutoCloseableInputStream(new InputStreamCreator() {
             @Override
             public InputStream create() throws IOException {
+                HanLpLogger.debug(IOSafeHelper.class,
+                        String.format("[open-input] Open file inputStream, path[%s]", filePath));
+
                 return new FileInputStream(filePath);
             }
         }, operator);
@@ -121,6 +119,9 @@ public class IOSafeHelper {
         return openAutoCloseableOutputStream(new OutputStreamCreator() {
             @Override
             public OutputStream create() throws IOException {
+                HanLpLogger.debug(IOSafeHelper.class,
+                        String.format("[open-output] Open file outputStream, path[%s]", filePath));
+
                 return new FileOutputStream(filePath);
             }
         }, operator);
@@ -130,11 +131,14 @@ public class IOSafeHelper {
     public static void safeClose(Closeable closeable) {
         if (closeable != null) {
             try {
+                HanLpLogger.debug(IOSafeHelper.class,
+                        String.format("[safe-close] Safe close object[%s]", closeable.getClass()));
+
                 closeable.close();
             }
             catch (Exception ex) {
                 HanLpLogger.error(IOSafeHelper.class,
-                        String.format("[safeClose] Failed to close object[%s]", closeable.getClass()), ex);
+                        String.format("[safe-close] Failed to close object[%s]", closeable.getClass()), ex);
             }
         }
     }

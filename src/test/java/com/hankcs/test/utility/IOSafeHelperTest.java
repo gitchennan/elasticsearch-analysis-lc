@@ -1,4 +1,4 @@
-package com.hankcs.test;
+package com.hankcs.test.utility;
 
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.LineOperator;
@@ -13,7 +13,7 @@ public class IOSafeHelperTest {
 
             @Override
             public void process(String line) throws Exception {
-                if (count++ < 100) {
+                if (count++ < 10) {
                     System.out.println(line);
                 }
             }

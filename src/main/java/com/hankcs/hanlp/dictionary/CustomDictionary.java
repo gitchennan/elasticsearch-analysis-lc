@@ -12,6 +12,10 @@
 package com.hankcs.hanlp.dictionary;
 
 
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
@@ -23,9 +27,9 @@ import com.hankcs.hanlp.io.LineOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.utility.LexiconUtility;
 import com.hankcs.hanlp.utility.Predefine;
-import com.hankcs.hanlp.utility.TextUtility;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 用户自定义词典
@@ -37,60 +41,70 @@ public class CustomDictionary {
      * 用于储存用户动态插入词条的二分trie树
      */
     public static BinTrie<WordAttribute> trie;
-    public static DoubleArrayTrie<WordAttribute> dat = new DoubleArrayTrie<WordAttribute>();
+    public static DoubleArrayTrie<WordAttribute> datTrie;
     /**
      * 第一个是主词典，其他是副词典
      */
-    public final static String path[] = HanLpGlobalSettings.CustomDictionaryPath;
+    public final static String[] CUSTOM_DICTIONARY_PATHS = HanLpGlobalSettings.CustomDictionaryPath;
 
     // 自动加载词典
     static {
-        long start = System.currentTimeMillis();
-        if (!loadMainDictionary(path[0])) {
-            HanLpLogger.warn(CustomDictionary.class, "自定义词典" + Arrays.toString(path) + "加载失败");
-        }
-        else {
-            HanLpLogger.info(CustomDictionary.class, "自定义词典加载成功:" + dat.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+        if (!loadMainDictionary()) {
+            HanLpLogger.error(CustomDictionary.class,
+                    String.format("Failed to load dictionary[CustomDictionary] path[%s]", Arrays.toString(CUSTOM_DICTIONARY_PATHS)));
         }
     }
 
-    private static boolean loadMainDictionary(String mainPath) {
-        HanLpLogger.info(CustomDictionary.class, "自定义词典开始加载:" + mainPath);
+    private static boolean loadMainDictionary() {
+        HanLpLogger.debug(CustomDictionary.class, "Begin to load custom dictionaries.");
+        datTrie = DoubleArrayTrie.newDoubleArrayTrie();
 
-        dat = new DoubleArrayTrie<WordAttribute>();
-        TreeMap<String, WordAttribute> map = new TreeMap<String, WordAttribute>();
-        LinkedHashSet<Nature> customNatureCollector = new LinkedHashSet<Nature>();
+        TreeMap<String, WordAttribute> map = Maps.newTreeMap();
+        LinkedHashSet<Nature> customNatureCollector = Sets.newLinkedHashSet();
+
+        int preLoadWordCount = 0;
+        for (String p : CUSTOM_DICTIONARY_PATHS) {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            Nature defaultNature = Nature.n;
+            int cut = p.indexOf(' ');
+            if (cut > 0) {
+                // 有默认词性
+                String nature = p.substring(cut + 1);
+                p = p.substring(0, cut);
+                try {
+                    defaultNature = LexiconUtility.convertStringToNature(nature, customNatureCollector);
+                }
+                catch (Exception e) {
+                    HanLpLogger.error(CustomDictionary.class,
+                            String.format("Failed to convert nature[%s] to string, path[%s]", nature, p), e);
+                    continue;
+                }
+            }
+
+            boolean success = load(p, defaultNature, map, customNatureCollector);
+            if (!success) {
+                HanLpLogger.error(CustomDictionary.class,
+                        String.format("Failed to load dictionary[CustomDictionary], invalid file name, path[%s]", p));
+            }
+            else {
+                HanLpLogger.info(CustomDictionary.class,
+                        String.format("Load dictionary[%-25s], takes %s ms, using nature[%s], word count[%s], path[%s]",
+                                "CustomDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), defaultNature, map.size() - preLoadWordCount, p));
+            }
+            preLoadWordCount = map.size();
+        }
+
+        if (map.size() == 0) {
+            HanLpLogger.warn(CustomDictionary.class, "There's no any word found in custom dictionaries.");
+            // 当作空白占位符
+            map.put(Predefine.TAG_OTHER, null);
+        }
+
         try {
-            for (String p : path) {
-                Nature defaultNature = Nature.n;
-                int cut = p.indexOf(' ');
-                if (cut > 0) {
-                    // 有默认词性
-                    String nature = p.substring(cut + 1);
-                    p = p.substring(0, cut);
-                    try {
-                        defaultNature = LexiconUtility.convertStringToNature(nature, customNatureCollector);
-                    }
-                    catch (Exception e) {
-                        HanLpLogger.info(CustomDictionary.class, "配置文件【" + p + "】写错了！" + e);
-                        continue;
-                    }
-                }
-                HanLpLogger.info(CustomDictionary.class, "以默认词性[" + defaultNature + "]加载自定义词典" + p + "中……");
-                boolean success = load(p, defaultNature, map, customNatureCollector);
-                if (!success) {
-                    HanLpLogger.warn(CustomDictionary.class, "失败：" + p);
-                }
-            }
-            if (map.size() == 0) {
-                HanLpLogger.warn(CustomDictionary.class, "没有加载到任何词条");
-                map.put(Predefine.TAG_OTHER, null);     // 当作空白占位符
-            }
-            HanLpLogger.info(CustomDictionary.class, "正在构建DoubleArrayTrie……");
-            dat.build(map);
+            datTrie.build(map);
         }
         catch (Exception e) {
-            HanLpLogger.error(CustomDictionary.class, "自定义词典" + mainPath + "缓存失败！\n" + TextUtility.exceptionToString(e));
+            HanLpLogger.error(CustomDictionary.class, "Failed to load custom dictionary", e);
         }
         return true;
     }
@@ -209,12 +223,27 @@ public class CustomDictionary {
      * @return 是否插入成功（失败的原因可能是natureWithFrequency问题，可以通过调试模式了解原因）
      */
     public static boolean insert(String word, String natureWithFrequency) {
-        if (word == null) return false;
-        if (HanLpGlobalSettings.Normalization) word = CharTable.convert(word);
+        if (word == null) {
+            return false;
+        }
+
+        if (HanLpGlobalSettings.Normalization) {
+            word = CharTable.convert(word);
+        }
+
         WordAttribute att = natureWithFrequency == null ? new WordAttribute(Nature.nz, 1) : WordAttribute.create(natureWithFrequency);
-        if (att == null) return false;
-        if (dat.set(word, att)) return true;
-        if (trie == null) trie = new BinTrie<WordAttribute>();
+
+        if (att == null) {
+            return false;
+        }
+
+        if (datTrie.set(word, att)) {
+            return true;
+        }
+
+        if (trie == null) {
+            trie = BinTrie.newBinTrie();
+        }
         trie.put(word, att);
         return true;
     }
@@ -222,9 +251,6 @@ public class CustomDictionary {
     /**
      * 以覆盖模式增加新词<br>
      * 动态增删不会持久化到词典文件
-     *
-     * @param word
-     * @return
      */
     public static boolean insert(String word) {
         return insert(word, null);
@@ -235,7 +261,7 @@ public class CustomDictionary {
      */
     public static WordAttribute get(String key) {
         if (HanLpGlobalSettings.Normalization) key = CharTable.convert(key);
-        WordAttribute attribute = dat.get(key);
+        WordAttribute attribute = datTrie.get(key);
         if (attribute != null) return attribute;
         if (trie == null) return null;
         return trie.get(key);
@@ -265,7 +291,7 @@ public class CustomDictionary {
         return trie.commonPrefixSearchWithValue(chars, begin);
     }
 
-    public static BaseSearcher getSearcher(String text) {
+    public static BaseSearcher<WordAttribute> getSearcher(String text) {
         return new Searcher(text);
     }
 
@@ -283,7 +309,7 @@ public class CustomDictionary {
      * @return 是否包含
      */
     public static boolean contains(String key) {
-        if (dat.exactMatchSearch(key) >= 0) {
+        if (datTrie.exactMatchSearch(key) >= 0) {
             return true;
         }
         return trie != null && trie.containsKey(key);
@@ -295,7 +321,7 @@ public class CustomDictionary {
      * @param charArray 文本
      * @return 查询者
      */
-    public static BaseSearcher getSearcher(char[] charArray) {
+    public static BaseSearcher<WordAttribute> getSearcher(char[] charArray) {
         return new Searcher(charArray);
     }
 
@@ -309,12 +335,12 @@ public class CustomDictionary {
 
         protected Searcher(char[] c) {
             super(c);
-            entryList = new LinkedList<Map.Entry<String, WordAttribute>>();
+            entryList = Lists.newLinkedList();
         }
 
         protected Searcher(String text) {
             super(text);
-            entryList = new LinkedList<Map.Entry<String, WordAttribute>>();
+            entryList = Lists.newLinkedList();
         }
 
         @Override
@@ -357,7 +383,7 @@ public class CustomDictionary {
      */
     public static void parseText(char[] text, AhoCorasickDoubleArrayTrie.IHit<WordAttribute> processor) {
         if (trie != null) {
-            BaseSearcher searcher = CustomDictionary.getSearcher(text);
+            BaseSearcher<WordAttribute> searcher = CustomDictionary.getSearcher(text);
             int offset;
             Map.Entry<String, WordAttribute> entry;
             while ((entry = searcher.next()) != null) {
@@ -365,7 +391,7 @@ public class CustomDictionary {
                 processor.hit(offset, offset + entry.getKey().length(), entry.getValue());
             }
         }
-        DoubleArrayTrie<WordAttribute>.Searcher searcher = dat.getSearcher(text, 0);
+        DoubleArrayTrie<WordAttribute>.Searcher searcher = datTrie.getSearcher(text, 0);
         while (searcher.next()) {
             processor.hit(searcher.begin, searcher.begin + searcher.length, searcher.value);
         }
@@ -379,7 +405,7 @@ public class CustomDictionary {
      */
     public static void parseText(String text, AhoCorasickDoubleArrayTrie.IHit<WordAttribute> processor) {
         if (trie != null) {
-            BaseSearcher searcher = CustomDictionary.getSearcher(text);
+            BaseSearcher<WordAttribute> searcher = CustomDictionary.getSearcher(text);
             int offset;
             Map.Entry<String, WordAttribute> entry;
             while ((entry = searcher.next()) != null) {
@@ -387,7 +413,7 @@ public class CustomDictionary {
                 processor.hit(offset, offset + entry.getKey().length(), entry.getValue());
             }
         }
-        DoubleArrayTrie<WordAttribute>.Searcher searcher = dat.getSearcher(text, 0);
+        DoubleArrayTrie<WordAttribute>.Searcher searcher = datTrie.getSearcher(text, 0);
         while (searcher.next()) {
             processor.hit(searcher.begin, searcher.begin + searcher.length, searcher.value);
         }

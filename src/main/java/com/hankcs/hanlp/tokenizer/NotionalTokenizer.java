@@ -29,7 +29,7 @@ public class NotionalTokenizer {
     /**
      * 预置分词器
      */
-    static final Segment SEGMENT = HanLP.newSegment();
+    static final Segment SEGMENT = HanLP.newViterbiSegment();
 
     public static List<Term> segment(String text) {
         return segment(text.toCharArray());

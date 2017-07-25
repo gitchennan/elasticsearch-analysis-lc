@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.ns;
 
+import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
@@ -25,6 +26,7 @@ import com.hankcs.hanlp.utility.Predefine;
 
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 地名识别用的词典，实际上是对两个词典的包装
@@ -55,12 +57,33 @@ public class PlaceDictionary {
     static final WordAttribute ATTRIBUTE = CoreDictionary.INSTANCE.get(WORD_ID);
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         dictionary = new NSDictionary();
-        dictionary.load(HanLpGlobalSettings.PlaceDictionaryPath);
-        HanLpLogger.info(PlaceDictionary.class, HanLpGlobalSettings.PlaceDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        if (dictionary.load(HanLpGlobalSettings.PlaceDictionaryPath)) {
+            HanLpLogger.info(PlaceDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "PlaceDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryPath));
+        }
+        else {
+            HanLpLogger.error(PlaceDictionary.class,
+                    String.format("Failed to Load dictionary[PlaceDictionary], takes %sms, path[%s] ",
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryPath));
+        }
+
+        stopwatch.stop().reset().start();
+
         transformMatrixDictionary = new TransformMatrixDictionary<NS>(NS.class);
-        transformMatrixDictionary.load(HanLpGlobalSettings.PlaceDictionaryTrPath);
+        if (transformMatrixDictionary.load(HanLpGlobalSettings.PlaceDictionaryTrPath)) {
+            HanLpLogger.info(PlaceDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "PlaceDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryTrPath));
+        }
+        else {
+            HanLpLogger.error(PlaceDictionary.class,
+                    String.format("Load dictionary[PlaceDictionary.tr], takes %sms, path[%s] ",
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryTrPath));
+        }
+
         trie = new AhoCorasickDoubleArrayTrie<String>();
         TreeMap<String, String> patternMap = new TreeMap<String, String>();
         patternMap.put("CH", "CH");

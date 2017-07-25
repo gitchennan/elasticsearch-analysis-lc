@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.nr;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.hankcs.hanlp.corpus.tag.NR.B;
 import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
@@ -54,22 +56,40 @@ public class PersonDictionary {
     public static final WordAttribute ATTRIBUTE = new WordAttribute(Nature.nr, 100);
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
         dictionary = new NRDictionary();
         if (!dictionary.load(HanLpGlobalSettings.PersonDictionaryPath)) {
-            HanLpLogger.error(PersonDictionary.class, "人名词典加载失败：" + HanLpGlobalSettings.PersonDictionaryPath);
+            HanLpLogger.error(PersonDictionary.class,
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
+                            "PersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryPath));
         }
-        transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
-        transformMatrixDictionary.load(HanLpGlobalSettings.PersonDictionaryTrPath);
-        trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
+        else {
+            HanLpLogger.info(PersonDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "PersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryPath));
+        }
 
+        stopwatch.stop().reset().start();
+
+        transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
+        if (transformMatrixDictionary.load(HanLpGlobalSettings.PersonDictionaryTrPath)) {
+            HanLpLogger.info(PersonDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "PersonDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryTrPath));
+        }
+        else {
+            HanLpLogger.info(PersonDictionary.class,
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
+                            "PersonDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryTrPath));
+        }
+
+        trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
         TreeMap<String, NRPattern> map = Maps.newTreeMap();
         for (NRPattern pattern : NRPattern.values()) {
             map.put(pattern.toString(), pattern);
         }
         trie.build(map);
-        HanLpLogger.info(PersonDictionary.class, HanLpGlobalSettings.PersonDictionaryPath
-                + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**

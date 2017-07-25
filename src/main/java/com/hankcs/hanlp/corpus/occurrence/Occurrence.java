@@ -132,8 +132,6 @@ public class Occurrence {
     /**
      * 获取词频
      *
-     * @param term
-     * @return
      */
     public int getTermFrequency(String term) {
         TermFrequency termFrequency = trieSingle.get(term);
@@ -221,7 +219,6 @@ public class Occurrence {
     }
 
     public void addAll(List<Term> resultList) {
-//        System.out.println(resultList);
         String[] termList = new String[resultList.size()];
         int i = 0;
         for (Term word : resultList) {

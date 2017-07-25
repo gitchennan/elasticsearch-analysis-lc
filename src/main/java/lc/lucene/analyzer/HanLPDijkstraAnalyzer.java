@@ -1,6 +1,8 @@
 package lc.lucene.analyzer;
 
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.seg.Dijkstra.DijkstraSegment;
+import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.HanLPTokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
@@ -42,11 +44,13 @@ public class HanLPDijkstraAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(new DijkstraSegment()
+        Segment segment = HanLP.newDijkstraSegment()
                 .enableOffset(true)
                 .enableCustomDictionary(false)
                 .enablePlaceRecognize(true)
-                .enableOrganizationRecognize(true), filter, enablePorterStemming);
+                .enableOrganizationRecognize(true);
+
+        Tokenizer tokenizer = new HanLPTokenizer(segment, filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }
 

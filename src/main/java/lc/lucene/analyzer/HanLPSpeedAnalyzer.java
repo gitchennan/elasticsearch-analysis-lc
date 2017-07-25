@@ -1,6 +1,8 @@
 package lc.lucene.analyzer;
 
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.seg.Other.DoubleArrayTrieSegment;
+import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.HanLPTokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
@@ -42,11 +44,12 @@ public class HanLPSpeedAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(new DoubleArrayTrieSegment()
+        Segment segment = HanLP.newDoubleArrayTrieSegment()
                 .enableOffset(true)
                 .enableCustomDictionary(true)
-                .enablePartOfSpeechTagging(true), filter,
-                enablePorterStemming);
+                .enablePartOfSpeechTagging(true);
+
+        Tokenizer tokenizer = new HanLPTokenizer(segment, filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }
 

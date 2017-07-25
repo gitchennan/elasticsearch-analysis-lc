@@ -1,6 +1,7 @@
 package lc.lucene.analyzer;
 
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.HanLPTokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
@@ -36,8 +37,15 @@ public class HanLPAnalyzer extends Analyzer {
      */
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment()
-                .enableOffset(true), filter, enablePorterStemming);
+        Segment segment = HanLP.newViterbiSegment()
+                .enableOffset(true)
+                .enablePlaceRecognize(true)
+                .enableOrganizationRecognize(true)
+                .enableCustomDictionary(true)
+                .enablePartOfSpeechTagging(true)
+                .enableNumberQuantifierRecognize(true);
+
+        Tokenizer tokenizer = new HanLPTokenizer(segment, filter, enablePorterStemming);
         return new TokenStreamComponents(tokenizer);
     }
 }

@@ -27,11 +27,11 @@
 // */
 //public class NRCorpusLoader
 //{
-//    public static boolean load(String path)
+//    public static boolean load(String CUSTOM_DICTIONARY_PATHS)
 //    {
 //        try
 //        {
-//            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+//            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CUSTOM_DICTIONARY_PATHS), "UTF-8"));
 //            String line;
 //            DictionaryMaker dictionaryMaker = new DictionaryMaker();
 //            while ((line = br.readLine()) != null)
@@ -77,7 +77,7 @@
 //        }
 //        catch (Exception e)
 //        {
-//            logger.warning("读取" + path + "发生错误");
+//            logger.warning("读取" + CUSTOM_DICTIONARY_PATHS + "发生错误");
 //            return false;
 //        }
 //

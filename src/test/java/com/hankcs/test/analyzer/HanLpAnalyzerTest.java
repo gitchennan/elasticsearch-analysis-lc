@@ -1,4 +1,4 @@
-package com.hankcs.test;
+package com.hankcs.test.analyzer;
 
 import com.google.common.collect.Sets;
 import com.hankcs.hanlp.api.HanLP;
@@ -26,7 +26,7 @@ public class HanLpAnalyzerTest {
 
     @Test
     public void test_indexSegment() {
-        List<Term> terms = HanLP.newSegment()
+        List<Term> terms = HanLP.newViterbiSegment()
                 .enableIndexMode(true)
                 .seg("对上海陆金所金融科技有限公司的稳盈e享计划是高收益产品");
 
@@ -37,11 +37,10 @@ public class HanLpAnalyzerTest {
 
     @Test
     public void test_standardSegment2() {
-        List<Term> terms = HanLP.newSegment()
+        List<Term> terms = HanLP.newViterbiSegment()
                 .enablePlaceRecognize(true)
                 .enableAllNamedEntityRecognize(false)
                 .enableCustomDictionary(true)
-                .enableMultithreading(false)
                 .enableNumberQuantifierRecognize(true)
                 .enableOffset(true)
                 .seg("对上海陆金所金融科技有限公司的稳盈e享计划是高收益产品");
@@ -53,7 +52,7 @@ public class HanLpAnalyzerTest {
 
     @Test
     public void testFirstLetterAnalysis() throws IOException {
-        Analyzer analyzer = new HanLPStandardAnalyzer(Sets.newHashSet("的","是"), true);
+        Analyzer analyzer = new HanLPStandardAnalyzer(Sets.newHashSet("的", "是"), true);
         TokenStream tokenStream = analyzer.tokenStream("lc", "对上海陆金所金融科技有限公司的稳盈e享计划是高收益产品");
         CharTermAttribute charTermAttribute = tokenStream.getAttribute(CharTermAttribute.class);
         OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);

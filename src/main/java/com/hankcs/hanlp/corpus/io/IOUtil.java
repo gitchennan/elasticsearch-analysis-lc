@@ -84,9 +84,9 @@
 //    }
 //
 //    public static String baseName(String path) {
-//        if (path == null || path.length() == 0)
+//        if (CUSTOM_DICTIONARY_PATHS == null || CUSTOM_DICTIONARY_PATHS.length() == 0)
 //            return "";
-//        path = path.replaceAll("[/\\\\]+", "/");
+//        CUSTOM_DICTIONARY_PATHS = CUSTOM_DICTIONARY_PATHS.replaceAll("[/\\\\]+", "/");
 //        int len = path.length(),
 //                upCount = 0;
 //        while (len > 0) {

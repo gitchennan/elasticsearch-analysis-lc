@@ -266,11 +266,11 @@ public class MDAGNode
     
     /**
      * 沿着一个路径转移<br>
-     * Follows a _transition path starting from this node.
+     * Follows a _transition CUSTOM_DICTIONARY_PATHS starting from this node.
      
-     * @param str               a String corresponding a _transition path in the MDAG
-     * @return                  the MDAGNode at the end of the _transition path corresponding to
-     *                          {@code str}, or null if such a _transition path is not present in the MDAG
+     * @param str               a String corresponding a _transition CUSTOM_DICTIONARY_PATHS in the MDAG
+     * @return                  the MDAGNode at the end of the _transition CUSTOM_DICTIONARY_PATHS corresponding to
+     *                          {@code str}, or null if such a _transition CUSTOM_DICTIONARY_PATHS is not present in the MDAG
      */
     public MDAGNode transition(String str)
     {
@@ -322,11 +322,11 @@ public class MDAGNode
 
     /**
      * 获取一个字符串路径上经过的节点<br>
-     * Retrieves the nodes in the _transition path starting
+     * Retrieves the nodes in the _transition CUSTOM_DICTIONARY_PATHS starting
      * from this node corresponding to a given String .
      
-     * @param str       a String corresponding to a _transition path starting from this node
-     * @return          a Stack of MDAGNodes containing the nodes in the _transition path
+     * @param str       a String corresponding to a _transition CUSTOM_DICTIONARY_PATHS starting from this node
+     * @return          a Stack of MDAGNodes containing the nodes in the _transition CUSTOM_DICTIONARY_PATHS
      *                  denoted by {@code str}, in the order they are encountered in during transitioning
      */
     public Stack<MDAGNode> getTransitionPathNodes(String str)

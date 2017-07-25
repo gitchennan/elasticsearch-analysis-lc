@@ -14,9 +14,14 @@ package com.hankcs.hanlp.api;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
 import com.hankcs.hanlp.dictionary.ts.*;
+import com.hankcs.hanlp.log.HanLpLogger;
+import com.hankcs.hanlp.seg.Dijkstra.DijkstraSegment;
+import com.hankcs.hanlp.seg.NShort.NShortSegment;
+import com.hankcs.hanlp.seg.Other.DoubleArrayTrieSegment;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.Viterbi.ViterbiSegment;
 import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.summary.TextRankKeyword;
 import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 
 import java.util.List;
@@ -32,6 +37,20 @@ public class HanLP {
 
     private HanLP() {
 
+    }
+
+    static {
+        try {
+            Class.forName("com.hankcs.hanlp.dictionary.CoreDictionary");
+            Class.forName("com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary");
+            Class.forName("com.hankcs.hanlp.dictionary.CoreSynonymDictionary");
+            Class.forName("com.hankcs.hanlp.dictionary.CoreSynonymDictionaryEx");
+            Class.forName("com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary");
+            Class.forName("com.hankcs.hanlp.dictionary.CustomDictionary");
+        }
+        catch (Exception ex) {
+            HanLpLogger.error(HanLP.class, "preLoad dictionaries error.", ex);
+        }
     }
 
     /**
@@ -51,9 +70,20 @@ public class HanLP {
      *
      * @return 一个分词器
      */
-    public static Segment newSegment() {
-        // Viterbi分词器是目前效率和效果的最佳平衡
+    public static Segment newViterbiSegment() {
         return new ViterbiSegment();
+    }
+
+    public static Segment newNShortSegment() {
+        return new NShortSegment();
+    }
+
+    public static Segment newDijkstraSegment() {
+        return new DijkstraSegment();
+    }
+
+    public static Segment newDoubleArrayTrieSegment() {
+        return new DoubleArrayTrieSegment();
     }
 
     /**
@@ -254,5 +284,16 @@ public class HanLP {
             ++i;
         }
         return sb.toString();
+    }
+
+    /**
+     * 提取关键词
+     *
+     * @param document 文档内容
+     * @param size     希望提取几个关键词
+     * @return 一个列表
+     */
+    public static List<String> extractKeyword(String document, int size) {
+        return TextRankKeyword.getKeywordList(document, size);
     }
 }

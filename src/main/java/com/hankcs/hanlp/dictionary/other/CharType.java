@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.other;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.io.IOSafeHelper;
@@ -21,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 字符类型
@@ -67,28 +69,30 @@ public class CharType {
 
     static {
         type = new byte[65536];
-
-        long start = System.currentTimeMillis();
-
         ByteArray byteArray = null;
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             byteArray = generate();
         }
         catch (IOException e) {
-            HanLpLogger.error(CharType.class, "字符类型对应表 " + " 加载失败： " + TextUtility.exceptionToString(e));
+            HanLpLogger.error(CharType.class,
+                    String.format("Failed to load [CharType], takes %sms", stopwatch.elapsed(TimeUnit.MILLISECONDS)), e);
         }
 
-        while (byteArray.hasMore()) {
-            int b = byteArray.nextChar();
-            int e = byteArray.nextChar();
-            byte t = byteArray.nextByte();
-            for (int i = b; i <= e; ++i) {
-                type[i] = t;
+        if (byteArray != null) {
+            while (byteArray.hasMore()) {
+                int b = byteArray.nextChar();
+                int e = byteArray.nextChar();
+                byte t = byteArray.nextByte();
+                for (int i = b; i <= e; ++i) {
+                    type[i] = t;
+                }
             }
-        }
 
-        HanLpLogger.info(CharType.class,
-                "字符类型对应表加载成功，耗时" + (System.currentTimeMillis() - start) + " ms");
+            HanLpLogger.info(CharType.class,
+                    String.format("Load dictionary[%-25s], takes %s ms", "CharType", stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+        }
     }
 
     private static ByteArray generate() throws IOException {
@@ -139,9 +143,6 @@ public class CharType {
 
     /**
      * 获取字符的类型
-     *
-     * @param c
-     * @return
      */
     public static byte get(char c) {
         return type[(int) c];

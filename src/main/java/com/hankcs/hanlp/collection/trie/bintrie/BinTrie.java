@@ -31,11 +31,13 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         status = Status.NOT_WORD_1;
     }
 
+    public static <ValueType> BinTrie<ValueType> newBinTrie() {
+        return new BinTrie<ValueType>();
+    }
+
+
     /**
      * 插入一个词
-     *
-     * @param key
-     * @param value
      */
     public void put(String key, V value) {
         if (key.length() == 0) return;  // 安全起见
@@ -43,7 +45,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         char[] chars = key.toCharArray();
         for (int i = 0; i < chars.length - 1; ++i) {
             // 除了最后一个字外，都是继续
-            branch.addChild(new Node(chars[i], Status.NOT_WORD_1, null));
+            branch.addChild(new Node<V>(chars[i], Status.NOT_WORD_1, null));
             branch = branch.getChild(chars[i]);
         }
         // 最后一个字加入时属性为end
@@ -56,7 +58,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         BaseNode branch = this;
         for (int i = 0; i < key.length - 1; ++i) {
             // 除了最后一个字外，都是继续
-            branch.addChild(new Node(key[i], Status.NOT_WORD_1, null));
+            branch.addChild(new Node<V>(key[i], Status.NOT_WORD_1, null));
             branch = branch.getChild(key[i]);
         }
         // 最后一个字加入时属性为end
@@ -88,7 +90,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
             branch = branch.getChild(chars[i]);
         }
         // 最后一个字设为undefined
-        if (branch.addChild(new Node(chars[chars.length - 1], Status.UNDEFINED_0, value))) {
+        if (branch.addChild(new Node<V>(chars[chars.length - 1], Status.UNDEFINED_0, value))) {
             --size;
         }
     }
@@ -105,7 +107,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
     }
 
     public V get(String key) {
-        BaseNode branch = this;
+        BaseNode<V> branch = this;
         char[] chars = key.toCharArray();
         for (char aChar : chars) {
             if (branch == null) return null;
@@ -119,7 +121,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
     }
 
     public V get(char[] key) {
-        BaseNode branch = this;
+        BaseNode<V> branch = this;
         for (char aChar : key) {
             if (branch == null) return null;
             branch = branch.getChild(aChar);
@@ -131,29 +133,16 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         return (V) branch.getValue();
     }
 
-    @Override
-    public V[] getValueArray(V[] a) {
-        if (a.length < size)
-            a = (V[]) java.lang.reflect.Array.newInstance(
-                    a.getClass().getComponentType(), size);
-        int i = 0;
-        for (Map.Entry<String, V> entry : entrySet()) {
-            a[i++] = entry.getValue();
-        }
-        return a;
-    }
-
     /**
      * 获取键值对集合
-     *
-     * @return
      */
     public Set<Map.Entry<String, V>> entrySet() {
         Set<Map.Entry<String, V>> entrySet = new TreeSet<Map.Entry<String, V>>();
-        StringBuilder sb = new StringBuilder();
-        for (BaseNode node : child) {
-            if (node == null) continue;
-            node.walk(new StringBuilder(sb.toString()), entrySet);
+        for (BaseNode<V> node : child) {
+            if (node == null) {
+                continue;
+            }
+            node.walk(new StringBuilder(), entrySet);
         }
         return entrySet;
     }
@@ -277,34 +266,6 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
     public BaseNode getChild(char c) {
         return child[c];
     }
-//
-//    public boolean save(String path)
-//    {
-//        try
-//        {
-//            DataOutputStream out = new DataOutputStream(IOUtil.newOutputStream(path));
-//            for (BaseNode node : child)
-//            {
-//                if (node == null)
-//                {
-//                    out.writeInt(0);
-//                }
-//                else
-//                {
-//                    out.writeInt(1);
-//                    node.walkToSave(out);
-//                }
-//            }
-//            out.close();
-//        }
-//        catch (Exception e)
-//        {
-//            logger.warning("保存到" + path + "失败" + TextUtility.exceptionToString(e));
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
     @Override
     public int build(TreeMap<String, V> keyValueMap) {
@@ -313,38 +274,6 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         }
         return 0;
     }
-
-//    /**
-//     * 保存到二进制输出流
-//     *
-//     * @param out
-//     * @return
-//     */
-//    public boolean save(DataOutputStream out)
-//    {
-//        try
-//        {
-//            for (BaseNode node : child)
-//            {
-//                if (node == null)
-//                {
-//                    out.writeInt(0);
-//                }
-//                else
-//                {
-//                    out.writeInt(1);
-//                    node.walkToSave(out);
-//                }
-//            }
-//        }
-//        catch (Exception e)
-//        {
-//            logger.warning("保存到" + out + "失败" + TextUtility.exceptionToString(e));
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
     /**
      * 从磁盘加载二分数组树
@@ -417,30 +346,4 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
     public _ValueArray newValueArray() {
         return new _ValueArray();
     }
-
-//    @Override
-//    public void writeExternal(ObjectOutput out) throws IOException {
-//        out.writeInt(size);
-//        for (BaseNode node : child) {
-//            if (node == null) {
-//                out.writeInt(0);
-//            }
-//            else {
-//                out.writeInt(1);
-//                node.walkToSave(out);
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//        size = in.readInt();
-//        for (int i = 0; i < child.length; ++i) {
-//            int flag = in.readInt();
-//            if (flag == 1) {
-//                child[i] = new Node<V>();
-//                child[i].walkToLoad(in);
-//            }
-//        }
-//    }
 }

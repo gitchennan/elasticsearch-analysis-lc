@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.nt;
 
+import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
@@ -25,6 +26,7 @@ import com.hankcs.hanlp.utility.Predefine;
 
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 机构名识别用的词典，实际上是对两个词典的包装
@@ -58,14 +60,34 @@ public class OrganizationDictionary {
     }
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         dictionary = new NTDictionary();
-        dictionary.load(HanLpGlobalSettings.OrganizationDictionaryPath);
+        if (dictionary.load(HanLpGlobalSettings.OrganizationDictionaryPath)) {
+            HanLpLogger.info(OrganizationDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "OrganizationDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryPath));
+        }
+        else {
+            HanLpLogger.error(OrganizationDictionary.class,
+                    String.format("Failed to Load dictionary[OrganizationDictionary], takes %sms, path[%s] ",
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryPath));
+        }
 
+        stopwatch.stop().reset().start();
 
-        HanLpLogger.info(OrganizationDictionary.class, HanLpGlobalSettings.OrganizationDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
         transformMatrixDictionary = new TransformMatrixDictionary<NT>(NT.class);
-        transformMatrixDictionary.load(HanLpGlobalSettings.OrganizationDictionaryTrPath);
+        if (transformMatrixDictionary.load(HanLpGlobalSettings.OrganizationDictionaryTrPath)) {
+            HanLpLogger.info(OrganizationDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "OrganizationDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryTrPath));
+        }
+        else {
+            HanLpLogger.error(OrganizationDictionary.class,
+                    String.format("Failed to Load dictionary[OrganizationDictionary.tr], takes %sms, path[%s] ",
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryTrPath));
+        }
+
+
         trie = new AhoCorasickDoubleArrayTrie<String>();
         TreeMap<String, String> patternMap = new TreeMap<String, String>();
         addKeyword(patternMap, "CCCCCCCCD");

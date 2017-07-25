@@ -25,7 +25,7 @@ public class BasicTokenizer {
     /**
      * 预置分词器
      */
-    public static final Segment SEGMENT = HanLP.newSegment()
+    public static final Segment SEGMENT = HanLP.newViterbiSegment()
             .enableAllNamedEntityRecognize(false)
             .enableCustomDictionary(false);
 

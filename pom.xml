@@ -14,7 +14,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <elasticsearch.assembly.descriptor>${project.basedir}/src/main/assemblies/plugin.xml</elasticsearch.assembly.descriptor>
-        <elasticsearch.plugin.name>elasticsearch-analysis-hanlp</elasticsearch.plugin.name>
+        <elasticsearch.plugin.name>analysis-hanlp</elasticsearch.plugin.name>
         <elasticsearch.plugin.classname>org.elasticsearch.plugin.analysis.hanlp.AnalysisHanLPPlugin</elasticsearch.plugin.classname>
         <elasticsearch.plugin.jvm>true</elasticsearch.plugin.jvm>
         <tests.rest.load_packaged>false</tests.rest.load_packaged>
@@ -36,6 +36,13 @@
             <version>${elasticsearch.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>transport</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>

@@ -1,6 +1,7 @@
 package lc.lucene.analyzer;
 
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.HanLPTokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;
@@ -34,9 +35,12 @@ public class HanLPIndexAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = new HanLPTokenizer(HanLP.newSegment()
+        Segment segment = HanLP.newViterbiSegment()
                 .enableOffset(true)
-                .enableIndexMode(true), filter, pstemming);
+                .enableAllNamedEntityRecognize(true)
+                .enableIndexMode(true);
+
+        Tokenizer tokenizer = new HanLPTokenizer(segment, filter, pstemming);
         return new TokenStreamComponents(tokenizer);
     }
 }

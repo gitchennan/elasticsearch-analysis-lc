@@ -34,7 +34,7 @@
 //
 //    public static ByteArrayOtherStream createByteArrayOtherStream(String path) {
 //        try {
-//            InputStream is = IOAdapter == null ? new FileInputStream(path) : IOAdapter.open(path);
+//            InputStream is = IOAdapter == null ? new FileInputStream(CUSTOM_DICTIONARY_PATHS) : IOAdapter.open(CUSTOM_DICTIONARY_PATHS);
 //            return createByteArrayOtherStream(is);
 //        }
 //        catch (Exception e) {

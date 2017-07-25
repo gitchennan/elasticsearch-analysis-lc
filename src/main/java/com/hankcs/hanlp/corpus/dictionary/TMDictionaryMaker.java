@@ -77,14 +77,14 @@ public class TMDictionaryMaker //implements ISaveAble
     }
 //
 //    @Override
-//    public boolean saveTxtTo(String path) {
+//    public boolean saveTxtTo(String CUSTOM_DICTIONARY_PATHS) {
 //        try {
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(path)));
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(IOUtil.newOutputStream(CUSTOM_DICTIONARY_PATHS)));
 //            bw.write(toString());
 //            bw.close();
 //        }
 //        catch (Exception e) {
-//            logger.warning("在保存转移矩阵词典到" + path + "时发生异常" + e);
+//            logger.warning("在保存转移矩阵词典到" + CUSTOM_DICTIONARY_PATHS + "时发生异常" + e);
 //            return false;
 //        }
 //        return true;

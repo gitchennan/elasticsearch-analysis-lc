@@ -61,10 +61,7 @@ public class HanLPTokenizer extends Tokenizer {
                 term.word = porterStemmer.stem(term.word);
             }
 
-            if (filter != null && filter.containsKey(term.word)) {
-                continue;
-            }
-            else {
+            if (filter == null || !filter.containsKey(term.word)) {
                 ++position;
                 un_increased = false;
             }

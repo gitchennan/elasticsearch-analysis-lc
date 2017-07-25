@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.nr;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
@@ -25,6 +26,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -47,13 +49,18 @@ public class JapanesePersonDictionary {
     public static final char A = 'A';
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         if (!load()) {
-            throw new IllegalArgumentException("日本人名词典" + path + "加载失败");
+            HanLpLogger.error(JapanesePersonDictionary.class,
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
+                            "JapanesePersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.JapanesePersonDictionaryPath));
         }
-
-        HanLpLogger.info(JapanesePersonDictionary.class,
-                "日本人名词典" + HanLpGlobalSettings.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        else {
+            HanLpLogger.info(JapanesePersonDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "JapanesePersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.JapanesePersonDictionaryPath));
+        }
+        stopwatch.stop();
     }
 
     static boolean load() {

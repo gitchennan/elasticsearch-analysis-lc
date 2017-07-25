@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.nr;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
@@ -23,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 翻译人名词典，储存和识别翻译人名
@@ -34,13 +36,18 @@ public class TranslatedPersonDictionary {
     static DoubleArrayTrie<Boolean> trie;
 
     static {
-        long start = System.currentTimeMillis();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         if (!load()) {
-            throw new IllegalArgumentException("音译人名词典" + path + "加载失败");
+            HanLpLogger.error(TranslatedPersonDictionary.class,
+                    String.format("Failed to Load dictionary[%s], takes %sms, path[%s] ",
+                            "TranslatedPersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.TranslatedPersonDictionaryPath));
         }
-
-        HanLpLogger.info(TranslatedPersonDictionary.class,
-                "音译人名词典" + path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        else {
+            HanLpLogger.info(TranslatedPersonDictionary.class,
+                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                            "TranslatedPersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.TranslatedPersonDictionaryPath));
+        }
+        stopwatch.stop();
     }
 
     static boolean load() {

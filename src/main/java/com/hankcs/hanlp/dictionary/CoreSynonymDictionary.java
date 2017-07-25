@@ -42,8 +42,8 @@ public class CoreSynonymDictionary {
                 dictionary = CommonSynonymDictionary.create(input);
 
                 HanLpLogger.info(CoreSynonymDictionary.class,
-                        String.format("Load core Synonym dictionary, takes %sms, path[%s]",
-                                stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.CoreSynonymDictionaryDictionaryPath));
+                        String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                                "CoreSynonymDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.CoreSynonymDictionaryDictionaryPath));
             }
         });
     }

@@ -30,7 +30,7 @@ public class TraditionalChineseTokenizer {
     /**
      * 预置分词器
      */
-    public static Segment Segment = HanLP.newSegment();
+    public static Segment Segment = HanLP.newViterbiSegment();
 
     private static List<Term> segSentence(String text) {
         String sText = CharTable.convert(text);

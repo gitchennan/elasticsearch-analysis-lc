@@ -26,7 +26,7 @@ public class IndexTokenizer {
     /**
      * 预置分词器
      */
-    public static final Segment SEGMENT = HanLP.newSegment().enableIndexMode(true);
+    public static final Segment SEGMENT = HanLP.newViterbiSegment().enableIndexMode(true);
 
     public static List<Term> segment(String text) {
         return SEGMENT.seg(text);
