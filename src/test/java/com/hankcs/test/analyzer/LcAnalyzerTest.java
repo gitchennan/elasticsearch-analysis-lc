@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-public class HanLpAnalyzerTest {
+public class LcAnalyzerTest {
 
     private void showWords(List<Term> terms) {
         StringBuilder wordsBuilder = new StringBuilder();
@@ -81,7 +81,7 @@ public class HanLpAnalyzerTest {
     public void testLuSearchAnalysis() throws IOException {
         LcAnalyzerConfig config = new LcAnalyzerConfig();
         config.setStopWordRecognize(false);
-        config.setSynonymRecognize(true);
+        config.setSynonymRecognize(false);
         config.setExtractFullPinyin(false);
         config.setNamedEntityRecognize(true);
 

@@ -38,5 +38,13 @@
                 <include>com.google.guava:guava</include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.google.code.gson:gson</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
 </assembly>

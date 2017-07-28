@@ -18,4 +18,9 @@ public class CustomWordAttribute {
     public int getFrequency() {
         return frequency;
     }
+
+    @Override
+    public String toString() {
+        return nature + " " + frequency;
+    }
 }
