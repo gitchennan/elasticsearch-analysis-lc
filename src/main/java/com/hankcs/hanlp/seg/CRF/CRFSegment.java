@@ -6,7 +6,7 @@
 // *
 // * <copyright file="CRFSegment.java" company="上海林原信息科技有限公司">
 // * Copyright (c) 2003-2014, 上海林原信息科技有限公司. All Right Reserved, http://www.linrunsoft.com/
-// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
+// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to getValue more information.
 // * </copyright>
 // */
 //package com.hankcs.hanlp.seg.CRF;
@@ -49,7 +49,7 @@
 //
 //    public CRFSegment(String modelPath)
 //    {
-////        crfModel = GlobalObjectPool.get(modelPath);
+////        crfModel = GlobalObjectPool.getValue(modelPath);
 ////        if (crfModel != null)
 ////        {
 ////            return;
@@ -130,7 +130,7 @@
 //            int i = 0;
 //            for (Term term : termList)
 //            {
-//                if (term.nature != null) term.nature = vertexList.get(i + 1).guessNature();
+//                if (term.nature != null) term.nature = vertexList.getValue(i + 1).guessNature();
 //                ++i;
 //            }
 //        }
@@ -151,7 +151,7 @@
 //        if (appendStart) vertexList.add(Vertex.B);
 //        for (Term term : termList)
 //        {
-//            WordAttribute attribute = CoreDictionary.get(term.word);
+//            WordAttribute attribute = CoreDictionary.getValue(term.word);
 //            if (attribute == null)
 //            {
 //                if (term.word.trim().length() == 0) attribute = new WordAttribute(Nature.x);

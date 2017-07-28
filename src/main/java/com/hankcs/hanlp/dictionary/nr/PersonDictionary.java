@@ -66,7 +66,7 @@ public class PersonDictionary {
         }
         else {
             HanLpLogger.info(PersonDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "PersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryPath));
         }
 
@@ -75,7 +75,7 @@ public class PersonDictionary {
         transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
         if (transformMatrixDictionary.load(HanLpGlobalSettings.PersonDictionaryTrPath)) {
             HanLpLogger.info(PersonDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "PersonDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryTrPath));
         }
         else {

@@ -43,11 +43,17 @@ public class SegmentWrapper {
     }
 
     public Term next() throws IOException {
-        if (termArray != null && index < termArray.length) return termArray[index++];
-        if (!scanner.hasNext()) return null;
+        if (termArray != null && index < termArray.length) {
+            return termArray[index++];
+        }
+        if (!scanner.hasNext()) {
+            return null;
+        }
         String line = scanner.next();
         while (isBlank(line)) {
-            if (line == null) return null;
+            if (line == null) {
+                return null;
+            }
             offset += line.length() + 1;
             if (scanner.hasNext()) {
                 line = scanner.next();
@@ -57,8 +63,11 @@ public class SegmentWrapper {
             }
         }
 
+        line = line.toLowerCase();
         List<Term> termList = segment.seg(line);
-        if (termList.size() == 0) return null;
+        if (termList.size() == 0) {
+            return null;
+        }
         termArray = termList.toArray(new Term[termList.size()]);
         for (Term term : termArray) {
             term.offset += offset;

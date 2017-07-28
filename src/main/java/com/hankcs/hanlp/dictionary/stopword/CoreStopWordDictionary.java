@@ -14,7 +14,6 @@ package com.hankcs.hanlp.dictionary.stopword;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.seg.common.Term;
-import com.hankcs.hanlp.utility.TextUtility;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -33,8 +32,9 @@ public class CoreStopWordDictionary {
             dictionary = new StopWordDictionary(HanLpGlobalSettings.CoreStopWordDictionaryPath);
         }
         catch (Exception e) {
-            HanLpLogger.info(CoreStopWordDictionary.class,
-                    "载入停用词词典" + HanLpGlobalSettings.CoreStopWordDictionaryPath + "失败" + TextUtility.exceptionToString(e));
+            HanLpLogger.error(CoreStopWordDictionary.class,
+                    String.format("Failed to load dictionary[CoreStopWordDictionary], path[%s]",
+                            HanLpGlobalSettings.CoreStopWordDictionaryPath));
         }
     }
 

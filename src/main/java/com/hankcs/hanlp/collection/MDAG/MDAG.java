@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 
 /**
  * 最小环形图<br>
- * A minimalistic directed acyclical graph suitable for storing a set of Strings.
+ * A minimalistic directed acyclical graph suitable for storing a updateValue of Strings.
  *
  * @author Kevin
  */
@@ -65,7 +65,7 @@ public class MDAG //implements ICacheAble
      */
     protected SimpleMDAGNode[] mdagDataArray;
 
-    //HashSet which will contain the set of unique characters used as _transition labels in the MDAG
+    //HashSet which will contain the updateValue of unique characters used as _transition labels in the MDAG
     /**
      * 字母表
      */
@@ -114,7 +114,7 @@ public class MDAG //implements ICacheAble
 //        return true;
 //    }
 
-    //Enum containing fields collectively denoting the set of all conditions that can be applied to a search on the MDAG
+    //Enum containing fields collectively denoting the updateValue of all conditions that can be applied to a search on the MDAG
 
     /**
      * 几种搜索模式
@@ -158,7 +158,7 @@ public class MDAG //implements ICacheAble
      * @param path
      * @throws IOException
      */
-    public MDAG(String path) throws IOException {
+    public MDAG(String path) {
         IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
             @Override
             public void process(InputStream input) throws Exception {
@@ -199,9 +199,8 @@ public class MDAG //implements ICacheAble
      *
      * @param dataFile a {@link java.io.File} representation of a file
      *                 containing the Strings that the MDAG will contain
-     * @throws java.io.IOException if {@code datafile} cannot be opened, or a read operation on it cannot be carried out
      */
-    public MDAG(File dataFile) throws IOException {
+    public MDAG(File dataFile) {
         this(dataFile.getAbsolutePath());
     }
 
@@ -487,7 +486,7 @@ public class MDAG //implements ICacheAble
      * Performs minimization processing on a _transition CUSTOM_DICTIONARY_PATHS starting from a given node.
      * <p>
      * This entails either replacing a node in the CUSTOM_DICTIONARY_PATHS with one that has an equivalent right language/equivalence class
-     * (defined as set of _transition paths that can be traversed and nodes able to be reached from it), or making it
+     * (defined as updateValue of _transition paths that can be traversed and nodes able to be reached from it), or making it
      * a representative of a right language/equivalence class if a such a node does not already exist.
      *
      * @param originNode the MDAGNode that the _transition CUSTOM_DICTIONARY_PATHS corresponding to str starts from
@@ -659,12 +658,12 @@ public class MDAG //implements ICacheAble
 
 
     /**
-     * Creates a SimpleMDAGNode version of an MDAGNode's outgoing _transition set in mdagDataArray.
+     * Creates a SimpleMDAGNode version of an MDAGNode's outgoing _transition updateValue in mdagDataArray.
      *
-     * @param node                                 the MDAGNode containing the _transition set to be inserted in to {@code mdagDataArray}
+     * @param node                                 the MDAGNode containing the _transition updateValue to be inserted in to {@code mdagDataArray}
      * @param mdagDataArray                        an array of SimpleMDAGNodes containing a subset of the data of the MDAG
-     * @param onePastLastCreatedTransitionSetIndex an int of the index in {@code mdagDataArray} that the outgoing _transition set of {@code node} is to start from
-     * @return an int of one past the end of the _transition set located farthest in {@code mdagDataArray}
+     * @param onePastLastCreatedTransitionSetIndex an int of the index in {@code mdagDataArray} that the outgoing _transition updateValue of {@code node} is to start from
+     * @return an int of one past the end of the _transition updateValue located farthest in {@code mdagDataArray}
      */
     private int createSimpleMDAGTransitionSet(MDAGNode node, SimpleMDAGNode[] mdagDataArray, int onePastLastCreatedTransitionSetIndex) {
         int pivotIndex = onePastLastCreatedTransitionSetIndex;  // node自己的位置
@@ -673,7 +672,7 @@ public class MDAG //implements ICacheAble
         onePastLastCreatedTransitionSetIndex += node.getOutgoingTransitionCount();  // 这个参数代表id的消耗
 
         //Create a SimpleMDAGNode representing each _transition label/target combo in transitionTreeMap, recursively calling this method (if necessary)
-        //to set indices in these SimpleMDAGNodes that the set of transitions emitting from their respective _transition targets starts from.
+        //to updateValue indices in these SimpleMDAGNodes that the updateValue of transitions emitting from their respective _transition targets starts from.
         TreeMap<Character, MDAGNode> transitionTreeMap = node.getOutgoingTransitions();
         for (Entry<Character, MDAGNode> transitionKeyValuePair : transitionTreeMap.entrySet()) {
             //Use the current _transition's label and target node to create a SimpleMDAGNode
@@ -683,8 +682,8 @@ public class MDAG //implements ICacheAble
             mdagDataArray[pivotIndex] = new SimpleMDAGNode(transitionLabelChar, transitionTargetNode.isAcceptNode(), transitionTargetNode.getOutgoingTransitionCount());
             /////
 
-            //If targetTransitionNode's outgoing _transition set hasn't been inserted in to mdagDataArray yet, call this method on it to do so.
-            //After this call returns, transitionTargetNode will contain the index in mdagDataArray that its _transition set starts from
+            //If targetTransitionNode's outgoing _transition updateValue hasn't been inserted in to mdagDataArray yet, call this method on it to do so.
+            //After this call returns, transitionTargetNode will contain the index in mdagDataArray that its _transition updateValue starts from
             if (transitionTargetNode.getTransitionSetBeginIndex() == -1)
                 onePastLastCreatedTransitionSetIndex = createSimpleMDAGTransitionSet(transitionTargetNode, mdagDataArray, onePastLastCreatedTransitionSetIndex);
 
@@ -786,11 +785,11 @@ public class MDAG //implements ICacheAble
      * @param strHashSet            a HashSet of Strings to contain all those in the MDAG satisfying
      *                              {@code searchCondition} with {@code conditionString}
      * @param searchCondition       the SearchCondition enum field describing the type of relationship that Strings contained in the MDAG
-     *                              must have with {@code conditionString} in order to be included in the result set
+     *                              must have with {@code conditionString} in order to be included in the result updateValue
      * @param searchConditionString the String that all Strings in the MDAG must be related with in the fashion denoted
-     *                              by {@code searchCondition} in order to be included in the result set
+     *                              by {@code searchCondition} in order to be included in the result updateValue
      * @param prefixString          the String corresponding to the currently traversed _transition CUSTOM_DICTIONARY_PATHS
-     * @param transitionTreeMap     a TreeMap of Characters to MDAGNodes collectively representing an MDAGNode's _transition set
+     * @param transitionTreeMap     a TreeMap of Characters to MDAGNodes collectively representing an MDAGNode's _transition updateValue
      */
     private void getStrings(HashSet<String> strHashSet, SearchCondition searchCondition, String searchConditionString, String prefixString, TreeMap<Character, MDAGNode> transitionTreeMap) {
         //Traverse all the valid _transition paths beginning from each _transition in transitionTreeMap, inserting the
@@ -815,11 +814,11 @@ public class MDAG //implements ICacheAble
      * @param strHashSet            a HashSet of Strings to contain all those in the MDAG satisfying
      *                              {@code searchCondition} with {@code conditionString}
      * @param searchCondition       the SearchCondition enum field describing the type of relationship that Strings contained in the MDAG
-     *                              must have with {@code conditionString} in order to be included in the result set
+     *                              must have with {@code conditionString} in order to be included in the result updateValue
      * @param searchConditionString the String that all Strings in the MDAG must be related with in the fashion denoted
-     *                              by {@code searchCondition} in order to be included in the result set
+     *                              by {@code searchCondition} in order to be included in the result updateValue
      * @param prefixString          the String corresponding to the currently traversed _transition CUSTOM_DICTIONARY_PATHS
-     * @param node                  an int denoting the starting index of a SimpleMDAGNode's _transition set in mdagDataArray
+     * @param node                  an int denoting the starting index of a SimpleMDAGNode's _transition updateValue in mdagDataArray
      */
     private void getStrings(HashSet<String> strHashSet, SearchCondition searchCondition, String searchConditionString, String prefixString, SimpleMDAGNode node) {
         int transitionSetBegin = node.getTransitionSetBeginIndex();
@@ -956,7 +955,7 @@ public class MDAG //implements ICacheAble
 
 
     /**
-     * Procures the set of characters which collectively label the MDAG's transitions.
+     * Procures the updateValue of characters which collectively label the MDAG's transitions.
      *
      * @return a TreeSet of chars which collectively label all the transitions in the MDAG
      */

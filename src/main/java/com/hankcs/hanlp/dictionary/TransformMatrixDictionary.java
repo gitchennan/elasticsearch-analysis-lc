@@ -159,10 +159,6 @@ public class TransformMatrixDictionary<E extends Enum<E>> {
 
     /**
      * 获取转移频次
-     *
-     * @param from
-     * @param to
-     * @return
      */
     public int getFrequency(String from, String to) {
         return getFrequency(convert(from), convert(to));
@@ -170,10 +166,6 @@ public class TransformMatrixDictionary<E extends Enum<E>> {
 
     /**
      * 获取转移频次
-     *
-     * @param from
-     * @param to
-     * @return
      */
     public int getFrequency(E from, E to) {
         return matrix[from.ordinal()][to.ordinal()];
@@ -181,9 +173,6 @@ public class TransformMatrixDictionary<E extends Enum<E>> {
 
     /**
      * 获取e的总频次
-     *
-     * @param e
-     * @return
      */
     public int getTotalFrequency(E e) {
         return total[e.ordinal()];
@@ -191,8 +180,6 @@ public class TransformMatrixDictionary<E extends Enum<E>> {
 
     /**
      * 获取所有标签的总频次
-     *
-     * @return
      */
     public int getTotalFrequency() {
         return totalFrequency;

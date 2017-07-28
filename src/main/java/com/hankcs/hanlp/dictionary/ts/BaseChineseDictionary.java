@@ -17,9 +17,9 @@ import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
 import com.hankcs.hanlp.dictionary.other.CharTable;
+import com.hankcs.hanlp.dictionary.searcher.DoubleArrayTrieSearcher;
 import com.hankcs.hanlp.log.HanLpLogger;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -79,10 +79,6 @@ public class BaseChineseDictionary {
 
     /**
      * 将path的内容载入trie中
-     *
-     * @param path
-     * @param trie
-     * @return
      */
     static boolean load(String path, AhoCorasickDoubleArrayTrie<String> trie) {
         return load(path, trie, false);
@@ -91,10 +87,7 @@ public class BaseChineseDictionary {
     /**
      * 读取词典
      *
-     * @param path
-     * @param trie
      * @param reverse 是否将其翻转
-     * @return
      */
     static boolean load(String path, AhoCorasickDoubleArrayTrie<String> trie, boolean reverse) {
         TreeMap<String, String> map = Maps.newTreeMap();
@@ -107,13 +100,13 @@ public class BaseChineseDictionary {
         return true;
     }
 
-    public static BaseSearcher getSearcher(char[] charArray, DoubleArrayTrie<String> trie) {
-        return new Searcher(charArray, trie);
+    public static BaseSearcher<String> getSearcher(char[] charArray, DoubleArrayTrie<String> trie) {
+        return new DoubleArrayTrieSearcher<String>(String.valueOf(charArray), trie);
     }
 
     protected static String segLongest(char[] charArray, DoubleArrayTrie<String> trie) {
         StringBuilder sb = new StringBuilder(charArray.length);
-        BaseSearcher searcher = getSearcher(charArray, trie);
+        BaseSearcher<String> searcher = getSearcher(charArray, trie);
         Map.Entry<String, String> entry;
         int p = 0;  // 当前处理到什么位置
         int offset;
@@ -159,49 +152,5 @@ public class BaseChineseDictionary {
             offset += lengthNet[offset];
         }
         return sb.toString();
-    }
-
-    /**
-     * 最长分词
-     */
-    public static class Searcher extends BaseSearcher<String> {
-        /**
-         * 分词从何处开始，这是一个状态
-         */
-        int begin;
-
-        DoubleArrayTrie<String> trie;
-
-        protected Searcher(char[] c, DoubleArrayTrie<String> trie) {
-            super(c);
-            this.trie = trie;
-        }
-
-        protected Searcher(String text, DoubleArrayTrie<String> trie) {
-            super(text);
-            this.trie = trie;
-        }
-
-        @Override
-        public Map.Entry<String, String> next() {
-            // 保证首次调用找到一个词语
-            Map.Entry<String, String> result = null;
-            while (begin < c.length) {
-                LinkedList<Map.Entry<String, String>> entryList = trie.commonPrefixSearchWithValue(c, begin);
-                if (entryList.size() == 0) {
-                    ++begin;
-                }
-                else {
-                    result = entryList.getLast();
-                    offset = begin;
-                    begin += result.getKey().length();
-                    break;
-                }
-            }
-            if (result == null) {
-                return null;
-            }
-            return result;
-        }
     }
 }

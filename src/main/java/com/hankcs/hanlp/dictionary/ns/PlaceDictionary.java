@@ -61,7 +61,7 @@ public class PlaceDictionary {
         dictionary = new NSDictionary();
         if (dictionary.load(HanLpGlobalSettings.PlaceDictionaryPath)) {
             HanLpLogger.info(PlaceDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "PlaceDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryPath));
         }
         else {
@@ -75,7 +75,7 @@ public class PlaceDictionary {
         transformMatrixDictionary = new TransformMatrixDictionary<NS>(NS.class);
         if (transformMatrixDictionary.load(HanLpGlobalSettings.PlaceDictionaryTrPath)) {
             HanLpLogger.info(PlaceDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "PlaceDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryTrPath));
         }
         else {

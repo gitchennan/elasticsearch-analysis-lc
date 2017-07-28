@@ -22,14 +22,14 @@ public abstract class BaseSearcher<V> {
     /**
      * 待分词文本的char
      */
-    protected char[] c;
+    protected char[] text;
     /**
      * 指向当前处理字串的开始位置（前面的已经分词分完了）
      */
     protected int offset;
 
-    protected BaseSearcher(char[] c) {
-        this.c = c;
+    protected BaseSearcher(char[] text) {
+        this.text = text;
     }
 
     protected BaseSearcher(String text) {

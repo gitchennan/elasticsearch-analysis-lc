@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class MDAGSet extends MDAG implements Set<String> {
 
-    public MDAGSet(File dataFile) throws IOException {
+    public MDAGSet(File dataFile) {
         super(dataFile);
     }
 
@@ -35,7 +35,7 @@ public class MDAGSet extends MDAG implements Set<String> {
     public MDAGSet() {
     }
 
-    public MDAGSet(String dictionaryPath) throws IOException {
+    public MDAGSet(String dictionaryPath) {
         super(dictionaryPath);
     }
 
@@ -51,7 +51,9 @@ public class MDAGSet extends MDAG implements Set<String> {
 
     @Override
     public boolean contains(Object o) {
-        if (o.getClass() != String.class) return false;
+        if (o.getClass() != String.class) {
+            return false;
+        }
         return contains((String) o);
     }
 

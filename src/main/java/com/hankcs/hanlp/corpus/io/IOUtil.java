@@ -154,7 +154,7 @@
 //     * 从InputStream读取指定长度的字节出来
 //     *
 //     * @param is          流
-//     * @param targetArray output
+//     * @param targetArray doubleArrayTrieOutput
 //     * @return 实际读取了多少字节，返回0表示遇到了文件尾部
 //     * @throws IOException
 //     */

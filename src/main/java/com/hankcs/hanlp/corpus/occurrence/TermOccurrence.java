@@ -34,7 +34,7 @@ public class TermOccurrence
 
     public void add(String term)
     {
-        TermFrequency value = trieSingle.get(term);
+        TermFrequency value = trieSingle.getValue(term);
         if (value == null)
         {
             value = new TermFrequency(term);

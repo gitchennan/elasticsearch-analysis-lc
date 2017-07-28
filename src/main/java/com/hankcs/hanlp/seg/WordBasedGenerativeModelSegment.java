@@ -249,9 +249,6 @@ public abstract class WordBasedGenerativeModelSegment extends Segment {
 
     /**
      * 生成二元词图
-     *
-     * @param wordNet
-     * @return
      */
     protected static Graph GenerateBiGraph(WordNet wordNet) {
         return wordNet.toGraph();
@@ -259,11 +256,7 @@ public abstract class WordBasedGenerativeModelSegment extends Segment {
 
     /**
      * 原子分词
-     *
-     * @param sSentence
-     * @param start
-     * @param end
-     * @return
+
      * @deprecated 应该使用字符数组的版本
      */
     private static List<AtomNode> AtomSegment(String sSentence, int start, int end) {

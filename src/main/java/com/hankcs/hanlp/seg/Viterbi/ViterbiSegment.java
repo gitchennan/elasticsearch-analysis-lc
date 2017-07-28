@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.seg.Viterbi;
 
+import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.recognition.nr.JapanesePersonRecognition;
 import com.hankcs.hanlp.recognition.nr.PersonRecognition;
 import com.hankcs.hanlp.recognition.nr.TranslatedPersonRecognition;
@@ -42,10 +43,10 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment {
         // 自定义词库匹配
         if (config.useCustomDictionary) {
             if (config.indexMode) {
-                combineByCustomDictionary(vertexList, wordNetAll);
+                CustomDictionary.INSTANCE.combineByCustomDictionary(vertexList, wordNetAll);
             }
             else {
-                combineByCustomDictionary(vertexList);
+                CustomDictionary.INSTANCE.combineByCustomDictionary(vertexList);
             }
         }
 

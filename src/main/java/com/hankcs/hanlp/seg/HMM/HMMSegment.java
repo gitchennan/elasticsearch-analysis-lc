@@ -35,7 +35,7 @@
 //    }
 //
 //    public HMMSegment(String modelPath) {
-////        model = GlobalObjectPool.get(modelPath);
+////        model = GlobalObjectPool.getValue(modelPath);
 ////        if (model != null) return;
 //        model = new CharacterBasedGenerativeModel();
 //        long start = System.currentTimeMillis();

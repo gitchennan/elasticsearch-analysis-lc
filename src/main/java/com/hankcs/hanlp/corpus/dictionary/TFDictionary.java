@@ -51,7 +51,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> {
     public int combine(TFDictionary dictionary, int limit, boolean add) {
         int preSize = trie.size();
         for (Map.Entry<String, TermFrequency> entry : dictionary.trie.entrySet()) {
-            TermFrequency termFrequency = trie.get(entry.getKey());
+            TermFrequency termFrequency = trie.getValue(entry.getKey());
             if (termFrequency == null) {
                 trie.put(entry.getKey(), new TermFrequency(entry.getKey(), Math.min(limit, entry.getValue().getValue())));
             }
@@ -74,7 +74,7 @@ public class TFDictionary extends SimpleDictionary<TermFrequency> {
     }
 
     public void add(String key) {
-        TermFrequency termFrequency = trie.get(key);
+        TermFrequency termFrequency = trie.getValue(key);
         if (termFrequency == null) {
             termFrequency = new TermFrequency(key);
             trie.put(key, termFrequency);

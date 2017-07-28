@@ -62,7 +62,7 @@ public class SuffixDictionary
     public int get(String suffix)
     {
         suffix = reverse(suffix);
-        Integer length = trie.get(suffix);
+        Integer length = trie.getValue(suffix);
         if (length == null) return 0;
 
         return length;

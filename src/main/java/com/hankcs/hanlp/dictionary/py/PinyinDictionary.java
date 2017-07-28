@@ -1,14 +1,3 @@
-/*
- * <summary></summary>
- * <author>He Han</author>
- * <email>hankcs.cn@gmail.com</email>
- * <create-date>2014/11/2 12:41</create-date>
- *
- * <copyright file="PinyinDictionary.java" company="上海林原信息科技有限公司">
- * Copyright (c) 2003-2014, 上海林原信息科技有限公司. All Right Reserved, http://www.linrunsoft.com/
- * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
- * </copyright>
- */
 package com.hankcs.hanlp.dictionary.py;
 
 import com.google.common.base.Stopwatch;
@@ -17,17 +6,22 @@ import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
+import com.hankcs.hanlp.dictionary.searcher.DoubleArrayTrieSearcher;
 import com.hankcs.hanlp.log.HanLpLogger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author hankcs
  */
 public class PinyinDictionary {
+
     static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = new AhoCorasickDoubleArrayTrie<Pinyin[]>();
-    public static final Pinyin[] pinyins = Integer2PinyinConverter.pinyins;
+//    public static final Pinyin[] pinyins = Integer2PinyinConverter.pinyins;
 
     static {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -38,7 +32,7 @@ public class PinyinDictionary {
         }
         else {
             HanLpLogger.info(PinyinDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %s ms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %s ms, path[%s] ",
                             "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PinyinDictionaryPath));
         }
     }
@@ -96,11 +90,12 @@ public class PinyinDictionary {
      * @return 数组形式的拼音
      */
     public static Pinyin[] convertToPinyinArray(String text) {
-        return convertToPinyin(text).toArray(new Pinyin[0]);
+        List<Pinyin> pinyinList = convertToPinyin(text);
+        return pinyinList.toArray(new Pinyin[pinyinList.size()]);
     }
 
-    public static BaseSearcher getSearcher(char[] charArray, DoubleArrayTrie<Pinyin[]> trie) {
-        return new Searcher(charArray, trie);
+    public static BaseSearcher<Pinyin[]> getSearcher(char[] text, DoubleArrayTrie<Pinyin[]> trie) {
+        return new DoubleArrayTrieSearcher<Pinyin[]>(String.valueOf(text), trie);
     }
 
     /**
@@ -136,46 +131,5 @@ public class PinyinDictionary {
             offset += wordNet[offset].length;
         }
         return pinyinList;
-    }
-
-    public static class Searcher extends BaseSearcher<Pinyin[]> {
-        /**
-         * 分词从何处开始，这是一个状态
-         */
-        int begin;
-
-        DoubleArrayTrie<Pinyin[]> trie;
-
-        protected Searcher(char[] c, DoubleArrayTrie<Pinyin[]> trie) {
-            super(c);
-            this.trie = trie;
-        }
-
-        protected Searcher(String text, DoubleArrayTrie<Pinyin[]> trie) {
-            super(text);
-            this.trie = trie;
-        }
-
-        @Override
-        public Map.Entry<String, Pinyin[]> next() {
-            // 保证首次调用找到一个词语
-            Map.Entry<String, Pinyin[]> result = null;
-            while (begin < c.length) {
-                LinkedList<Map.Entry<String, Pinyin[]>> entryList = trie.commonPrefixSearchWithValue(c, begin);
-                if (entryList.size() == 0) {
-                    ++begin;
-                }
-                else {
-                    result = entryList.getLast();
-                    offset = begin;
-                    begin += result.getKey().length();
-                    break;
-                }
-            }
-            if (result == null) {
-                return null;
-            }
-            return result;
-        }
     }
 }

@@ -2,7 +2,7 @@ package com.hankcs.hanlp.api;
 
 import com.hankcs.hanlp.log.HanLpLogger;
 import org.elasticsearch.common.io.PathUtils;
-import org.elasticsearch.plugin.analysis.hanlp.AnalysisHanLPPlugin;
+import org.elasticsearch.plugin.analysis.hanlp.AnalysisLcPlugin;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -25,7 +25,9 @@ public class HanLpGlobalSettings {
      */
     public static String[] CustomDictionaryPath = new String[]{
             "data/dictionary/custom/CustomDictionary.txt",
-            "data/dictionary/custom/LuDictionary.txt"
+            "data/dictionary/custom/LuDictionary.txt",
+            "data/dictionary/extra/HanyuExtention.txt",
+            "data/dictionary/extra/Pepole.txt"
     };
     /**
      * 2元语法词典路径
@@ -136,7 +138,7 @@ public class HanLpGlobalSettings {
         // 自动读取配置
         Properties p = new Properties();
         try {
-            String pluginDir = AnalysisHanLPPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String pluginDir = AnalysisLcPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             Path pluginConfigDir = PathUtils.get(new File(pluginDir).getParent(), "config").toAbsolutePath();
 
             String root = pluginConfigDir.toString();

@@ -67,7 +67,7 @@ public class DartMap<V> extends DoubleArray implements Map<String, V>, ITrie<V> 
 
     @Override
     public V get(Object key) {
-        return get(key.toString());
+        return getValue(key.toString());
     }
 
     @Override
@@ -93,11 +93,11 @@ public class DartMap<V> extends DoubleArray implements Map<String, V>, ITrie<V> 
     }
 
     @Override
-    public V get(char[] key) {
-        return get(new String(key));
+    public V getValue(char[] key) {
+        return getValue(new String(key));
     }
 
-    public V get(String key) {
+    public V getValue(String key) {
         int id = exactMatchSearch(key);
         if (id == -1) return null;
         return valueArray[id];

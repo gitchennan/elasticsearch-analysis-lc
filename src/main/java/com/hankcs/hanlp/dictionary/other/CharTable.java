@@ -78,7 +78,7 @@ public class CharTable {
             result[i] = CONVERT[charArray.charAt(i)];
         }
 
-        return new String(result);
+        return String.valueOf(result);
     }
 
     /**

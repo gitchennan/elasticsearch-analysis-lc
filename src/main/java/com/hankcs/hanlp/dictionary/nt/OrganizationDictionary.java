@@ -64,7 +64,7 @@ public class OrganizationDictionary {
         dictionary = new NTDictionary();
         if (dictionary.load(HanLpGlobalSettings.OrganizationDictionaryPath)) {
             HanLpLogger.info(OrganizationDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "OrganizationDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryPath));
         }
         else {
@@ -78,7 +78,7 @@ public class OrganizationDictionary {
         transformMatrixDictionary = new TransformMatrixDictionary<NT>(NT.class);
         if (transformMatrixDictionary.load(HanLpGlobalSettings.OrganizationDictionaryTrPath)) {
             HanLpLogger.info(OrganizationDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "OrganizationDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.OrganizationDictionaryTrPath));
         }
         else {

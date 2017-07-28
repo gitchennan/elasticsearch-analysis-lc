@@ -23,7 +23,7 @@ public class CoreDictionaryTransformMatrixDictionary {
         }
         else {
             HanLpLogger.info(CoreDictionaryTransformMatrixDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                    String.format("Load dictionary[%s], takes %s ms, path[%s]",
                             "CoreDictTransformMatrix", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.CoreDictionaryTransformMatrixDictionaryPath));
         }
     }

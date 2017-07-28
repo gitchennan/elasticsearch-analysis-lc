@@ -49,7 +49,7 @@ public abstract class SimpleDictionary<V> {
      * @return 单词对应的条目
      */
     public V get(String key) {
-        return trie.get(key);
+        return trie.getValue(key);
     }
 
     /**

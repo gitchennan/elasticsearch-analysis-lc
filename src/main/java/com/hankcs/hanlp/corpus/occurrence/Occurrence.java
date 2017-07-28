@@ -84,7 +84,7 @@ public class Occurrence {
      * @param key 增加一个词
      */
     public void addTerm(String key) {
-        TermFrequency value = trieSingle.get(key);
+        TermFrequency value = trieSingle.getValue(key);
         if (value == null) {
             value = new TermFrequency(key);
             trieSingle.put(key, value);
@@ -97,7 +97,7 @@ public class Occurrence {
 
     private void addPair(String first, char delimiter, String second) {
         String key = first + delimiter + second;
-        PairFrequency value = triePair.get(key);
+        PairFrequency value = triePair.getValue(key);
         if (value == null) {
             value = PairFrequency.create(first, delimiter, second);
             triePair.put(key, value);
@@ -110,7 +110,7 @@ public class Occurrence {
 
     public void addTria(String first, String second, String third) {
         String key = first + RIGHT + second + RIGHT + third;
-        TriaFrequency value = trieTria.get(key);
+        TriaFrequency value = trieTria.getValue(key);
         if (value == null) {
             value = TriaFrequency.create(first, RIGHT, second, third);
             trieTria.put(key, value);
@@ -119,7 +119,7 @@ public class Occurrence {
             value.increase();
         }
         key = second + RIGHT + third + LEFT + first;    // 其实两个key只有最后一个连接符方向不同
-        value = trieTria.get(key);
+        value = trieTria.getValue(key);
         if (value == null) {
             value = TriaFrequency.create(second, third, LEFT, first);
             trieTria.put(key, value);
@@ -134,13 +134,13 @@ public class Occurrence {
      *
      */
     public int getTermFrequency(String term) {
-        TermFrequency termFrequency = trieSingle.get(term);
+        TermFrequency termFrequency = trieSingle.getValue(term);
         if (termFrequency == null) return 0;
         return termFrequency.getValue();
     }
 
     public int getPairFrequency(String first, String second) {
-        TermFrequency termFrequency = triePair.get(first + RIGHT + second);
+        TermFrequency termFrequency = triePair.getValue(first + RIGHT + second);
         if (termFrequency == null) return 0;
         return termFrequency.getValue();
     }

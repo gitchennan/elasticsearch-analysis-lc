@@ -103,7 +103,7 @@
 //    }
 //
 //    public void setTrie(AhoCorasickDoubleArrayTrie<WordAttribute> trie) {
-//        this.trie = trie;
+//        this.binTrie = binTrie;
 //    }
 //
 //    public AhoCorasickDoubleArrayTrieSegmenter loadDictionary(String... pathArray) {

@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.seg.Dijkstra;
 
+import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.recognition.nr.JapanesePersonRecognition;
 import com.hankcs.hanlp.recognition.nr.PersonRecognition;
 import com.hankcs.hanlp.recognition.nr.TranslatedPersonRecognition;
@@ -41,9 +42,12 @@ public class DijkstraSegment extends WordBasedGenerativeModelSegment {
 
         List<Vertex> vertexList = dijkstra(graph);
         if (config.useCustomDictionary) {
-            if (config.indexMode)
-                combineByCustomDictionary(vertexList, wordNetAll);
-            else combineByCustomDictionary(vertexList);
+            if (config.indexMode) {
+                CustomDictionary.INSTANCE.combineByCustomDictionary(vertexList, wordNetAll);
+            }
+            else {
+                CustomDictionary.INSTANCE.combineByCustomDictionary(vertexList);
+            }
         }
 
 

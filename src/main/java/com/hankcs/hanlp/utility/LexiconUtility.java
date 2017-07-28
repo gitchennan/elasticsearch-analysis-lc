@@ -36,7 +36,7 @@ public class LexiconUtility {
     public static WordAttribute getAttribute(String word) {
         WordAttribute attribute = CoreDictionary.INSTANCE.get(word);
         if (attribute != null) return attribute;
-        return CustomDictionary.get(word);
+        return CustomDictionary.INSTANCE.find(word);
     }
 
     /**
@@ -69,13 +69,12 @@ public class LexiconUtility {
         if (CoreDictionary.INSTANCE.updateWordAttribute(word, attribute)) {
             return true;
         }
-        if (CustomDictionary.datTrie.set(word, attribute)) {
+
+        if (CustomDictionary.INSTANCE.updateWordAttribute(word, attribute)) {
             return true;
         }
-        if (CustomDictionary.trie == null) {
-            CustomDictionary.add(word);
-        }
-        CustomDictionary.trie.put(word, attribute);
+
+        CustomDictionary.INSTANCE.binTriePut(word, attribute);
         return true;
     }
 
@@ -135,6 +134,21 @@ public class LexiconUtility {
                 customNatureCollector.add(nature);
             }
             return nature;
+        }
+    }
+
+    /**
+     * 将字符串词性转为Enum词性
+     *
+     * @param name 词性名称
+     * @return 转换结果
+     */
+    public static Nature convertStringToNature(String name) {
+        try {
+            return Nature.valueOf(name);
+        }
+        catch (Exception e) {
+            return CustomNatureUtility.addNature(name);
         }
     }
 }

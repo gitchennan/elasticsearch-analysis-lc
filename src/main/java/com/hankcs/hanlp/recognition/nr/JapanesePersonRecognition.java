@@ -41,7 +41,7 @@ public class JapanesePersonRecognition {
         StringBuilder sbName = new StringBuilder();
         int appendTimes = 0;
         char[] charArray = wordNetAll.charArray;
-        BaseSearcher searcher = JapanesePersonDictionary.getSearcher(charArray);
+        BaseSearcher<Character> searcher = JapanesePersonDictionary.getSearcher(charArray);
         Map.Entry<String, Character> entry;
         int activeLine = 1;
         int preOffset = 0;

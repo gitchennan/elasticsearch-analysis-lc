@@ -14,6 +14,7 @@ package com.hankcs.hanlp.dictionary.common;
 import com.google.common.base.Stopwatch;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
+import com.hankcs.hanlp.dictionary.searcher.CachedDoubleArrayTrieSearcher;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -21,9 +22,6 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -82,7 +80,7 @@ public abstract class CommonDictionary<V> {
      * @return 单词对应的条目
      */
     public V get(String key) {
-        return trie.get(key);
+        return trie.getValue(key);
     }
 
     /**
@@ -106,48 +104,7 @@ public abstract class CommonDictionary<V> {
     protected abstract V[] doLoadDictionary(String path);
 
     public BaseSearcher getSearcher(String text) {
-        return new Searcher(text);
+        return new CachedDoubleArrayTrieSearcher<V>(text, trie);
     }
 
-    /**
-     * 前缀搜索，长短都可匹配
-     */
-    public class Searcher extends BaseSearcher<V> {
-        /**
-         * 分词从何处开始，这是一个状态
-         */
-        int begin;
-
-        private List<Map.Entry<String, V>> entryList;
-
-        protected Searcher(char[] c) {
-            super(c);
-        }
-
-        protected Searcher(String text) {
-            super(text);
-            entryList = new LinkedList<Map.Entry<String, V>>();
-        }
-
-        @Override
-        public Map.Entry<String, V> next() {
-            // 保证首次调用找到一个词语
-            while (entryList.size() == 0 && begin < c.length) {
-                entryList = trie.commonPrefixSearchWithValue(c, begin);
-                ++begin;
-            }
-            // 之后调用仅在缓存用完的时候调用一次
-            if (entryList.size() == 0 && begin < c.length) {
-                entryList = trie.commonPrefixSearchWithValue(c, begin);
-                ++begin;
-            }
-            if (entryList.size() == 0) {
-                return null;
-            }
-            Map.Entry<String, V> result = entryList.get(0);
-            entryList.remove(0);
-            offset = begin - 1;
-            return result;
-        }
-    }
 }

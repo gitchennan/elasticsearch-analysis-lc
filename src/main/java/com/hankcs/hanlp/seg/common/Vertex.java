@@ -114,14 +114,14 @@ public class Vertex {
                 case nrf:
                 case nrj: {
                     wordID = InternalWordIds.NR_WORD_ID;
-//                    this.attribute = CoreDictionary.get(CoreDictionary.NR_WORD_ID);
+//                    this.attribute = CoreDictionary.getValue(CoreDictionary.NR_WORD_ID);
                     return Predefine.TAG_PEOPLE;
                 }
                 case ns:
                 case nsf: {
                     wordID = InternalWordIds.NS_WORD_ID;
                     // 在地名识别的时候,希望类似"河镇"的词语保持自己的词性,而不是未##地的词性
-//                    this.attribute = CoreDictionary.get(CoreDictionary.NS_WORD_ID);
+//                    this.attribute = CoreDictionary.getValue(CoreDictionary.NS_WORD_ID);
                     return Predefine.TAG_PLACE;
                 }
 //                case nz:
@@ -141,7 +141,7 @@ public class Vertex {
                 case nth:
                 case nit: {
                     wordID = InternalWordIds.NT_WORD_ID;
-//                    this.attribute = CoreDictionary.get(CoreDictionary.NT_WORD_ID);
+//                    this.attribute = CoreDictionary.getValue(CoreDictionary.NT_WORD_ID);
                     return Predefine.TAG_GROUP;
                 }
                 case m:

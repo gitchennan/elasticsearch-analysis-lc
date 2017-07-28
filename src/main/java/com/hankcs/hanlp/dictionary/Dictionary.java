@@ -9,5 +9,4 @@ public interface Dictionary {
     void reLoad();
 
     void releaseResource();
-
 }

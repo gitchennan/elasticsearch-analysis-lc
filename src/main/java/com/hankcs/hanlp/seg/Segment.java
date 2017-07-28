@@ -13,13 +13,12 @@ package com.hankcs.hanlp.seg;
 
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
-import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
-import com.hankcs.hanlp.collection.trie.bintrie.BaseNode;
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.*;
+import com.hankcs.hanlp.dictionary.CustomDictionary;
+import com.hankcs.hanlp.dictionary.InternalWordIds;
+import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.dictionary.other.CharTable;
 import com.hankcs.hanlp.dictionary.other.CharType;
-import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
 import com.hankcs.hanlp.seg.NShort.Path.AtomNode;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.seg.common.Vertex;
@@ -161,126 +160,7 @@ public abstract class Segment {
     }
 
     /**
-     * 使用用户词典合并粗分结果
-     *
-     * @param vertexList 粗分结果
-     * @return 合并后的结果
-     */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList) {
-        Vertex[] wordNet = new Vertex[vertexList.size()];
-        vertexList.toArray(wordNet);
-        // DAT合并
-        DoubleArrayTrie<WordAttribute> dat = CustomDictionary.datTrie;
-        for (int i = 0; i < wordNet.length; ++i) {
-            int state = 1;
-            state = dat.transition(wordNet[i].realWord, state);
-            if (state > 0) {
-                int to = i + 1;
-                int end = to;
-                WordAttribute value = dat.output(state);
-                for (; to < wordNet.length; ++to) {
-                    state = dat.transition(wordNet[to].realWord, state);
-                    if (state < 0) break;
-                    WordAttribute output = dat.output(state);
-                    if (output != null) {
-                        value = output;
-                        end = to + 1;
-                    }
-                }
-                if (value != null) {
-                    combineWords(wordNet, i, end, value);
-                    i = end - 1;
-                }
-            }
-        }
-        // BinTrie合并
-        if (CustomDictionary.trie != null) {
-            for (int i = 0; i < wordNet.length; ++i) {
-                if (wordNet[i] == null) continue;
-                BaseNode<WordAttribute> state = CustomDictionary.trie.transition(wordNet[i].realWord.toCharArray(), 0);
-                if (state != null) {
-                    int to = i + 1;
-                    int end = to;
-                    WordAttribute value = state.getValue();
-                    for (; to < wordNet.length; ++to) {
-                        if (wordNet[to] == null) continue;
-                        state = state.transition(wordNet[to].realWord.toCharArray(), 0);
-                        if (state == null) break;
-                        if (state.getValue() != null) {
-                            value = state.getValue();
-                            end = to + 1;
-                        }
-                    }
-                    if (value != null) {
-                        combineWords(wordNet, i, end, value);
-                        i = end - 1;
-                    }
-                }
-            }
-        }
-        vertexList.clear();
-        for (Vertex vertex : wordNet) {
-            if (vertex != null) vertexList.add(vertex);
-        }
-        return vertexList;
-    }
-
-    /**
-     * 使用用户词典合并粗分结果，并将用户词语收集到全词图中
-     *
-     * @param vertexList 粗分结果
-     * @param wordNetAll 收集用户词语到全词图中
-     * @return 合并后的结果
-     */
-    protected static List<Vertex> combineByCustomDictionary(List<Vertex> vertexList, final WordNet wordNetAll) {
-        List<Vertex> outputList = combineByCustomDictionary(vertexList);
-        int line = 0;
-        for (final Vertex vertex : outputList) {
-            final int parentLength = vertex.realWord.length();
-            final int currentLine = line;
-            if (parentLength >= 3) {
-                CustomDictionary.parseText(vertex.realWord, new AhoCorasickDoubleArrayTrie.IHit<WordAttribute>() {
-                    @Override
-                    public void hit(int begin, int end, WordAttribute value) {
-                        if (end - begin == parentLength) return;
-                        wordNetAll.add(currentLine + begin, new Vertex(vertex.realWord.substring(begin, end), value));
-                    }
-                });
-            }
-            line += parentLength;
-        }
-        return outputList;
-    }
-
-    /**
-     * 将连续的词语合并为一个
-     *
-     * @param wordNet 词图
-     * @param start   起始下标（包含）
-     * @param end     结束下标（不包含）
-     * @param value   新的属性
-     */
-    private static void combineWords(Vertex[] wordNet, int start, int end, WordAttribute value) {
-        if (start + 1 == end)   // 小优化，如果只有一个词，那就不需要合并，直接应用新属性
-        {
-            wordNet[start].attribute = value;
-        }
-        else {
-            StringBuilder sbTerm = new StringBuilder();
-            for (int j = start; j < end; ++j) {
-                if (wordNet[j] == null) continue;
-                String realWord = wordNet[j].realWord;
-                sbTerm.append(realWord);
-                wordNet[j] = null;
-            }
-            wordNet[start] = new Vertex(sbTerm.toString(), value);
-        }
-    }
-
-    /**
      * 合并数字
-     *
-     * @param termList
      */
     protected void mergeNumberQuantifier(List<Vertex> termList, WordNet wordNetAll, Config config) {
         if (termList.size() < 4) return;

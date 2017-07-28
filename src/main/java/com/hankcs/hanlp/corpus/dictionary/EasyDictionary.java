@@ -6,7 +6,7 @@
 // *
 // * <copyright file="EasyDictionary.java" company="上海林原信息科技有限公司">
 // * Copyright (c) 2003-2014, 上海林原信息科技有限公司. All Right Reserved, http://www.linrunsoft.com/
-// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
+// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to getValue more information.
 // * </copyright>
 // */
 //package com.hankcs.hanlp.corpus.dictionary;
@@ -78,7 +78,7 @@
 //    }
 //
 //    public WordAttribute GetWordInfo(String key) {
-//        return doubleArrayTrie.get(key);
+//        return doubleArrayTrie.getValue(key);
 //    }
 //
 //    public boolean contains(String key) {
@@ -121,7 +121,7 @@
 //            if (entryList.size() == 0) {
 //                return null;
 //            }
-//            Map.Entry<String, WordAttribute> result = entryList.get(0);
+//            Map.Entry<String, WordAttribute> result = entryList.getValue(0);
 //            entryList.remove(0);
 //            offset = begin - 1;
 //            return result;

@@ -6,7 +6,7 @@
 // *
 // * <copyright file="DumpHander.java" company="码农场">
 // * Copyright (c) 2008-2015, 码农场. All Right Reserved, http://www.hankcs.com/
-// * This source is subject to Hankcs. Please contact Hankcs to get more information.
+// * This source is subject to Hankcs. Please contact Hankcs to getValue more information.
 // * </copyright>
 // */
 //package com.hankcs.hanlp.corpus.io;

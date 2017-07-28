@@ -106,7 +106,7 @@ public class EnumBuster<E extends Enum<E>> {
      * enum class pointing to an enum with our value,
      * then we replace that with our enum instance.
      * <p>
-     * The ordinal is either set to the existing position
+     * The ordinal is either updateValue to the existing position
      * or to the last value.
      * <p>
      * Warning: This should probably never be called,
@@ -120,7 +120,7 @@ public class EnumBuster<E extends Enum<E>> {
             undoStack.push(new Memento());
             Field valuesField = findValuesField();
 
-            // we get the current Enum[]
+            // we getValue the current Enum[]
             E[] values = values();
             for (int i = 0; i < values.length; i++) {
                 E value = values[i];
@@ -146,12 +146,12 @@ public class EnumBuster<E extends Enum<E>> {
         }
         catch (Exception ex) {
             throw new IllegalArgumentException(
-                    "Could not set the enum", ex);
+                    "Could not updateValue the enum", ex);
         }
     }
 
     /**
-     * We delete the enum from the values array and set the
+     * We delete the enum from the values array and updateValue the
      * constant pointer to null.
      *
      * @param e the enum to delete from the type.
@@ -162,7 +162,7 @@ public class EnumBuster<E extends Enum<E>> {
         if (e == null) throw new NullPointerException();
         try {
             undoStack.push(new Memento());
-            // we get the current E[]
+            // we getValue the current E[]
             E[] values = values();
             for (int i = 0; i < values.length; i++) {
                 E value = values[i];
@@ -185,7 +185,7 @@ public class EnumBuster<E extends Enum<E>> {
         }
         catch (Exception ex) {
             throw new IllegalArgumentException(
-                    "Could not set the enum", ex);
+                    "Could not updateValue the enum", ex);
         }
         return false;
     }
@@ -300,7 +300,7 @@ public class EnumBuster<E extends Enum<E>> {
     }
 
     /**
-     * Method to find the values field, set it to be accessible,
+     * Method to find the values field, updateValue it to be accessible,
      * and return it.
      *
      * @return the values array field for the enum.

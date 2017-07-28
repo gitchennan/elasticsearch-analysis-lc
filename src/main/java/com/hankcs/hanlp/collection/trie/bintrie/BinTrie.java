@@ -40,7 +40,9 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
      * 插入一个词
      */
     public void put(String key, V value) {
-        if (key.length() == 0) return;  // 安全起见
+        if (key.length() == 0) {
+            return;
+        }
         BaseNode branch = this;
         char[] chars = key.toCharArray();
         for (int i = 0; i < chars.length - 1; ++i) {
@@ -106,7 +108,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         return branch != null && (branch.status == Status.WORD_END_3 || branch.status == Status.WORD_MIDDLE_2);
     }
 
-    public V get(String key) {
+    public V getValue(String key) {
         BaseNode<V> branch = this;
         char[] chars = key.toCharArray();
         for (char aChar : chars) {
@@ -120,7 +122,7 @@ public class BinTrie<V> extends BaseNode<V> implements ITrie<V> {
         return (V) branch.getValue();
     }
 
-    public V get(char[] key) {
+    public V getValue(char[] key) {
         BaseNode<V> branch = this;
         for (char aChar : key) {
             if (branch == null) return null;

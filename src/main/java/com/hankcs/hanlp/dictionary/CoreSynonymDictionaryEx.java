@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary;
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.algorithm.EditDistance;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.dictionary.common.CommonSynonymDictionary;
@@ -22,7 +23,6 @@ import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,7 +62,7 @@ public class CoreSynonymDictionaryEx {
      * @param withUndefinedItem 是否保留词典中没有的词语
      */
     public static List<Long[]> convert(List<Term> sentence, boolean withUndefinedItem) {
-        List<Long[]> synonymItemList = new ArrayList<Long[]>(sentence.size());
+        List<Long[]> synonymItemList = Lists.newArrayListWithCapacity(sentence.size());
         for (Term term : sentence) {
             // 除掉停用词
             if (term.nature == null) continue;
@@ -70,7 +70,9 @@ public class CoreSynonymDictionaryEx {
             char firstChar = nature.charAt(0);
             switch (firstChar) {
                 case 'm': {
-                    if (!TextUtility.isAllChinese(term.word)) continue;
+                    if (!TextUtility.isAllChinese(term.word)) {
+                        continue;
+                    }
                 }
                 break;
                 case 'w': {
@@ -78,14 +80,15 @@ public class CoreSynonymDictionaryEx {
                 }
             }
             // 停用词
-            if (CoreStopWordDictionary.contains(term.word)) continue;
+            if (CoreStopWordDictionary.contains(term.word)) {
+                continue;
+            }
             Long[] item = get(term.word);
             if (item == null) {
                 if (withUndefinedItem) {
                     item = new Long[]{Long.MAX_VALUE / 3};
                     synonymItemList.add(item);
                 }
-
             }
             else {
                 synonymItemList.add(item);
@@ -108,7 +111,8 @@ public class CoreSynonymDictionaryEx {
     }
 
 
-    public long distance(List<CommonSynonymDictionary.SynonymItem> synonymItemListA, List<CommonSynonymDictionary.SynonymItem> synonymItemListB) {
+    public long distance(List<CommonSynonymDictionary.SynonymItem> synonymItemListA,
+                         List<CommonSynonymDictionary.SynonymItem> synonymItemListB) {
         return EditDistance.compute(synonymItemListA, synonymItemListB);
     }
 

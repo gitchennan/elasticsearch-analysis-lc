@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.corpus.util;
 
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
@@ -19,7 +20,6 @@ import com.hankcs.hanlp.recognition.nt.OrganizationRecognition;
 import com.hankcs.hanlp.seg.common.Vertex;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 运行时动态增加词性工具
@@ -30,16 +30,22 @@ import java.util.TreeMap;
  * @author hankcs
  */
 public class CustomNatureUtility {
-    private static Map<String, Nature> extraValueMap = new TreeMap<String, Nature>();
+
+    /**
+     * 词性存储
+     */
+    private static Map<String, Nature> extraWordNatureMap = Maps.newConcurrentMap();
 
     /**
      * 动态增加词性工具
      */
-    private static EnumBuster<Nature> enumBuster = new EnumBuster<Nature>(Nature.class,
+    private static EnumBuster<Nature> enumBuster = new EnumBuster<Nature>(
+            Nature.class,
             CustomDictionary.class,
             Vertex.class,
             PersonRecognition.class,
-            OrganizationRecognition.class);
+            OrganizationRecognition.class
+    );
 
     /**
      * 增加词性
@@ -48,11 +54,13 @@ public class CustomNatureUtility {
      * @return 词性
      */
     public static Nature addNature(String name) {
-        Nature customNature = extraValueMap.get(name);
-        if (customNature != null) return customNature;
+        Nature customNature = extraWordNatureMap.get(name);
+        if (customNature != null) {
+            return customNature;
+        }
         customNature = enumBuster.make(name);
         enumBuster.addByValue(customNature);
-        extraValueMap.put(name, customNature);
+        extraWordNatureMap.put(name, customNature);
         // 必须对词性标注HMM模型中的元组做出调整
         CoreDictionaryTransformMatrixDictionary.transformMatrixDictionary.extendSize();
 
@@ -73,6 +81,6 @@ public class CustomNatureUtility {
      */
     public static void restore() {
         enumBuster.restore();
-        extraValueMap.clear();
+        extraWordNatureMap.clear();
     }
 }

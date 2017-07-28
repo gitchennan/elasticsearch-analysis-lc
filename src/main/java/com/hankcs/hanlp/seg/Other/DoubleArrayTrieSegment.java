@@ -37,7 +37,7 @@ public class DoubleArrayTrieSegment extends DictionaryBasedSegment {
             }
         }
         if (config.useCustomDictionary) {
-            CustomDictionary.parseText(sentence, new AhoCorasickDoubleArrayTrie.IHit<WordAttribute>() {
+            CustomDictionary.INSTANCE.parseText(sentence, new AhoCorasickDoubleArrayTrie.IHit<WordAttribute>() {
                 @Override
                 public void hit(int begin, int end, WordAttribute value) {
                     int length = end - begin;

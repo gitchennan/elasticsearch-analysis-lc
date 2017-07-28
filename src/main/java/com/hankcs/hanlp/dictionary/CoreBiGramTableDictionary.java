@@ -12,6 +12,7 @@
 package com.hankcs.hanlp.dictionary;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
@@ -51,7 +52,7 @@ public class CoreBiGramTableDictionary {
         }
         else {
             HanLpLogger.error(CoreBiGramTableDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %s ms, path[%s.table]",
+                    String.format("Load dictionary[%s], takes %s ms, path[%s.table]",
                             "CoreBiGramTableDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.BiGramDictionaryPath));
         }
     }
@@ -85,7 +86,7 @@ public class CoreBiGramTableDictionary {
                     int freq = Integer.parseInt(params[1]);
                     TreeMap<Integer, Integer> biMap = map.get(idA);
                     if (biMap == null) {
-                        biMap = new TreeMap<Integer, Integer>();
+                        biMap = Maps.newTreeMap();
                         map.put(idA, biMap);
                     }
 
@@ -180,7 +181,9 @@ public class CoreBiGramTableDictionary {
             return 1000;
         }
         int index = binarySearch(pair, start[idA], start[idA + 1] - start[idA], idB);
-        if (index < 0) return 0;
+        if (index < 0) {
+            return 0;
+        }
         index <<= 1;
         return pair[index + 1];
     }

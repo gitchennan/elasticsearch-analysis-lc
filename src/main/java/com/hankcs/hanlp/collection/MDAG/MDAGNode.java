@@ -53,7 +53,7 @@ public class MDAGNode
      */
     private int incomingTransitionCount = 0;
     
-    //The int denoting index in a simplified mdag data array that this node's _transition set begins at
+    //The int denoting index in a simplified mdag data array that this node's _transition updateValue begins at
     /**
      * 在简化的MDAG中表示该节点的转移状态集合的起始位置
      */
@@ -93,7 +93,7 @@ public class MDAGNode
         isAcceptNode = node.isAcceptNode;
         outgoingTransitionTreeMap = new TreeMap<Character, MDAGNode>(node.outgoingTransitionTreeMap);
         
-        //Loop through the nodes in this node's outgoing _transition set, incrementing the number of
+        //Loop through the nodes in this node's outgoing _transition updateValue, incrementing the number of
         //incoming transitions of each by 1 (to account for this newly created node's outgoing transitions)
         for(Entry<Character, MDAGNode> transitionKeyValuePair : outgoingTransitionTreeMap.entrySet())
             transitionKeyValuePair.getValue().incomingTransitionCount++;
@@ -118,12 +118,12 @@ public class MDAGNode
     /**
      * 克隆一个状态<br>
      * 原来soleParentNode转移到本状态，现在转移到克隆后的状态
-     * Creates an MDAGNode possessing the same accept state status ant _transition set
+     * Creates an MDAGNode possessing the same accept state status ant _transition updateValue
      * (incoming & outgoing) as this node. outgoing transitions as this node.
      
      * @param soleParentNode                        the MDAGNode possessing the only _transition that targets this node
      * @param parentToCloneTransitionLabelChar      the char which labels the _transition from {@code soleParentNode} to this node
-     * @return                                      an MDAGNode possessing the same accept state status and _transition set as this node.
+     * @return                                      an MDAGNode possessing the same accept state status and _transition updateValue as this node.
      */
     public MDAGNode clone(MDAGNode soleParentNode, char parentToCloneTransitionLabelChar)
     {
@@ -137,10 +137,10 @@ public class MDAGNode
 
     /**
      * Retrieves the index in a simplified mdag data array that the SimpleMDAGNode
-     * representation of this node's outgoing _transition set begins at.
+     * representation of this node's outgoing _transition updateValue begins at.
      
-     * @return      the index in a simplified mdag data array that this node's _transition set begins at,
-     *              or -1 if its _transition set is not present in such an array
+     * @return      the index in a simplified mdag data array that this node's _transition updateValue begins at,
+     *              or -1 if its _transition updateValue is not present in such an array
      */
     public int getTransitionSetBeginIndex()
     {
@@ -212,10 +212,10 @@ public class MDAGNode
     
     /**
      * 转移状态在数组中的起始下标<br>
-     * Records the index that this node's _transition set starts at
+     * Records the index that this node's _transition updateValue starts at
      * in an array containing this node's containing MDAG data (simplified MDAG).
      
-     * @param transitionSetBeginIndex       a _transition set
+     * @param transitionSetBeginIndex       a _transition updateValue
      */
     public void setTransitionSetBeginIndex(int transitionSetBeginIndex)
     {
@@ -455,7 +455,7 @@ public class MDAGNode
         
         if(outgoingTransitionTreeMap1.size() == outgoingTransitionTreeMap2.size())
         {
-            //For each _transition in outgoingTransitionTreeMap1, get the identically lableed _transition
+            //For each _transition in outgoingTransitionTreeMap1, getValue the identically lableed _transition
             //in outgoingTransitionTreeMap2 (if present), and test the equality of the transitions' target nodes
             for(Entry<Character, MDAGNode> transitionKeyValuePair : outgoingTransitionTreeMap1.entrySet())
             {
@@ -489,10 +489,10 @@ public class MDAGNode
      * 两个状态是否等价，只有状态转移函数完全一致才算相等<br>
      * Evaluates the equality of this node with another object.
      * This node is equal to obj if and only if obj is also an MDAGNode,
-     * and the set of transitions paths from this node and obj are equivalent.
+     * and the updateValue of transitions paths from this node and obj are equivalent.
      
      * @param obj       an object
-     * @return          true of {@code obj} is an MDAGNode and the set of 
+     * @return          true of {@code obj} is an MDAGNode and the updateValue of
      *                  _transition paths from this node and obj are equivalent
      */
     @Override
@@ -512,7 +512,7 @@ public class MDAGNode
     
     
     /**
-     * Hashes this node using its accept state status and set of outgoing _transition paths.
+     * Hashes this node using its accept state status and updateValue of outgoing _transition paths.
      * This is an expensive operation, so the result is cached and only cleared when necessary.
     
      * @return      an int of this node's hash code

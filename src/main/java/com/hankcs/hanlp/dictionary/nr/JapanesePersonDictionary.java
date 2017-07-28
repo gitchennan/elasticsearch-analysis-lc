@@ -16,6 +16,7 @@ import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.dictionary.BaseSearcher;
+import com.hankcs.hanlp.dictionary.searcher.DoubleArrayTrieSearcher;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -23,8 +24,6 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -57,14 +56,14 @@ public class JapanesePersonDictionary {
         }
         else {
             HanLpLogger.info(JapanesePersonDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "JapanesePersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.JapanesePersonDictionaryPath));
         }
         stopwatch.stop();
     }
 
     static boolean load() {
-        trie = new DoubleArrayTrie<Character>();
+        trie = DoubleArrayTrie.newDoubleArrayTrie();
         return IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {
             @Override
             public void process(InputStream input) throws Exception {
@@ -92,59 +91,18 @@ public class JapanesePersonDictionary {
      * 包含key，且key至少长length
      */
     public static boolean containsKey(String key, int length) {
-        if (!trie.containsKey(key)) return false;
+        if (!trie.containsKey(key)) {
+            return false;
+        }
         return key.length() >= length;
     }
 
     public static Character get(String key) {
-        return trie.get(key);
+        return trie.getValue(key);
     }
 
-    public static BaseSearcher getSearcher(char[] charArray) {
-        return new Searcher(charArray, trie);
+    public static BaseSearcher<Character> getSearcher(char[] charArray) {
+        return new DoubleArrayTrieSearcher<Character>(String.valueOf(charArray), trie);
     }
 
-    /**
-     * 最长分词
-     */
-    public static class Searcher extends BaseSearcher<Character> {
-        /**
-         * 分词从何处开始，这是一个状态
-         */
-        int begin;
-
-        DoubleArrayTrie<Character> trie;
-
-        protected Searcher(char[] c, DoubleArrayTrie<Character> trie) {
-            super(c);
-            this.trie = trie;
-        }
-
-        protected Searcher(String text, DoubleArrayTrie<Character> trie) {
-            super(text);
-            this.trie = trie;
-        }
-
-        @Override
-        public Map.Entry<String, Character> next() {
-            // 保证首次调用找到一个词语
-            Map.Entry<String, Character> result = null;
-            while (begin < c.length) {
-                LinkedList<Map.Entry<String, Character>> entryList = trie.commonPrefixSearchWithValue(c, begin);
-                if (entryList.size() == 0) {
-                    ++begin;
-                }
-                else {
-                    result = entryList.getLast();
-                    offset = begin;
-                    begin += result.getKey().length();
-                    break;
-                }
-            }
-            if (result == null) {
-                return null;
-            }
-            return result;
-        }
-    }
 }

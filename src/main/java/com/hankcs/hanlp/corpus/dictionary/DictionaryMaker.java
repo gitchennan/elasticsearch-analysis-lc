@@ -6,7 +6,7 @@
 // *
 // * <copyright file="DictionaryMaker.java" company="上海林原信息科技有限公司">
 // * Copyright (c) 2003-2014, 上海林原信息科技有限公司. All Right Reserved, http://www.linrunsoft.com/
-// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
+// * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to getValue more information.
 // * </copyright>
 // */
 //package com.hankcs.hanlp.corpus.dictionary;
@@ -43,7 +43,7 @@
 //     * @param word 词语
 //     */
 //    public void add(IWord word) {
-//        Item item = doubleArrayTrie.get(word.getValue());
+//        Item item = doubleArrayTrie.getValue(word.getValue());
 //        if (item == null) {
 //            item = new Item(word.getValue(), word.getLabel());
 //            doubleArrayTrie.put(item.key, item);
@@ -66,12 +66,12 @@
 //        doubleArrayTrie.remove(value);
 //    }
 //
-//    public Item get(String key) {
-//        return doubleArrayTrie.get(key);
+//    public Item getValue(String key) {
+//        return doubleArrayTrie.getValue(key);
 //    }
 //
-//    public Item get(IWord word) {
-//        return get(word.getValue());
+//    public Item getValue(IWord word) {
+//        return getValue(word.getValue());
 //    }
 //
 //    public TreeSet<String> labelSet() {
@@ -154,7 +154,7 @@
 //     * @param item
 //     */
 //    public void add(Item item) {
-//        Item innerItem = doubleArrayTrie.get(item.key);
+//        Item innerItem = doubleArrayTrie.getValue(item.key);
 //        if (innerItem == null) {
 //            innerItem = item;
 //            doubleArrayTrie.put(innerItem.key, innerItem);
@@ -183,7 +183,7 @@
 //     * @param item
 //     */
 //    public void addNotCombine(Item item) {
-//        Item innerItem = doubleArrayTrie.get(item.key);
+//        Item innerItem = doubleArrayTrie.getValue(item.key);
 //        if (innerItem == null) {
 //            innerItem = item;
 //            doubleArrayTrie.put(innerItem.key, innerItem);

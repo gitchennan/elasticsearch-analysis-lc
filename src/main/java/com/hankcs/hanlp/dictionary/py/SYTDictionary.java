@@ -38,7 +38,7 @@ public class SYTDictionary {
         StringDictionary dictionary = new StringDictionary();
         if (dictionary.load(HanLpGlobalSettings.SYTDictionaryPath)) {
             HanLpLogger.info(HanLpGlobalSettings.class,
-                    String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                    String.format("Load dictionary[%s], takes %s ms, path[%s]",
                             "SYTDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.SYTDictionaryPath));
 
             for (Map.Entry<String, String> entry : dictionary.entrySet()) {
@@ -59,7 +59,7 @@ public class SYTDictionary {
         }
         else {
             HanLpLogger.error(HanLpGlobalSettings.class,
-                    String.format("Load dictionary[%-25s], takes %s ms, path[%s]",
+                    String.format("Load dictionary[%s], takes %s ms, path[%s]",
                             "SYTDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.SYTDictionaryPath));
         }
     }

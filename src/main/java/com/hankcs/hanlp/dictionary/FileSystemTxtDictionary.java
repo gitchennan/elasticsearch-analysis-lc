@@ -10,13 +10,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class FileSystemTxtDictionary implements Dictionary {
 
+    protected static final String DICT_LINE_SPLIT_CHAR = "\\s";
+
     private String[] dictionaryLocations;
 
     public FileSystemTxtDictionary(String... dictionaryLocations) {
         this.dictionaryLocations = dictionaryLocations;
     }
 
-    abstract void loadLine(String line);
+    abstract void onLoadLine(String line);
 
     void onDictionaryLoaded() {
 
@@ -31,7 +33,7 @@ public abstract class FileSystemTxtDictionary implements Dictionary {
             boolean loadResult = IOSafeHelper.openAutoCloseableFileReader(dictionaryLocation, new LineOperator() {
                 @Override
                 public void process(String line) throws Exception {
-                    loadLine(line);
+                    onLoadLine(line);
                     wordCount.incrementAndGet();
                 }
 
@@ -45,7 +47,7 @@ public abstract class FileSystemTxtDictionary implements Dictionary {
 
             if (loadResult) {
                 HanLpLogger.info(this,
-                        String.format("Load dictionary[%-25s], takes %s ms, word count[%d] path[%s] ",
+                        String.format("Load dictionary[%s], takes %s ms, total_words[%d] path[%s] ",
                                 dictionaryName(), stopwatch.elapsed(TimeUnit.MILLISECONDS), wordCount.get(), dictionaryLocation));
             }
             stopwatch.reset();

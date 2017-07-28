@@ -44,7 +44,7 @@ public class TranslatedPersonDictionary {
         }
         else {
             HanLpLogger.info(TranslatedPersonDictionary.class,
-                    String.format("Load dictionary[%-25s], takes %sms, path[%s] ",
+                    String.format("Load dictionary[%s], takes %sms, path[%s] ",
                             "TranslatedPersonDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.TranslatedPersonDictionaryPath));
         }
         stopwatch.stop();

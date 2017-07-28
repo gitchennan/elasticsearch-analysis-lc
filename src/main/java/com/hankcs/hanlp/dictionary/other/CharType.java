@@ -91,7 +91,7 @@ public class CharType {
             }
 
             HanLpLogger.info(CharType.class,
-                    String.format("Load dictionary[%-25s], takes %s ms", "CharType", stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+                    String.format("Load dictionary[%s], takes %s ms", "CharType", stopwatch.elapsed(TimeUnit.MILLISECONDS)));
         }
     }
 

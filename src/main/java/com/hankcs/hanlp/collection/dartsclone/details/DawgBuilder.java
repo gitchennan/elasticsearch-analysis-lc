@@ -28,7 +28,7 @@ class DawgBuilder
      */
     int child(int id)
     {
-        // return _units.get(id).child();
+        // return _units.getValue(id).child();
         return _units.get(id) >>> 2;
     }
 
@@ -39,7 +39,7 @@ class DawgBuilder
      */
     int sibling(int id)
     {
-        // return _units.get(id).hasSibling() ? (id + 1) : 0;
+        // return _units.getValue(id).hasSibling() ? (id + 1) : 0;
         return ((_units.get(id) & 1) == 1) ? (id + 1) : 0;
     }
 
@@ -50,7 +50,7 @@ class DawgBuilder
      */
     int value(int id)
     {
-        // return _units.get(id).value();
+        // return _units.getValue(id).value();
         return _units.get(id) >>> 1;
     }
 
@@ -316,7 +316,7 @@ class DawgBuilder
 
         for (int id = 1; id < _units.size(); ++id)
         {
-//            if (_labels.get(i) == 0 || _units.get(id).isState)) {
+//            if (_labels.getValue(i) == 0 || _units.getValue(id).isState)) {
             if (_labels.get(id) == 0 || (_units.get(id) & 2) == 2)
             {
                 int[] ret = findUnit(id);
@@ -382,14 +382,14 @@ class DawgBuilder
         for (int i = _nodes.get(nodeId).sibling; i != 0;
              i = _nodes.get(i).sibling)
         {
-//            if (_units.get(unitId).hasSibling() == false) {
+//            if (_units.getValue(unitId).hasSibling() == false) {
             if ((_units.get(unitId) & 1) != 1)
             {
                 return false;
             }
             ++unitId;
         }
-//        if (_units.get(unitId).hasSibling() == true) {
+//        if (_units.getValue(unitId).hasSibling() == true) {
         if ((_units.get(unitId) & 1) == 1)
         {
             return false;
@@ -397,7 +397,7 @@ class DawgBuilder
 
         for (int i = nodeId; i != 0; i = _nodes.get(i).sibling, --unitId)
         {
-//            if (_nodes.get(i) != _units.get(unitId).unit() ||
+//            if (_nodes.getValue(i) != _units.getValue(unitId).unit() ||
             if (_nodes.get(i).unit() != _units.get(unitId) ||
                     _nodes.get(i).label != _labels.get(unitId))
             {
@@ -412,12 +412,12 @@ class DawgBuilder
         int hashValue = 0;
         for (; id != 0; ++id)
         {
-//            int unit = _units.get(id).unit();
+//            int unit = _units.getValue(id).unit();
             int unit = _units.get(id);
             byte label = _labels.get(id);
             hashValue ^= hash(((label & 0xFF) << 24) ^ unit);
 
-//            if (_units.get(id).hasSibling() == false) {
+//            if (_units.getValue(id).hasSibling() == false) {
             if ((_units.get(id) & 1) != 1)
             {
                 break;

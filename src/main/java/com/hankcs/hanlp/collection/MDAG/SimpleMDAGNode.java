@@ -25,7 +25,7 @@ package com.hankcs.hanlp.collection.MDAG;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 
 /**
- * The class capable of representing a MDAG node, its _transition set, and one of its incoming transitions;
+ * The class capable of representing a MDAG node, its _transition updateValue, and one of its incoming transitions;
  * objects of this class are used to represent a MDAG after its been simplified in order to save space.
  *
  * @author Kevin
@@ -39,10 +39,10 @@ public class SimpleMDAGNode
     //The boolean denoting the accept state status of this node
     private boolean isAcceptNode;
 
-    //The int denoting the size of this node's outgoing _transition set
+    //The int denoting the size of this node's outgoing _transition updateValue
     private int transitionSetSize;
 
-    //The int denoting the index (in the array which contains this node) at which this node's _transition set begins
+    //The int denoting the index (in the array which contains this node) at which this node's _transition updateValue begins
     private int transitionSetBeginIndex;
 
 
@@ -51,7 +51,7 @@ public class SimpleMDAGNode
      *
      * @param letter            a char representing the _transition label leading to this SimpleMDAGNode
      * @param isAcceptNode      a boolean representing the accept state status of this SimpleMDAGNode
-     * @param transitionSetSize an int denoting the size of this _transition set
+     * @param transitionSetSize an int denoting the size of this _transition updateValue
      */
     public SimpleMDAGNode(char letter, boolean isAcceptNode, int transitionSetSize)
     {
@@ -90,9 +90,9 @@ public class SimpleMDAGNode
 
 
     /**
-     * Retrieves the index in this node's containing array that its _transition set begins at.
+     * Retrieves the index in this node's containing array that its _transition updateValue begins at.
      *
-     * @return an int of the index in this node's containing array at which its _transition set begins
+     * @return an int of the index in this node's containing array at which its _transition updateValue begins
      */
     public int getTransitionSetBeginIndex()
     {
@@ -101,9 +101,9 @@ public class SimpleMDAGNode
 
 
     /**
-     * Retrieves the size of this node's outgoing _transition set.
+     * Retrieves the size of this node's outgoing _transition updateValue.
      *
-     * @return an int denoting the size of this node's outgoing _transition set
+     * @return an int denoting the size of this node's outgoing _transition updateValue
      */
     public int getOutgoingTransitionSetSize()
     {
@@ -112,9 +112,9 @@ public class SimpleMDAGNode
 
 
     /**
-     * Records the index in this node's containing array that its _transition set begins at.
+     * Records the index in this node's containing array that its _transition updateValue begins at.
      *
-     * @param transitionSetBeginIndex an int denoting the index in this node's containing array that is _transition set beings at
+     * @param transitionSetBeginIndex an int denoting the index in this node's containing array that is _transition updateValue beings at
      */
     public void setTransitionSetBeginIndex(int transitionSetBeginIndex)
     {
@@ -148,7 +148,7 @@ public class SimpleMDAGNode
         int onePastTransitionSetEndIndex = transitionSetBeginIndex + transitionSetSize;
         SimpleMDAGNode targetNode = null;
 
-        //Loop through the SimpleMDAGNodes in this node's _transition set, searching for
+        //Loop through the SimpleMDAGNodes in this node's _transition updateValue, searching for
         //the one with a letter equal to that which labels the desired _transition
         for(int i = transitionSetBeginIndex; i < onePastTransitionSetEndIndex; i++)
         {
@@ -263,7 +263,7 @@ public class SimpleMDAGNode
     {
 //        char firstLetter = str.charAt(0);
 
-        //Loop through the SimpleMDAGNodes in the processing MDAG's source node's _transition set,
+        //Loop through the SimpleMDAGNodes in the processing MDAG's source node's _transition updateValue,
         //searching for the the one with a letter (char) equal to the first char of str.
         //We can use that target node to _transition through the MDAG with the rest of the string
         return sourceNode.transition(mdagDataArray, str.toCharArray());

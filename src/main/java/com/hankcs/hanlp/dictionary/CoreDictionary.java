@@ -35,14 +35,14 @@ public class CoreDictionary extends FileSystemTxtDictionary {
 
     public static final int TOTAL_FREQUENCY = 221894;
     /**
-     * a data structure double array trie for store the dictionary items
+     * a data structure double array binTrie for store the dictionary items
      */
     private volatile DoubleArrayTrie<WordAttribute> doubleArrayTrie;
 
     /**
      * attribute map for preLoad dictionary
      */
-    private TreeMap<String, WordAttribute> wordAttributeMap;
+    private volatile TreeMap<String, WordAttribute> wordAttributeMap;
 
     /**
      * core dictionary singleton
@@ -66,8 +66,8 @@ public class CoreDictionary extends FileSystemTxtDictionary {
     }
 
     @Override
-    void loadLine(String line) {
-        String param[] = line.split("\\s");
+    void onLoadLine(String line) {
+        String param[] = line.split(DICT_LINE_SPLIT_CHAR);
         int natureCount = (param.length - 1) / 2;
         WordAttribute wordAttribute = new WordAttribute(natureCount);
         for (int i = 0; i < natureCount; i++) {
@@ -99,7 +99,7 @@ public class CoreDictionary extends FileSystemTxtDictionary {
 
     @Override
     public synchronized void releaseResource() {
-        doubleArrayTrie = new DoubleArrayTrie<WordAttribute>();
+        doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
 
         if (wordAttributeMap == null) {
             wordAttributeMap = Maps.newTreeMap();
@@ -113,14 +113,14 @@ public class CoreDictionary extends FileSystemTxtDictionary {
      * 获取条目
      */
     public WordAttribute get(String key) {
-        return doubleArrayTrie.get(key);
+        return doubleArrayTrie.getValue(key);
     }
 
     /**
      * 获取条目
      */
     public WordAttribute get(int wordID) {
-        return doubleArrayTrie.get(wordID);
+        return doubleArrayTrie.getValue(wordID);
     }
 
     /**
@@ -136,7 +136,7 @@ public class CoreDictionary extends FileSystemTxtDictionary {
      * 是否包含词语
      */
     public boolean contains(String key) {
-        return doubleArrayTrie.get(key) != null;
+        return doubleArrayTrie.getValue(key) != null;
     }
 
     /**
@@ -150,7 +150,7 @@ public class CoreDictionary extends FileSystemTxtDictionary {
     }
 
     /**
-     * get max word id in dictionary
+     * getValue max word id in dictionary
      *
      * @return max word id
      */
@@ -167,6 +167,6 @@ public class CoreDictionary extends FileSystemTxtDictionary {
     }
 
     public boolean updateWordAttribute(String key, WordAttribute wordAttribute) {
-        return doubleArrayTrie.set(key, wordAttribute);
+        return doubleArrayTrie.updateValue(key, wordAttribute);
     }
 }

@@ -1,14 +1,4 @@
-/*
- * <summary></summary>
- * <author>He Han</author>
- * <email>hankcs.cn@gmail.com</email>
- * <create-date>2014/11/20 20:20</create-date>
- *
- * <copyright file="NLPTokenizer.java" company="上海林原信息科技有限公司">
- * Copyright (c) 2003-2014, 上海林原信息科技有限公司. All Right Reserved, http://www.linrunsoft.com/
- * This source is subject to the LinrunSpace License. Please contact 上海林原信息科技有限公司 to get more information.
- * </copyright>
- */
+
 package com.hankcs.hanlp.tokenizer;
 
 import com.hankcs.hanlp.api.HanLP;
@@ -68,7 +58,8 @@ public class TraditionalChineseTokenizer {
      * @return 分词结果
      */
     public static List<Term> segment(char[] text) {
-        return segment(CharTable.convert(text));
+        text = CharTable.convert(text);
+        return segment(new String(text));
     }
 
     /**
@@ -79,10 +70,8 @@ public class TraditionalChineseTokenizer {
      */
     public static List<List<Term>> seg2sentence(String text) {
         List<List<Term>> resultList = new LinkedList<List<Term>>();
-        {
-            for (String sentence : SentencesUtil.toSentenceList(text)) {
-                resultList.add(segment(sentence));
-            }
+        for (String sentence : SentencesUtil.toSentenceList(text)) {
+            resultList.add(segment(sentence));
         }
 
         return resultList;

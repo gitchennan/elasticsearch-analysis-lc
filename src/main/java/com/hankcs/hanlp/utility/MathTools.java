@@ -30,7 +30,8 @@ public class MathTools {
     public static double calculateWeight(Vertex from, Vertex to) {
         int frequency = from.getAttribute().totalFrequency;
         if (frequency == 0) {
-            frequency = 1;  // 防止发生除零错误
+            // 防止发生除零错误
+            frequency = 1;
         }
 
         int nTwoWordsFreq = CoreBiGramTableDictionary.getBiFrequency(from.wordID, to.wordID);

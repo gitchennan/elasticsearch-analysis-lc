@@ -764,7 +764,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @param key 键
      * @return 值
      */
-    public V get(String key) {
+    public V getValue(String key) {
         int index = exactMatchSearch(key);
         if (index >= 0) {
             return getValueAt(index);
@@ -773,7 +773,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         return null;
     }
 
-    public V get(char[] key) {
+    public V getValue(char[] key) {
         int index = exactMatchSearch(key, 0, key.length, 0);
         if (index >= 0) {
             return getValueAt(index);
@@ -878,7 +878,9 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @return 对应的值，null表示不输出
      */
     public V output(int state) {
-        if (state < 0) return null;
+        if (state < 0) {
+            return null;
+        }
         int n = base[state];
         if (state == check[state] && n < 0) {
             return v[-n - 1];
@@ -1022,8 +1024,9 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @param value 值
      * @return 是否成功（失败的原因是没有这个键）
      */
-    public boolean set(String key, V value) {
+    public boolean updateValue(String key, V value) {
         int index = exactMatchSearch(key);
+
         if (index >= 0) {
             v[index] = value;
             return true;
@@ -1039,7 +1042,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      * @param index 下标
      * @return 值
      */
-    public V get(int index) {
+    public V getValue(int index) {
         return v[index];
     }
 
@@ -1047,20 +1050,17 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
     /**
      * 打印统计信息
      */
-//    public void report()
-//    {
-//        System.out.println("size: " + size);
-//        int nonZeroIndex = 0;
-//        for (int i = 0; i < base.length; i++)
-//        {
-//            if (base[i] != 0) nonZeroIndex = i;
-//        }
-//        System.out.println("BaseUsed: " + nonZeroIndex);
-//        nonZeroIndex = 0;
-//        for (int i = 0; i < check.length; i++)
-//        {
-//            if (check[i] != 0) nonZeroIndex = i;
-//        }
-//        System.out.println("CheckUsed: " + nonZeroIndex);
-//    }
+    public void report() {
+        System.out.println("size: " + size);
+        int nonZeroIndex = 0;
+        for (int i = 0; i < base.length; i++) {
+            if (base[i] != 0) nonZeroIndex = i;
+        }
+        System.out.println("BaseUsed: " + nonZeroIndex);
+        nonZeroIndex = 0;
+        for (int i = 0; i < check.length; i++) {
+            if (check[i] != 0) nonZeroIndex = i;
+        }
+        System.out.println("CheckUsed: " + nonZeroIndex);
+    }
 }
