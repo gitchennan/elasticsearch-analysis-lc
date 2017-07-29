@@ -4,7 +4,6 @@ import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.log.HanLpLogger;
 import com.hankcs.hanlp.utility.LexiconUtility;
-import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.Serializable;
 
@@ -67,7 +66,8 @@ public class WordAttribute implements Serializable {
             return attribute;
         }
         catch (Exception e) {
-            HanLpLogger.error(CoreDictionary.class, "使用字符串" + natureWithFrequency + "创建词条属性失败！" + TextUtility.exceptionToString(e));
+            HanLpLogger.error(CoreDictionary.class,
+                    String.format("create word attribute error, text:%s", natureWithFrequency), e);
             return null;
         }
     }
@@ -136,7 +136,9 @@ public class WordAttribute implements Serializable {
      */
     public boolean hasNatureStartsWith(String prefix) {
         for (Nature n : nature) {
-            if (n.startsWith(prefix)) return true;
+            if (n.startsWith(prefix)) {
+                return true;
+            }
         }
         return false;
     }
@@ -149,13 +151,4 @@ public class WordAttribute implements Serializable {
         }
         return sb.toString();
     }
-//
-//    public void save(DataOutputStream out) throws IOException {
-//        out.writeInt(totalFrequency);
-//        out.writeInt(nature.length);
-//        for (int i = 0; i < nature.length; ++i) {
-//            out.writeInt(nature[i].ordinal());
-//            out.writeInt(frequency[i]);
-//        }
-//    }
 }

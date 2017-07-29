@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.seg.Viterbi;
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.recognition.nr.JapanesePersonRecognition;
 import com.hankcs.hanlp.recognition.nr.PersonRecognition;
@@ -100,7 +101,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment {
     private static List<Vertex> viterbi(WordNet wordNet) {
         // 避免生成对象，优化速度
         LinkedList<Vertex> nodes[] = wordNet.getVertexes();
-        LinkedList<Vertex> vertexList = new LinkedList<Vertex>();
+        LinkedList<Vertex> vertexList = Lists.newLinkedList();
         for (Vertex node : nodes[1]) {
             node.updateFrom(nodes[0].getFirst());
         }

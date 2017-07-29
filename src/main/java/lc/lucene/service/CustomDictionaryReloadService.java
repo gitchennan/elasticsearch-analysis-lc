@@ -1,6 +1,5 @@
 package lc.lucene.service;
 
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.hankcs.hanlp.log.HanLpLogger;
 import lc.lucene.domain.CustomWord;
@@ -11,10 +10,6 @@ import org.elasticsearch.cluster.LocalNodeMasterListener;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.UpdateByQueryAction;
-import org.elasticsearch.index.reindex.UpdateByQueryRequestBuilder;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -40,7 +35,7 @@ public class CustomDictionaryReloadService {
         this.customIdxName = customIdxName;
         this.client = client;
         this.lcCustomDictionaryRefresher = lcCustomDictionaryRefresher;
-        this.lcCustomDictionaryRefresher.schedule(new CustomDictionaryMonitorTask(), 30, TimeUnit.SECONDS);
+        this.lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
     }
 
     public CustomDictionaryReloadService(Client client, ScheduledExecutorService lcCustomDictionaryRefresher) {
@@ -74,22 +69,30 @@ public class CustomDictionaryReloadService {
         }
     }
 
-    public void reloadCustomDictionaryIfNecessary() {
-        SearchResponse response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
-                .setQuery(QueryBuilders.termQuery("processed", false)).setSize(0).execute().actionGet();
-
-        if (response.getHits().totalHits() == 0) {
+    public void reloadCustomDictionary() {
+        if (!isCustomDictionaryIndexExist()) {
+            HanLpLogger.warn(this,
+                    String.format("custom dict index[%s] not exists, ignore reload.", customIdxName));
             return;
         }
 
-        response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
-                .setQuery(QueryBuilders.termQuery("processed", false))
-                .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
-                .setScroll(new TimeValue(60000)).setSize(500).execute().actionGet();
+        SearchResponse response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
+                .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
+
+        if (response.getHits().totalHits() == 0) {
+            HanLpLogger.info(this,
+                    String.format("there's no any custom word found in index[%s], ignore reload.", customIdxName));
+            return;
+        }
 
         String scrollId = null;
         try {
-            do {
+            response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
+                    .setQuery(QueryBuilders.matchAllQuery())
+                    .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                    .setScroll(new TimeValue(60000)).setSize(500).execute().actionGet();
+
+            while (response.getHits().getHits().length != 0) {
                 Gson gson = new Gson();
                 for (SearchHit hit : response.getHits().getHits()) {
                     CustomWord word = gson.fromJson(hit.getSourceAsString(), CustomWord.class);
@@ -99,24 +102,11 @@ public class CustomDictionaryReloadService {
                 scrollId = response.getScrollId();
                 response = client.prepareSearchScroll(scrollId)
                         .setScroll(new TimeValue(60000)).execute().actionGet();
-
-            } while (response.getHits().getHits().length != 0);
+            }
         }
         finally {
             client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
         }
-//
-//        if (localNodeIsMaster) {
-//            UpdateByQueryRequestBuilder uqr = new UpdateByQueryRequestBuilder(client, UpdateByQueryAction.INSTANCE);
-//
-//            uqr.abortOnVersionConflict(false).source(customIdxName).source().setTypes(CustomWord.mapping)
-//                    .setQuery(QueryBuilders.termQuery("processed", false));
-//
-//            String code = "ctx._source.processed = false";
-//            uqr.script(new Script(ScriptType.INLINE, "painless", code, Maps.newHashMap()));
-//
-//            uqr.execute().actionGet();
-//        }
     }
 
     public ScheduledExecutorService getLcCustomDictionaryRefresher() {
@@ -142,20 +132,22 @@ public class CustomDictionaryReloadService {
         };
     }
 
-    private class CustomDictionaryMonitorTask implements Runnable {
+    private class CreateCustomDictionaryIndexMonitorTask implements Runnable {
         @Override
         public void run() {
-            doMonitorTask();
+            try {
+                doMonitorTask();
+            }
+            catch (Exception ex) {
+                HanLpLogger.error(this, "monitor task error", ex);
+            }
+
             lcCustomDictionaryRefresher.schedule(this, 30, TimeUnit.SECONDS);
         }
 
         private void doMonitorTask() {
             if (localNodeIsMaster) {
                 createCustomDictionaryIndexIfNotExist();
-            }
-
-            if (isCustomDictionaryIndexExist()) {
-                reloadCustomDictionaryIfNecessary();
             }
         }
     }

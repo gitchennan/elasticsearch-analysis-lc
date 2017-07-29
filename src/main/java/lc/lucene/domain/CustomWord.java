@@ -28,16 +28,10 @@ public class CustomWord {
             "            \"type\": \"integer\"\n" +
             "          }\n" +
             "        }\n" +
-            "      },\n" +
-            "      \"processed\": {\n" +
-            "        \"type\": \"boolean\",\n" +
-            "        \"null_value\": false\n" +
             "      }\n" +
             "    }\n" +
             "  }\n" +
             "}";
-
-    private Boolean processed;
 
     private String word;
 
@@ -65,10 +59,6 @@ public class CustomWord {
 
     public List<String> getSynonyms() {
         return synonyms;
-    }
-
-    public Boolean getProcessed() {
-        return processed;
     }
 
     @Override

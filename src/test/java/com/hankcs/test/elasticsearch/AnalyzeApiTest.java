@@ -1,6 +1,7 @@
 //package com.hankcs.test.elasticsearch;
 //
 //import com.google.common.base.Stopwatch;
+//import lc.lucene.service.CustomDictionaryReloadService;
 //import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 //import org.elasticsearch.client.transport.TransportClient;
 //import org.elasticsearch.common.settings.Settings;
@@ -10,6 +11,7 @@
 //import org.junit.Test;
 //
 //import java.net.InetAddress;
+//import java.util.concurrent.Executors;
 //import java.util.concurrent.TimeUnit;
 //
 //public class AnalyzeApiTest {
@@ -23,12 +25,12 @@
 //    public void initClient() throws Exception {
 //        if (transportClient == null) {
 //            Settings settings = Settings.builder()
-//                    .put("cluster.name", "lufax-asset-cluster")
+//                    .put("cluster.name", "lu-search-cluster")
 //                    .put("client.transport.sniff", true)
 //                    .build();
 //
 //            transportClient = new PreBuiltTransportClient(settings);
-//            transportClient.addTransportAddresses(new InetSocketTransportAddress(InetAddress.getByName("172.29.30.118"), 9300));
+//            transportClient.addTransportAddresses(new InetSocketTransportAddress(InetAddress.getByName("192.168.0.125"), 9300));
 //        }
 //
 //    }
@@ -58,6 +60,13 @@
 //        stopwatch.stop();
 //        System.out.println();
 //        System.out.println();
+//
+//    }
+//
+//    @Test
+//    public void test_reload() throws Exception {
+//        CustomDictionaryReloadService reloadService = new CustomDictionaryReloadService(transportClient, Executors.newSingleThreadScheduledExecutor());
+//        reloadService.reloadCustomDictionary();
 //
 //    }
 //}

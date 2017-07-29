@@ -1,8 +1,10 @@
-package org.elasticsearch.plugin.analysis.hanlp;
+package org.elasticsearch.plugin.analysis.lc;
 
 import com.google.common.collect.Maps;
 import lc.lucene.service.CustomDictionaryReloadService;
 import org.apache.lucene.analysis.Analyzer;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.settings.Settings;
@@ -10,8 +12,10 @@ import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.index.analysis.*;
 import org.elasticsearch.indices.analysis.AnalysisModule;
+import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.SearchRequestParsers;
 import org.elasticsearch.threadpool.ThreadPool;
@@ -20,19 +24,20 @@ import org.elasticsearch.watcher.ResourceWatcherService;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class AnalysisLcPlugin extends Plugin implements AnalysisPlugin {
+public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPlugin {
 
     private final Settings settings;
 
     private CustomDictionaryReloadService customDictionaryReloadService;
 
-    public AnalysisLcPlugin(Settings settings) {
+    public LcAnalysisPlugin(Settings settings) {
         this.settings = settings;
     }
 
@@ -83,5 +88,18 @@ public class AnalysisLcPlugin extends Plugin implements AnalysisPlugin {
         extra.put("lc_whitespace", LcTokenFilterFactory::getLcWhitespaceFilterFactory);
 
         return extra;
+    }
+
+
+    @Override
+    public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
+        return Collections.singletonList(
+                new ActionHandler<LcDictReloadRequest, LcDictReloadResponse>(
+                        LcDictReloadAction.INSTANCE, LcTransportDictReloadAction.class));
+    }
+
+    @Override
+    public List<Class<? extends RestHandler>> getRestHandlers() {
+        return Collections.singletonList(LcRestAction.class);
     }
 }

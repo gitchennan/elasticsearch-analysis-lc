@@ -479,16 +479,6 @@ public class TextUtility {
     }
 
     /**
-     * 将异常转为字符串
-     */
-    public static String exceptionToString(Exception e) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        return sw.toString();
-    }
-
-    /**
      * 判断某个字符是否为汉字
      *
      * @param c 需要判断的字符
@@ -522,18 +512,6 @@ public class TextUtility {
 
         return count;
     }
-
-//    /**
-//     * 简单好用的写String方式
-//     *
-//     * @throws IOException
-//     */
-//    public static void writeString(String s, DataOutputStream out) throws IOException {
-//        out.writeInt(s.length());
-//        for (char c : s.toCharArray()) {
-//            out.writeChar(c);
-//        }
-//    }
 
     /**
      * 判断字符串是否为空（null和空格）

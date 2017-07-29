@@ -2,7 +2,7 @@ package com.hankcs.hanlp.api;
 
 import com.hankcs.hanlp.log.HanLpLogger;
 import org.elasticsearch.common.io.PathUtils;
-import org.elasticsearch.plugin.analysis.hanlp.AnalysisLcPlugin;
+import org.elasticsearch.plugin.analysis.lc.LcAnalysisPlugin;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -138,7 +138,7 @@ public class HanLpGlobalSettings {
         // 自动读取配置
         Properties p = new Properties();
         try {
-            String pluginDir = AnalysisLcPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            String pluginDir = LcAnalysisPlugin.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             Path pluginConfigDir = PathUtils.get(new File(pluginDir).getParent(), "config").toAbsolutePath();
 
             String root = pluginConfigDir.toString();

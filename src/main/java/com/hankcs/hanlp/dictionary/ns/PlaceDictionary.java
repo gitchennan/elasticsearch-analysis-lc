@@ -99,10 +99,8 @@ public class PlaceDictionary {
      * @param nsList         确定的标注序列
      * @param vertexList     原始的未加角色标注的序列
      * @param wordNetOptimum 待优化的图
-     * @param wordNetAll
      */
     public static void parsePattern(List<NS> nsList, List<Vertex> vertexList, final WordNet wordNetOptimum, final WordNet wordNetAll) {
-//        ListIterator<Vertex> listIterator = vertexList.listIterator();
         StringBuilder sbPattern = new StringBuilder(nsList.size());
         for (NS ns : nsList) {
             sbPattern.append(ns.toString());
@@ -132,15 +130,15 @@ public class PlaceDictionary {
     }
 
     /**
-     * 因为任何算法都无法解决100%的问题，总是有一些bad case，这些bad case会以“盖公章 A 1”的形式加入词典中<BR>
+     * 因为任何算法都无法解决100%的问题，总是有一些bad case，
+     * 这些bad case会以“盖公章 A 1”的形式加入词典中<BR>
      * 这个方法返回是否是bad case
-     *
-     * @param name
-     * @return
      */
     static boolean isBadCase(String name) {
         EnumItem<NS> nrEnumItem = dictionary.get(name);
-        if (nrEnumItem == null) return false;
+        if (nrEnumItem == null) {
+            return false;
+        }
         return nrEnumItem.containsLabel(NS.Z);
     }
 }
