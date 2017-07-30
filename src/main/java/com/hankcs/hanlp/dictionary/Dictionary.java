@@ -6,7 +6,7 @@ public interface Dictionary {
 
     void load();
 
-    void reLoad();
-
-    void releaseResource();
+//    void reLoad();
+//
+//    void releaseResource();
 }

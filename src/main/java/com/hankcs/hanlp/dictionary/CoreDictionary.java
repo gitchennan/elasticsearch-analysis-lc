@@ -97,17 +97,17 @@ public class CoreDictionary extends FileSystemTxtDictionary {
         wordAttributeMap.clear();
     }
 
-    @Override
-    public synchronized void releaseResource() {
-        doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
-
-        if (wordAttributeMap == null) {
-            wordAttributeMap = Maps.newTreeMap();
-        }
-        wordAttributeMap.clear();
-
-        HanLpLogger.info(this, "Release dictionary resource");
-    }
+//    @Override
+//    public synchronized void releaseResource() {
+//        doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
+//
+//        if (wordAttributeMap == null) {
+//            wordAttributeMap = Maps.newTreeMap();
+//        }
+//        wordAttributeMap.clear();
+//
+//        HanLpLogger.info(this, "Release dictionary resource");
+//    }
 
     /**
      * 获取条目

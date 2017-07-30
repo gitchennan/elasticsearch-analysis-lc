@@ -45,8 +45,8 @@ public class LcDictReloadResponse extends ActionResponse implements StatusToXCon
     @Override
     public void writeTo(StreamOutput out) throws IOException {
         super.writeTo(out);
-        out.writeString(loadResultMessage);
-        RestStatus.writeTo(out, restStatus);
+        out.writeString(loadResultMessage == null ? "none" : loadResultMessage);
+        RestStatus.writeTo(out, restStatus == null ? RestStatus.OK : restStatus);
     }
 
 

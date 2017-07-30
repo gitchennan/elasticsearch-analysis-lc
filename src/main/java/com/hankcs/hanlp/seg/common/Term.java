@@ -56,8 +56,6 @@ public class Term {
 
     /**
      * 长度
-     *
-     * @return
      */
     public int length() {
         return word.length();

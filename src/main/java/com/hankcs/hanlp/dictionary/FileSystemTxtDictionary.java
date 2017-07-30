@@ -56,21 +56,21 @@ public abstract class FileSystemTxtDictionary implements Dictionary {
         onDictionaryLoaded();
     }
 
-    @Override
-    public final synchronized void reLoad() {
-        try {
-            HanLpLogger.debug(this,
-                    String.format("Begin to reload dictionary[%s]", dictionaryName()));
-            releaseResource();
-        }
-        catch (Exception ex) {
-            HanLpLogger.error(this,
-                    String.format("Error occurred while releasing resource, ignore reload dictionary[%S]", dictionaryName()));
-            return;
-        }
-        load();
-
-        HanLpLogger.debug(this,
-                String.format("Finish reload dictionary[%s]", dictionaryName()));
-    }
+//    @Override
+//    public final synchronized void reLoad() {
+//        try {
+//            HanLpLogger.debug(this,
+//                    String.format("Begin to reload dictionary[%s]", dictionaryName()));
+//            releaseResource();
+//        }
+//        catch (Exception ex) {
+//            HanLpLogger.error(this,
+//                    String.format("Error occurred while releasing resource, ignore reload dictionary[%S]", dictionaryName()));
+//            return;
+//        }
+//        load();
+//
+//        HanLpLogger.debug(this,
+//                String.format("Finish reload dictionary[%s]", dictionaryName()));
+//    }
 }

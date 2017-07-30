@@ -1,50 +1,76 @@
 package lc.lucene.service;
 
 import com.google.gson.Gson;
+import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.log.HanLpLogger;
 import lc.lucene.domain.CustomWord;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.LocalNodeMasterListener;
+import org.elasticsearch.cluster.node.DiscoveryNode;
+import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.common.component.AbstractLifecycleComponent;
+import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.threadpool.ThreadPool;
 
+import java.io.IOException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-public class CustomDictionaryReloadService {
+public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
     /**
      * A client to make requests to the system
      */
     private Client client;
 
+    private ClusterService clusterService;
+
     private String customIdxName;
 
     private ScheduledExecutorService lcCustomDictionaryRefresher;
 
-    private volatile boolean localNodeIsMaster = false;
+    @Inject
+    public CustomDictionaryReloadService(Client client, ClusterService clusterService, Settings settings) {
+        this(".custom-dictionary", client, clusterService, settings);
+    }
 
-    public CustomDictionaryReloadService(String customIdxName, Client client, ScheduledExecutorService lcCustomDictionaryRefresher) {
+    public CustomDictionaryReloadService(String customIdxName, Client client, ClusterService clusterService, Settings settings) {
+        super(settings, CustomDictionaryReloadService.class);
         this.customIdxName = customIdxName;
         this.client = client;
-        this.lcCustomDictionaryRefresher = lcCustomDictionaryRefresher;
-        this.lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
+        this.clusterService = clusterService;
     }
 
-    public CustomDictionaryReloadService(Client client, ScheduledExecutorService lcCustomDictionaryRefresher) {
-        this(".custom-dictionary", client, lcCustomDictionaryRefresher);
+    @Override
+    protected void doStart() {
+        ThreadFactory threadFactory = EsExecutors.daemonThreadFactory(settings, "[lc_custom_dict_refresh]");
+        lcCustomDictionaryRefresher = Executors.newSingleThreadScheduledExecutor(threadFactory);
+        lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
     }
 
-    private boolean isCustomDictionaryIndexExist() {
-        return client.admin().indices().prepareExists(customIdxName)
-                .execute().actionGet().isExists();
+    @Override
+    protected void doStop() {
+
+    }
+
+    @Override
+    protected void doClose() throws IOException {
+        ThreadPool.terminate(lcCustomDictionaryRefresher, 0, TimeUnit.SECONDS);
+    }
+
+
+    public boolean isCustomDictionaryIndexExist() {
+        return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
     }
 
     public void createCustomDictionaryIndexIfNotExist() {
@@ -69,37 +95,40 @@ public class CustomDictionaryReloadService {
         }
     }
 
-    public void reloadCustomDictionary() {
+    public String reloadCustomDictionary() {
         if (!isCustomDictionaryIndexExist()) {
-            HanLpLogger.warn(this,
-                    String.format("custom dict index[%s] not exists, ignore reload.", customIdxName));
-            return;
+            String resultMsg = String.format("custom dict index[%s] not exists, ignore reload.", customIdxName);
+            HanLpLogger.warn(this, resultMsg);
+            return resultMsg;
         }
 
         SearchResponse response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
                 .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
 
+        beforeReloadCustomerDictionary();
+
         if (response.getHits().totalHits() == 0) {
-            HanLpLogger.info(this,
-                    String.format("there's no any custom word found in index[%s], ignore reload.", customIdxName));
-            return;
+            String resultMsg = String.format("there's no any custom word found in index[%s], ignore reload.", customIdxName);
+            HanLpLogger.info(this, resultMsg);
+            return resultMsg;
         }
 
+        int wordCount = 0;
         String scrollId = null;
         try {
             response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
                     .setQuery(QueryBuilders.matchAllQuery())
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
                     .setScroll(new TimeValue(60000)).setSize(500).execute().actionGet();
+            scrollId = response.getScrollId();
 
+            Gson gson = new Gson();
             while (response.getHits().getHits().length != 0) {
-                Gson gson = new Gson();
                 for (SearchHit hit : response.getHits().getHits()) {
                     CustomWord word = gson.fromJson(hit.getSourceAsString(), CustomWord.class);
-                    HanLpLogger.info(this, word.toString());
+                    processCustomWord(word);
+                    wordCount++;
                 }
-
-                scrollId = response.getScrollId();
                 response = client.prepareSearchScroll(scrollId)
                         .setScroll(new TimeValue(60000)).execute().actionGet();
             }
@@ -107,29 +136,34 @@ public class CustomDictionaryReloadService {
         finally {
             client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
         }
+
+        return "Loaded custom dictionary, total_count: " + wordCount;
     }
 
-    public ScheduledExecutorService getLcCustomDictionaryRefresher() {
-        return lcCustomDictionaryRefresher;
+    private void beforeReloadCustomerDictionary() {
+        // remove all custom dict words
+        CustomDictionary.INSTANCE.cleanBinTrie();
     }
 
-    public LocalNodeMasterListener buildLocalNodeMasterListener() {
-        return new LocalNodeMasterListener() {
-            @Override
-            public void onMaster() {
-                localNodeIsMaster = true;
-            }
+    private void processCustomWord(CustomWord word) {
+        String wordAttr = word.getWordAttributeAsString();
+        if (wordAttr.length() == 0) {
+            CustomDictionary.INSTANCE.add(word.getWord());
+        }
+        else {
+            CustomDictionary.INSTANCE.add(word.getWord(), wordAttr);
+        }
 
-            @Override
-            public void offMaster() {
-                localNodeIsMaster = false;
-            }
+        if (word.getSynonyms() != null && word.getSynonyms().size() > 0) {
 
-            @Override
-            public String executorName() {
-                return ThreadPool.Names.SAME;
-            }
-        };
+        }
+    }
+
+    private boolean localNodeIsMaster() {
+        DiscoveryNode localNode = clusterService.localNode();
+        DiscoveryNode masterNode = clusterService.state().nodes().getMasterNode();
+
+        return masterNode != null && (localNode.getId().equals(masterNode.getId()));
     }
 
     private class CreateCustomDictionaryIndexMonitorTask implements Runnable {
@@ -146,7 +180,7 @@ public class CustomDictionaryReloadService {
         }
 
         private void doMonitorTask() {
-            if (localNodeIsMaster) {
+            if (localNodeIsMaster()) {
                 createCustomDictionaryIndexIfNotExist();
             }
         }

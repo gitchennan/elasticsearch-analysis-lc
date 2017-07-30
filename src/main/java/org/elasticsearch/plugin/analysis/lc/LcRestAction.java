@@ -57,15 +57,12 @@ public class LcRestAction extends BaseRestHandler {
         ActionListener<LcDictReloadResponse> reloadActionListener = new ActionListener<LcDictReloadResponse>() {
             @Override
             public void onResponse(LcDictReloadResponse reloadResponse) {
-                HanLpLogger.info(this, "onResponse: " + reloadResponse.toString());
-
                 countDownLatch.countDown();
             }
 
             @Override
             public void onFailure(Exception e) {
                 HanLpLogger.error(this, "onFailure", e);
-
                 countDownLatch.countDown();
             }
         };

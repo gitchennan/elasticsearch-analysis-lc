@@ -69,18 +69,18 @@ public class CustomDictionary extends FileSystemTxtDictionary {
         return DICTIONARY_NAME;
     }
 
-    @Override
-    public void releaseResource() {
-        binTrie = BinTrie.newBinTrie();
-        doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
-
-        if (wordAttributeMap == null) {
-            wordAttributeMap = Maps.newTreeMap();
-        }
-        wordAttributeMap.clear();
-
-        HanLpLogger.info(this, "Release dictionary resource");
-    }
+//    @Override
+//    public void releaseResource() {
+//        binTrie = BinTrie.newBinTrie();
+//        doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
+//
+//        if (wordAttributeMap == null) {
+//            wordAttributeMap = Maps.newTreeMap();
+//        }
+//        wordAttributeMap.clear();
+//
+//        HanLpLogger.info(this, "Release dictionary resource");
+//    }
 
     @Override
     void onLoadLine(String line) {
@@ -139,13 +139,13 @@ public class CustomDictionary extends FileSystemTxtDictionary {
         return binTrie.transition(path, begin);
     }
 
-    public void binTriePut(String key, WordAttribute attribute) {
-        binTrie.put(key, attribute);
-    }
-
-    public boolean updateWordAttribute(String key, WordAttribute wordAttribute) {
-        return doubleArrayTrie.updateValue(key, wordAttribute);
-    }
+//    public void binTriePut(String key, WordAttribute attribute) {
+//        binTrie.put(key, attribute);
+//    }
+//
+//    public boolean updateWordAttribute(String key, WordAttribute wordAttribute) {
+//        return doubleArrayTrie.updateValue(key, wordAttribute);
+//    }
 
     /**
      * 往自定义词典中插入一个新词（非覆盖模式）<br>
@@ -205,9 +205,9 @@ public class CustomDictionary extends FileSystemTxtDictionary {
             return false;
         }
 
-        if (INSTANCE.doubleArrayTrie.updateValue(word, att)) {
-            return true;
-        }
+//        if (INSTANCE.doubleArrayTrie.updateValue(word, att)) {
+//            return true;
+//        }
 
         INSTANCE.binTrie.put(word, att);
         return true;
@@ -219,6 +219,10 @@ public class CustomDictionary extends FileSystemTxtDictionary {
      */
     public boolean insert(String word) {
         return insert(word, null);
+    }
+
+    public void cleanBinTrie() {
+        binTrie = BinTrie.newBinTrie();
     }
 
     /**

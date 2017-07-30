@@ -61,6 +61,26 @@ public class CustomWord {
         return synonyms;
     }
 
+    public String getWordAttributeAsString() {
+        String wordAttr = "";
+        if (wordAttributes != null) {
+            StringBuilder wordBuilder = new StringBuilder();
+            for (CustomWordAttribute wordAttribute : wordAttributes) {
+                if (wordAttribute.getNature() == null) {
+                    continue;
+                }
+
+                String frequency = wordAttribute.getFrequency() <= 0 ? "1" : String.valueOf(wordAttribute.getFrequency());
+                wordBuilder.append(wordAttribute.getNature()).append(" ").append(frequency).append(" ");
+            }
+            if (wordBuilder.length() > 0) {
+                wordBuilder.deleteCharAt(wordBuilder.length() - 1);
+            }
+            wordAttr = wordBuilder.toString();
+        }
+        return wordAttr;
+    }
+
     @Override
     public String toString() {
         StringBuilder wordDesc = new StringBuilder();
