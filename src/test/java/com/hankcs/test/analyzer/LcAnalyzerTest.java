@@ -1,6 +1,8 @@
 package com.hankcs.test.analyzer;
 
 import com.hankcs.hanlp.api.HanLP;
+import com.hankcs.hanlp.corpus.synonym.Synonym;
+import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 import lc.lucene.analyzer.LcAnalyzer;
 import lc.lucene.analyzer.LcAnalyzerConfig;
@@ -101,5 +103,14 @@ public class LcAnalyzerTest {
         TokenStream tokenStream = analyzer.tokenStream("lc", "您就可以邀请朋友一起来玩转陆金所的稳盈安e了");
         showWords(tokenStream);
         tokenStream.close();
+    }
+
+    @Test
+    public void test_synonym() {
+        System.out.println(CoreSynonymDictionary.INSTANCE.find("电脑"));
+
+        CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, "1", "2", "3");
+        System.out.println(CoreSynonymDictionary.INSTANCE.find("1"));
+
     }
 }

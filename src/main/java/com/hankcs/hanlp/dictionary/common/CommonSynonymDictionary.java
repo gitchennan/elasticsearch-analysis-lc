@@ -24,10 +24,10 @@ public abstract class CommonSynonymDictionary {
 
     protected DoubleArrayTrie<SynonymItem> doubleArrayTrie;
 
-    /**
-     * 词典中最大的语义ID距离
-     */
-    private long maxSynonymItemIdDistance;
+//    /**
+//     * 词典中最大的语义ID距离
+//     */
+//    private long maxSynonymItemIdDistance;
 
     public boolean load(InputStream inputStream) {
         doubleArrayTrie = DoubleArrayTrie.newDoubleArrayTrie();
@@ -45,10 +45,10 @@ public abstract class CommonSynonymDictionary {
                 }
             }
 
-            // 获取最大语义id
-            if (synonymList != null && synonymList.size() > 0) {
-                maxSynonymItemIdDistance = synonymList.get(synonymList.size() - 1).id - SynonymHelper.convertString2IdWithIndex("Aa01A01", 0) + 1;
-            }
+//            // 获取最大语义id
+//            if (synonymList != null && synonymList.size() > 0) {
+//                maxSynonymItemIdDistance = synonymList.get(synonymList.size() - 1).id - SynonymHelper.convertString2IdWithIndex("Aa01A01", 0) + 1;
+//            }
 
             int resultCode = doubleArrayTrie.build(treeMap);
 
@@ -68,26 +68,31 @@ public abstract class CommonSynonymDictionary {
         return doubleArrayTrie.getValue(key);
     }
 
-    /**
-     * 获取最大id
-     *
-     * @return 一个长整型的id
-     */
-    public long getMaxSynonymItemIdDistance() {
-        return maxSynonymItemIdDistance;
-    }
-
-    /**
-     * 语义距离
-     */
-    public long distance(String a, String b) {
-        SynonymItem itemA = find(a);
-        if (itemA == null) return Long.MAX_VALUE / 3;
-        SynonymItem itemB = find(b);
-        if (itemB == null) return Long.MAX_VALUE / 3;
-
-        return itemA.distance(itemB);
-    }
+//    /**
+//     * 获取最大id
+//     *
+//     * @return 一个长整型的id
+//     */
+//    public long getMaxSynonymItemIdDistance() {
+//        return maxSynonymItemIdDistance;
+//    }
+//
+//    /**
+//     * 语义距离
+//     */
+//    public long distance(String a, String b) {
+//        SynonymItem itemA = find(a);
+//        if (itemA == null) {
+//            return Long.MAX_VALUE / 3;
+//        }
+//
+//        SynonymItem itemB = find(b);
+//        if (itemB == null) {
+//            return Long.MAX_VALUE / 3;
+//        }
+//
+//        return itemA.distance(itemB);
+//    }
 
     /**
      * 词典中的一个条目
@@ -129,19 +134,18 @@ public abstract class CommonSynonymDictionary {
             }
         }
 
-
         @Override
         public String toString() {
             return "entry:" + entry.getRealWord() +
                     ", type:" + type +
                     ", synonym:" + synonymList;
         }
-
-        /**
-         * 语义距离
-         */
-        public long distance(SynonymItem other) {
-            return entry.distance(other.entry);
-        }
+//
+//        /**
+//         * 语义距离
+//         */
+//        public long distance(SynonymItem other) {
+//            return entry.distance(other.entry);
+//        }
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.hankcs.hanlp.collection.trie;
 
+import com.google.common.collect.Lists;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.InputStreamOperator;
@@ -590,9 +591,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         for (int i = pos; i < len; i++) {
             p = b + (int) (keyChars[i]) + 1;    // 状态转移 p = base[char[i-1]] + char[i] + 1
             if (b == check[p])                  // base[char[i-1]] == check[base[char[i-1]] + char[i] + 1]
+            {
                 b = base[p];
-            else
+            }
+            else {
                 return result;
+            }
             p = b;
             n = base[p];
             if (b == check[p] && n < 0)         // base[p] == check[p] && base[p] < 0 查到一个词
@@ -613,7 +617,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      */
     public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(String key) {
         int len = key.length();
-        LinkedList<Map.Entry<String, V>> result = new LinkedList<Map.Entry<String, V>>();
+        LinkedList<Map.Entry<String, V>> result = Lists.newLinkedList();
         char[] keyChars = key.toCharArray();
         int b = base[0];
         int n;
@@ -630,9 +634,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
             p = b + (int) (keyChars[i]) + 1;    // 状态转移 p = base[char[i-1]] + char[i] + 1
             // 下面这句可能产生下标越界，不如改为if (p < size && b == check[p])，或者多分配一些内存
             if (b == check[p])                  // base[char[i-1]] == check[base[char[i-1]] + char[i] + 1]
+            {
                 b = base[p];
-            else
+            }
+            else {
                 return result;
+            }
         }
 
         p = b;
@@ -654,7 +661,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
      */
     public LinkedList<Map.Entry<String, V>> commonPrefixSearchWithValue(char[] keyChars, int begin) {
         int len = keyChars.length;
-        LinkedList<Map.Entry<String, V>> result = new LinkedList<Map.Entry<String, V>>();
+        LinkedList<Map.Entry<String, V>> result = Lists.newLinkedList();
         int b = base[0];
         int n;
         int p;
@@ -670,9 +677,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
             p = b + (int) (keyChars[i]) + 1;    // 状态转移 p = base[char[i-1]] + char[i] + 1
             // 下面这句可能产生下标越界，不如改为if (p < size && b == check[p])，或者多分配一些内存
             if (b == check[p])                  // base[char[i-1]] == check[base[char[i-1]] + char[i] + 1]
+            {
                 b = base[p];
-            else
+            }
+            else {
                 return result;
+            }
         }
 
         p = b;
@@ -687,34 +697,11 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     @Override
     public String toString() {
-//        String infoIndex    = "i    = ";
-//        String infoChar     = "char = ";
-//        String infoBase     = "base = ";
-//        String infoCheck    = "check= ";
-//        for (int i = 0; i < base.length; ++i)
-//        {
-//            if (base[i] != 0 || check[i] != 0)
-//            {
-//                infoChar  += "    " + (i == check[i] ? " ×" : (char)(i - check[i] - 1));
-//                infoIndex += " " + String.format("%5d", i);
-//                infoBase  += " " +  String.format("%5d", base[i]);
-//                infoCheck += " " + String.format("%5d", check[i]);
-//            }
-//        }
         return "DoubleArrayTrie{" +
-//                "\n" + infoChar +
-//                "\n" + infoIndex +
-//                "\n" + infoBase +
-//                "\n" + infoCheck + "\n" +
-//                "check=" + Arrays.toString(check) +
-//                ", base=" + Arrays.toString(base) +
-//                ", used=" + Arrays.toString(used) +
                 "size=" + size +
                 ", allocSize=" + allocSize +
                 ", key=" + key +
                 ", keySize=" + keySize +
-//                ", length=" + Arrays.toString(length) +
-//                ", value=" + Arrays.toString(value) +
                 ", progress=" + progress +
                 ", nextCheckPos=" + nextCheckPos +
                 ", error_=" + error_ +
@@ -723,8 +710,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 树叶子节点个数
-     *
-     * @return
      */
     public int size() {
         return v.length;
@@ -732,8 +717,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 获取check数组引用，不要修改check
-     *
-     * @return
      */
     public int[] getCheck() {
         return check;
@@ -741,8 +724,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 获取base数组引用，不要修改base
-     *
-     * @return
      */
     public int[] getBase() {
         return base;
@@ -750,9 +731,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 获取index对应的值
-     *
-     * @param index
-     * @return
      */
     public V getValueAt(int index) {
         return v[index];
@@ -782,25 +760,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
         return null;
     }
 
-    public V[] getValueArray(V[] a) {
-        // I hate this but just have to
-        int size = v.length;
-        if (a.length < size)
-            a = (V[]) java.lang.reflect.Array.newInstance(
-                    a.getClass().getComponentType(), size);
-        System.arraycopy(v, 0, a, 0, size);
-        return a;
-    }
-
     public boolean containsKey(String key) {
         return exactMatchSearch(key) >= 0;
     }
 
     /**
      * 沿着路径转移状态
-     *
-     * @param path
-     * @return
      */
     protected int transition(String path) {
         return transition(path.toCharArray());
@@ -808,9 +773,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 沿着节点转移状态
-     *
-     * @param path
-     * @return
      */
     protected int transition(char[] path) {
         int b = base[0];
@@ -818,10 +780,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
         for (int i = 0; i < path.length; ++i) {
             p = b + (int) (path[i]) + 1;
-            if (b == check[p])
+            if (b == check[p]) {
                 b = base[p];
-            else
+            }
+            else {
                 return -1;
+            }
         }
 
         p = b;
@@ -853,10 +817,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 转移状态
-     *
-     * @param c
-     * @param from
-     * @return
      */
     public int transition(char c, int from) {
         int b = from;
@@ -957,13 +917,17 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
                 if (i == arrayLength)               // 指针到头了，将起点往前挪一个，重新开始，状态归零
                 {
                     ++begin;
-                    if (begin == arrayLength) break;
+                    if (begin == arrayLength) {
+                        break;
+                    }
                     i = begin;
                     b = base[0];
                 }
                 p = b + (int) (charArray[i]) + 1;   // 状态转移 p = base[char[i-1]] + char[i] + 1
                 if (b == check[p])                  // base[char[i-1]] == check[base[char[i-1]] + char[i] + 1]
-                    b = base[p];                    // 转移成功
+                {
+                    b = base[p];
+                }                    // 转移成功
                 else {
                     i = begin;                      // 转移失败，也将起点往前挪一个，重新开始，状态归零
                     ++begin;
@@ -998,10 +962,6 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V> {
 
     /**
      * 转移状态
-     *
-     * @param current
-     * @param c
-     * @return
      */
     protected int transition(int current, char c) {
         int b = base[current];

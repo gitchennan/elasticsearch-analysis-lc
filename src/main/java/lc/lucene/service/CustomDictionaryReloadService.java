@@ -1,6 +1,8 @@
 package lc.lucene.service;
 
 import com.google.gson.Gson;
+import com.hankcs.hanlp.corpus.synonym.Synonym;
+import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.log.HanLpLogger;
 import lc.lucene.domain.CustomWord;
@@ -56,6 +58,8 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         ThreadFactory threadFactory = EsExecutors.daemonThreadFactory(settings, "[lc_custom_dict_refresh]");
         lcCustomDictionaryRefresher = Executors.newSingleThreadScheduledExecutor(threadFactory);
         lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
+
+        reloadCustomDictionary();
     }
 
     @Override
@@ -143,6 +147,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
     private void beforeReloadCustomerDictionary() {
         // remove all custom dict words
         CustomDictionary.INSTANCE.cleanBinTrie();
+        CoreSynonymDictionary.INSTANCE.cleanBinTrie();
     }
 
     private void processCustomWord(CustomWord word) {
@@ -155,7 +160,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         }
 
         if (word.getSynonyms() != null && word.getSynonyms().size() > 0) {
-
+            CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, word.getSynonyms());
         }
     }
 
