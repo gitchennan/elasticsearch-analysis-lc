@@ -9,6 +9,7 @@ import lc.lucene.domain.CustomWord;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.block.ClusterBlockLevel;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
@@ -59,6 +60,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         lcCustomDictionaryRefresher = Executors.newSingleThreadScheduledExecutor(threadFactory);
         lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
 
+        // todo: after cluster init
         reloadCustomDictionary();
     }
 
@@ -72,6 +74,9 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         ThreadPool.terminate(lcCustomDictionaryRefresher, 0, TimeUnit.SECONDS);
     }
 
+    private boolean hasCustomDictionaryIndexBlocked() {
+        return clusterService.state().blocks().indexBlocked(ClusterBlockLevel.WRITE, customIdxName);
+    }
 
     public boolean isCustomDictionaryIndexExist() {
         return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
@@ -185,6 +190,11 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         }
 
         private void doMonitorTask() {
+            if (clusterService.state().blocks().hasGlobalBlock(ClusterBlockLevel.WRITE)) {
+                HanLpLogger.info(this, "cluster has global blocks, ignore do monitor task.");
+                return;
+            }
+
             if (localNodeIsMaster()) {
                 createCustomDictionaryIndexIfNotExist();
             }
