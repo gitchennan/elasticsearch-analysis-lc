@@ -1,13 +1,11 @@
 # elasticsearch-analysis-lc
 Lc Analyzer for ElasticSearch
 
-1.���ķִ�
-2.֧���Զ���ʿ�,�ṩelasticsearch rest api: /_lc/reload �����ؼ����Զ���ʿ�
-3.֧�����ķִʴ��Ա�ע
-4.֧������ʵ��ʶ��,����:�й�������������������������Ӣ���������ձ�����
-5.֧��ͣ�ô�
-6.֧��ͬ���,֧��ͬ���ͨ��es rest api�ؼ���
+1. 中文分词 
+2. 支持自定义词库,提供elasticsearch rest api: /_lc/reload 用于重加载自定义词库 
+3. 支持中文分词词性标注 
+4. 支持命名实体识别,包括:中国人名、地名、机构名、音译英文人名、音译日本人名 
+5. 支持停用词 
+6. 支持同义词,通过es rest api重加载
 
-�����װ������ES��ᴴ��һ�� .custom-dictionary ���������ڶ�̬PUT�Զ���ʡ�
-PUT��ɺ�ͨ��rest api���� /_lc/reload �󼴿���Ч
-
+插件安装好启动ES后会创建一个 .custom-dictionary 的索引用于动态PUT自定义词。 PUT完成后通过rest api调用 /_lc/reload 后即可生效
