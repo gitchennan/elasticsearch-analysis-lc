@@ -39,19 +39,6 @@ public class HanLP {
 
     }
 
-    static {
-        try {
-            Class.forName("com.hankcs.hanlp.dictionary.CoreDictionary");
-            Class.forName("com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary");
-            Class.forName("com.hankcs.hanlp.dictionary.CoreSynonymDictionary");
-            Class.forName("com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary");
-            Class.forName("com.hankcs.hanlp.dictionary.CustomDictionary");
-        }
-        catch (Exception ex) {
-            HanLpLogger.error(HanLP.class, "preLoad dictionaries error.", ex);
-        }
-    }
-
     /**
      * 分词
      *

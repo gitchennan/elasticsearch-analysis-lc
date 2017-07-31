@@ -6,17 +6,20 @@ import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.log.HanLpLogger;
 import lc.lucene.domain.CustomWord;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.block.ClusterBlockLevel;
-import org.elasticsearch.cluster.node.DiscoveryNode;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -24,9 +27,10 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.threadpool.ThreadPool;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
@@ -40,7 +44,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
     private String customIdxName;
 
-    private ScheduledExecutorService lcCustomDictionaryRefresher;
+    private ScheduledExecutorService lcCustomDictReloadExecutor;
 
     @Inject
     public CustomDictionaryReloadService(Client client, ClusterService clusterService, Settings settings) {
@@ -56,42 +60,64 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
     @Override
     protected void doStart() {
-        ThreadFactory threadFactory = EsExecutors.daemonThreadFactory(settings, "[lc_custom_dict_refresh]");
-        lcCustomDictionaryRefresher = Executors.newSingleThreadScheduledExecutor(threadFactory);
-        lcCustomDictionaryRefresher.schedule(new CreateCustomDictionaryIndexMonitorTask(), 30, TimeUnit.SECONDS);
+        HanLpLogger.info(this, "custom_dict_reload_service, status[" + lifecycleState().name() + "].");
+        lcCustomDictReloadExecutor = Executors.newScheduledThreadPool(2);
 
-        // todo: after cluster init
-        reloadCustomDictionary();
+        lcCustomDictReloadExecutor.schedule(new CustomDictionaryIndexMonitorTask(), 10, TimeUnit.SECONDS);
+        lcCustomDictReloadExecutor.schedule(new InitializeDictionaryReloadTask(), 10, TimeUnit.SECONDS);
+
+        /**
+         * pre load dictionary into java heap when elect a new master
+         */
+        clusterService.addListener(clusterChangedEvent -> {
+            if (clusterChangedEvent.isNewCluster()) {
+                try {
+                    Class.forName("com.hankcs.hanlp.dictionary.CoreDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.CoreDictionaryTransformMatrixDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.CoreSynonymDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.CustomDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.CoreBiGramTableDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.other.CharType");
+
+                    // named entity dictionary
+                    Class.forName("com.hankcs.hanlp.dictionary.nr.PersonDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.nr.JapanesePersonDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.ns.PlaceDictionary");
+                    Class.forName("com.hankcs.hanlp.dictionary.nt.OrganizationDictionary");
+                }
+                catch (Exception ex) {
+                    HanLpLogger.error(CustomDictionaryReloadService.this, "preLoad dictionaries error.", ex);
+                }
+            }
+
+        });
     }
 
     @Override
     protected void doStop() {
+        HanLpLogger.info(this, "custom_dict_reload_service, status[" + lifecycleState().name() + "].");
 
+        ThreadPool.terminate(lcCustomDictReloadExecutor, 0, TimeUnit.SECONDS);
     }
 
     @Override
     protected void doClose() throws IOException {
-        ThreadPool.terminate(lcCustomDictionaryRefresher, 0, TimeUnit.SECONDS);
-    }
-
-    private boolean hasCustomDictionaryIndexBlocked() {
-        return clusterService.state().blocks().indexBlocked(ClusterBlockLevel.WRITE, customIdxName);
-    }
-
-    public boolean isCustomDictionaryIndexExist() {
-        return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
+        HanLpLogger.info(this, "custom_dict_reload_service, status[" + lifecycleState().name() + "].");
     }
 
     public void createCustomDictionaryIndexIfNotExist() {
         if (!isCustomDictionaryIndexExist()) {
+            int dataNodeCount = clusterService.state().nodes().getDataNodes().size();
+            String indexReplicas = dataNodeCount > 1 ? "1" : "0";
+
             CreateIndexResponse createIdxResp = client.admin().indices().prepareCreate(customIdxName)
                     .setSettings(Settings.builder()
                             .put("number_of_shards", "1")
-                            .put("number_of_replicas", "0")
-                            .put("index.refresh_interval", "30s"))
+                            .put("number_of_replicas", indexReplicas)
+                            .put("index.refresh_interval", "5s"))
                     .addMapping(CustomWord.type, CustomWord.mapping)
-                    .setWaitForActiveShards(1)
-                    .execute().actionGet();
+                    .setWaitForActiveShards(1).execute().actionGet();
 
             if (!createIdxResp.isShardsAcked()) {
                 HanLpLogger.error(this,
@@ -104,9 +130,19 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         }
     }
 
-    public String reloadCustomDictionary() {
+    public String doPrivilegedReloadCustomDictionary() {
+        return AccessController.doPrivileged((PrivilegedAction<String>) this::reloadCustomDictionary);
+    }
+
+    private String reloadCustomDictionary() {
         if (!isCustomDictionaryIndexExist()) {
-            String resultMsg = String.format("custom dict index[%s] not exists, ignore reload.", customIdxName);
+            String resultMsg = "custom dict index[" + customIdxName + "] not exists, ignore reload.";
+            HanLpLogger.warn(this, resultMsg);
+            return resultMsg;
+        }
+
+        if (isCustomDictionaryIndexClosed()) {
+            String resultMsg = "custom dict index[" + customIdxName + "] closed, ignore reload.";
             HanLpLogger.warn(this, resultMsg);
             return resultMsg;
         }
@@ -117,7 +153,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         beforeReloadCustomerDictionary();
 
         if (response.getHits().totalHits() == 0) {
-            String resultMsg = String.format("there's no any custom word found in index[%s], ignore reload.", customIdxName);
+            String resultMsg = "there's no any custom word found in index[" + customIdxName + "], ignore reload.";
             HanLpLogger.info(this, resultMsg);
             return resultMsg;
         }
@@ -146,7 +182,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
         }
 
-        return "Loaded custom dictionary, total_count: " + wordCount;
+        return "Loaded custom_dict, total_count: " + wordCount;
     }
 
     private void beforeReloadCustomerDictionary() {
@@ -166,38 +202,108 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
         if (word.getSynonyms() != null && word.getSynonyms().size() > 0) {
             CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, word.getSynonyms());
+            for (String tSynonym : word.getSynonyms()) {
+                if (wordAttr.length() == 0) {
+                    CustomDictionary.INSTANCE.add(tSynonym);
+                }
+                else {
+                    CustomDictionary.INSTANCE.add(tSynonym, wordAttr);
+                }
+            }
         }
     }
 
-    private boolean localNodeIsMaster() {
-        DiscoveryNode localNode = clusterService.localNode();
-        DiscoveryNode masterNode = clusterService.state().nodes().getMasterNode();
 
-        return masterNode != null && (localNode.getId().equals(masterNode.getId()));
+    private boolean isCustomDictionaryIndexExist() {
+        return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
     }
 
-    private class CreateCustomDictionaryIndexMonitorTask implements Runnable {
+    private boolean isCustomDictionaryIndexClosed() {
+        ClusterStateResponse clusterStateResponse = client.admin().cluster().prepareState().setIndices(customIdxName).execute().actionGet();
+        return clusterStateResponse.getState().getMetaData().indices().get(customIdxName).getState() == IndexMetaData.State.CLOSE;
+    }
+
+    private boolean openCustomDictionaryIndex() {
+        return client.admin().indices().prepareOpen(customIdxName).execute().actionGet().isAcknowledged();
+    }
+
+    public boolean isCustomDictionaryIndexActive() {
+        ClusterHealthResponse healthResponse = client.admin().cluster().prepareHealth(customIdxName).execute().actionGet();
+        if (healthResponse.getIndices().containsKey(customIdxName)) {
+            ClusterIndexHealth clusterIndexHealth = healthResponse.getIndices().get(customIdxName);
+            HanLpLogger.info(this, "custom dictionary index[" + customIdxName + "] status[" + clusterIndexHealth.getStatus().name() + "]");
+
+            if (clusterIndexHealth.getStatus() == ClusterHealthStatus.YELLOW
+                    || clusterIndexHealth.getStatus() == ClusterHealthStatus.GREEN) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private class InitializeDictionaryReloadTask implements Runnable {
         @Override
         public void run() {
             try {
-                doMonitorTask();
+                boolean checkPass = true;
+                if (clusterService.state().blocks().hasGlobalBlock(ClusterBlockLevel.READ)) {
+                    checkPass = false;
+                    HanLpLogger.info(this, "cluster has global [read] block, retry again.");
+                }
+
+                if (checkPass && !isCustomDictionaryIndexActive()) {
+                    checkPass = false;
+                    HanLpLogger.info(this, "custom dict index[" + customIdxName + "] is inactive, retry again.");
+                }
+
+                if (checkPass) {
+                    if (!isCustomDictionaryIndexExist()) {
+                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] not exists, ignore init dict.");
+                        return;
+                    }
+
+                    if (isCustomDictionaryIndexClosed()) {
+                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] is closed, ignore init dict.");
+                        return;
+                    }
+                }
+
+                if (checkPass) {
+                    String reloadResultMsg = doPrivilegedReloadCustomDictionary();
+                    HanLpLogger.info(this, "after init load custom dictionary, message: " + reloadResultMsg);
+                }
+                else {
+                    lcCustomDictReloadExecutor.schedule(this, 10, TimeUnit.SECONDS);
+                }
             }
             catch (Exception ex) {
-                HanLpLogger.error(this, "monitor task error", ex);
+                HanLpLogger.error(this, "The error occurred while initiating customer dictionary.", ex);
             }
-
-            lcCustomDictionaryRefresher.schedule(this, 30, TimeUnit.SECONDS);
         }
+    }
 
-        private void doMonitorTask() {
-            if (clusterService.state().blocks().hasGlobalBlock(ClusterBlockLevel.WRITE)) {
-                HanLpLogger.info(this, "cluster has global blocks, ignore do monitor task.");
-                return;
+    private class CustomDictionaryIndexMonitorTask implements Runnable {
+        @Override
+        public void run() {
+            try {
+                if (clusterService.state().blocks().hasGlobalBlock(ClusterBlockLevel.WRITE)) {
+                    HanLpLogger.info(this, "cluster has global [write] block, ignore exe monitor task.");
+                }
+                else {
+                    if (clusterService.state().nodes().isLocalNodeElectedMaster()) {
+                        createCustomDictionaryIndexIfNotExist();
+
+                        if (isCustomDictionaryIndexClosed()) {
+                            openCustomDictionaryIndex();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                HanLpLogger.error(this, "monitor task error, retry again", ex);
             }
 
-            if (localNodeIsMaster()) {
-                createCustomDictionaryIndexIfNotExist();
-            }
+            lcCustomDictReloadExecutor.schedule(this, 30, TimeUnit.SECONDS);
         }
     }
 }

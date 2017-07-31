@@ -20,6 +20,8 @@ import java.util.Map;
 
 public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPlugin {
 
+    public static final String PLUGIN_NAME = "analysis-lc";
+
     @Override
     public Map<String, AnalysisModule.AnalysisProvider<TokenizerFactory>> getTokenizers() {
         Map<String, AnalysisModule.AnalysisProvider<TokenizerFactory>> extra = Maps.newHashMap();
@@ -51,17 +53,14 @@ public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPl
         return extra;
     }
 
-
     @Override
     public Collection<Class<? extends LifecycleComponent>> getGuiceServiceClasses() {
-        return  Collections.singletonList(CustomDictionaryReloadService.class);
+        return Collections.singletonList(CustomDictionaryReloadService.class);
     }
 
     @Override
     public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
-        return Collections.singletonList(
-                new ActionHandler<LcDictReloadRequest, LcDictReloadResponse>(
-                        LcDictReloadAction.INSTANCE, LcTransportDictReloadAction.class));
+        return Collections.singletonList(new ActionHandler<>(LcDictReloadAction.INSTANCE, LcTransportDictReloadAction.class));
     }
 
     @Override

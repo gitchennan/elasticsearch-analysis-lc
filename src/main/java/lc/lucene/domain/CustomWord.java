@@ -19,7 +19,7 @@ public class CustomWord {
             "        \"type\": \"keyword\"\n" +
             "      },\n" +
             "      \"wordAttributes\": {\n" +
-            "        \"type\": \"object\",\n" +
+            "        \"type\": \"nested\",\n" +
             "        \"properties\": {\n" +
             "          \"nature\": {\n" +
             "            \"type\": \"keyword\"\n" +

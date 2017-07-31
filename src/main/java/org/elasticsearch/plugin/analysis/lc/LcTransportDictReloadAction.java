@@ -15,9 +15,6 @@ import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 public class LcTransportDictReloadAction extends HandledTransportAction<LcDictReloadRequest, LcDictReloadResponse> {
 
     private CustomDictionaryReloadService reloadService;
@@ -32,7 +29,7 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
     @Override
     protected void doExecute(Task task, LcDictReloadRequest request, ActionListener<LcDictReloadResponse> listener) {
         try {
-            String reloadResultMsg = AccessController.doPrivileged((PrivilegedAction<String>) reloadService::reloadCustomDictionary);
+            String reloadResultMsg = reloadService.doPrivilegedReloadCustomDictionary();
             LcDictReloadResponse dictReloadResponse = new LcDictReloadResponse(RestStatus.OK, reloadResultMsg + ", task_id: " + task.getId());
             listener.onResponse(dictReloadResponse);
 
