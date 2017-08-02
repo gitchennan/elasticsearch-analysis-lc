@@ -1,6 +1,6 @@
 package com.hankcs.hanlp.dictionary.py;
 
-import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author hankcs
@@ -21,31 +20,20 @@ import java.util.concurrent.TimeUnit;
 public class PinyinDictionary {
 
     static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = new AhoCorasickDoubleArrayTrie<Pinyin[]>();
-//    public static final Pinyin[] pinyins = Integer2PinyinConverter.pinyins;
 
     static {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        if (!load(HanLpGlobalSettings.PinyinDictionaryPath)) {
-            HanLpLogger.error(PinyinDictionary.class,
-                    String.format("Load dictionary[%s], takes %s ms, path[%s] ",
-                            "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PinyinDictionaryPath));
-        }
-        else {
-            HanLpLogger.info(PinyinDictionary.class,
-                    String.format("Load dictionary[%s], takes %s ms, path[%s] ",
-                            "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PinyinDictionaryPath));
-        }
+        load(HanLpGlobalSettings.PinyinDictionaryPath);
     }
 
     /**
      * 读取词典
      */
-    static boolean load(String path) {
-//        if (loadDat(CUSTOM_DICTIONARY_PATHS)) return true;
-        // 从文本中载入并且尝试生成dat
+    static boolean load(String... pathList) {
         StringDictionary dictionary = new StringDictionary("=");
-        if (!dictionary.load(path)) return false;
-        TreeMap<String, Pinyin[]> map = new TreeMap<String, Pinyin[]>();
+        if (!dictionary.load(pathList)) {
+            return false;
+        }
+        TreeMap<String, Pinyin[]> map = Maps.newTreeMap();
         for (Map.Entry<String, String> entry : dictionary.entrySet()) {
             String[] args = entry.getValue().split(",");
             Pinyin[] pinyinValue = new Pinyin[args.length];
@@ -55,8 +43,7 @@ public class PinyinDictionary {
                     pinyinValue[i] = pinyin;
                 }
                 catch (IllegalArgumentException e) {
-                    HanLpLogger.error(PinyinDictionary.class,
-                            "读取拼音词典" + path + "失败，问题出在【" + entry + "】，异常是" + e);
+                    HanLpLogger.error(PinyinDictionary.class, "Failed to load pinyin dict", e);
                     return false;
                 }
             }

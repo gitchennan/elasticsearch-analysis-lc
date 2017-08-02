@@ -1,7 +1,7 @@
 package org.elasticsearch.plugin.analysis.lc;
 
 import com.google.common.collect.Maps;
-import lc.lucene.service.CustomDictionaryReloadService;
+import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
@@ -45,6 +45,7 @@ public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPl
     public Map<String, AnalysisModule.AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
         Map<String, AnalysisModule.AnalysisProvider<TokenFilterFactory>> extra = Maps.newHashMap();
 
+        extra.put("lc_pinyin", LcTokenFilterFactory::getLcStopWordTokenFilterFactory);
         extra.put("lc_stopword", LcTokenFilterFactory::getLcStopWordTokenFilterFactory);
         extra.put("lc_synonym", LcTokenFilterFactory::getLcSynonymTokenFilterFactory);
         extra.put("lc_useless", LcTokenFilterFactory::getLcUselessCharFilterFactory);

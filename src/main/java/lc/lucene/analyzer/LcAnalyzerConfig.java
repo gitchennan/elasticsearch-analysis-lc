@@ -10,6 +10,8 @@ public class LcAnalyzerConfig {
 
     private boolean namedEntityRecognize = true;
 
+    private boolean keepChinese = true;
+
     private boolean extractFullPinyin = false;
 
     private boolean extractPinyinFirstLetter = false;
@@ -70,5 +72,13 @@ public class LcAnalyzerConfig {
 
     public void setExtractPinyinFirstLetter(boolean extractPinyinFirstLetter) {
         this.extractPinyinFirstLetter = extractPinyinFirstLetter;
+    }
+
+    public boolean isKeepChinese() {
+        return keepChinese;
+    }
+
+    public void setKeepChinese(boolean keepChinese) {
+        this.keepChinese = keepChinese;
     }
 }

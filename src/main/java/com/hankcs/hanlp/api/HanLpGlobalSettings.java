@@ -78,7 +78,10 @@ public class HanLpGlobalSettings {
     /**
      * 拼音词典路径
      */
-    public static String PinyinDictionaryPath = "data/dictionary/pinyin/pinyin.txt";
+    public static String[] PinyinDictionaryPath = {
+            "data/dictionary/pinyin/pinyin.txt",
+            "data/dictionary/pinyin/LuPinyin.txt"
+    };
 
     /**
      * 音译人名词典
@@ -159,15 +162,21 @@ public class HanLpGlobalSettings {
             PersonDictionaryTrPath = root + p.getProperty("PersonDictionaryTrPath", PersonDictionaryTrPath);
 
             String[] newCustomDictionaryPath = new String[CustomDictionaryPath.length];
-            for (int idx = 0; idx < CustomDictionaryPath.length; idx ++) {
+            for (int idx = 0; idx < CustomDictionaryPath.length; idx++) {
                 newCustomDictionaryPath[idx] = root + CustomDictionaryPath[idx];
             }
             CustomDictionaryPath = newCustomDictionaryPath;
 
+            String[] newPinyinDictionaryPath = new String[PinyinDictionaryPath.length];
+            for (int idx = 0; idx < PinyinDictionaryPath.length; idx++) {
+                newPinyinDictionaryPath[idx] = root + PinyinDictionaryPath[idx];
+            }
+            PinyinDictionaryPath = newPinyinDictionaryPath;
+
             tcDictionaryRoot = root + p.getProperty("tcDictionaryRoot", tcDictionaryRoot);
             if (!tcDictionaryRoot.endsWith("/")) tcDictionaryRoot += '/';
             SYTDictionaryPath = root + p.getProperty("SYTDictionaryPath", SYTDictionaryPath);
-            PinyinDictionaryPath = root + p.getProperty("PinyinDictionaryPath", PinyinDictionaryPath);
+//            PinyinDictionaryPath = root + p.getProperty("PinyinDictionaryPath", PinyinDictionaryPath);
             TranslatedPersonDictionaryPath = root + p.getProperty("TranslatedPersonDictionaryPath", TranslatedPersonDictionaryPath);
             JapanesePersonDictionaryPath = root + p.getProperty("JapanesePersonDictionaryPath", JapanesePersonDictionaryPath);
             PlaceDictionaryPath = root + p.getProperty("PlaceDictionaryPath", PlaceDictionaryPath);

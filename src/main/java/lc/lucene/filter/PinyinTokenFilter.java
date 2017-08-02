@@ -16,16 +16,20 @@ import java.util.List;
 public class PinyinTokenFilter extends TokenFilter {
     // 当前词
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-    //同义词缓存
+    //拼音缓存
     private final LinkedList<String> pinyinCache = Lists.newLinkedList();
-    //pinyin / first_letter / all
-    private String pinyinMode = "pinyin";
+    //full / head / all
+    private String pinyinMode = "full";
 
-    public PinyinTokenFilter(TokenStream input, String pinyinMode) {
+    private boolean keepChinese;
+
+    public PinyinTokenFilter(TokenStream input, String pinyinMode, boolean keepChinese) {
         super(input);
         if (keepFullPinyin(pinyinMode) || keepPinyinFirstLetter(pinyinMode)) {
             this.pinyinMode = pinyinMode;
         }
+
+        this.keepChinese = keepChinese;
     }
 
     @Override
@@ -45,7 +49,6 @@ public class PinyinTokenFilter extends TokenFilter {
         int termLength = this.termAtt.length();
 
         String curWord = String.valueOf(text, 0, termLength);
-
 
         List<Pinyin> pinyinList = PinyinDictionary.convertToPinyin(curWord);
         if (pinyinList != null && pinyinList.size() == termLength) {
@@ -86,17 +89,31 @@ public class PinyinTokenFilter extends TokenFilter {
                 }
             }
         }
-        this.termAtt.setEmpty();
-        this.termAtt.append(String.valueOf(text, 0, termLength));
+
+        if (keepChinese) {
+            this.termAtt.setEmpty();
+            this.termAtt.append(curWord);
+        }
+        else {
+            if (hasMorePinyinInCache()) {
+                String pinyin = nextCachedPinyinTerm();
+                termAtt.setEmpty();
+                termAtt.append(pinyin);
+            }
+            else {
+                this.termAtt.setEmpty();
+                this.termAtt.append(curWord);
+            }
+        }
         return true;
     }
 
     private boolean keepFullPinyin(String pinyinMode) {
-        return "pinyin".equalsIgnoreCase(pinyinMode) || "all".equalsIgnoreCase(pinyinMode);
+        return "full".equalsIgnoreCase(pinyinMode) || "all".equalsIgnoreCase(pinyinMode);
     }
 
     private boolean keepPinyinFirstLetter(String pinyinMode) {
-        return "first_letter".equalsIgnoreCase(pinyinMode);
+        return "head".equalsIgnoreCase(pinyinMode);
     }
 
     @Override

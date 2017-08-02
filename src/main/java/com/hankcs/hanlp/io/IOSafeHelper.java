@@ -55,6 +55,9 @@ public class IOSafeHelper {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input, encoding));
                 String line;
                 while (null != (line = bufferedReader.readLine())) {
+                    if (line.trim().length() == 0) {
+                        continue;
+                    }
                     lineOperator.process(line);
                 }
             }

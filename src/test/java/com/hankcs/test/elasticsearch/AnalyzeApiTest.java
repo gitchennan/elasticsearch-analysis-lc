@@ -1,7 +1,7 @@
 //package com.hankcs.test.elasticsearch;
 //
 //import com.google.common.base.Stopwatch;
-//import lc.lucene.service.CustomDictionaryReloadService;
+//import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 //import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 //import org.elasticsearch.client.transport.TransportClient;
 //import org.elasticsearch.common.settings.Settings;

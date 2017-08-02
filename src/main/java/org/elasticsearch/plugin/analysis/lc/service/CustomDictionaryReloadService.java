@@ -1,5 +1,6 @@
-package lc.lucene.service;
+package org.elasticsearch.plugin.analysis.lc.service;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.hankcs.hanlp.corpus.synonym.Synonym;
 import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
@@ -29,6 +30,7 @@ import org.elasticsearch.threadpool.ThreadPool;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -125,7 +127,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                                 customIdxName, createIdxResp.toString()));
             }
             else {
-                HanLpLogger.error(this, String.format("Create custom dictionary index[%s]", customIdxName));
+                HanLpLogger.info(this, String.format("Create custom dictionary index[%s]", customIdxName));
             }
         }
     }
@@ -180,6 +182,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         }
         finally {
             client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
+            afterReloadCustomerDictionary();
         }
 
         return "Loaded custom_dict, total_count: " + wordCount;
@@ -189,6 +192,10 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         // remove all custom dict words
         CustomDictionary.INSTANCE.cleanBinTrie();
         CoreSynonymDictionary.INSTANCE.cleanBinTrie();
+    }
+
+    private void afterReloadCustomerDictionary() {
+
     }
 
     private void processCustomWord(CustomWord word) {
@@ -201,7 +208,10 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         }
 
         if (word.getSynonyms() != null && word.getSynonyms().size() > 0) {
-            CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, word.getSynonyms());
+            List<String> allWords = Lists.newArrayList(word.getSynonyms());
+            allWords.add(word.getWord());
+
+            CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, allWords);
             for (String tSynonym : word.getSynonyms()) {
                 if (wordAttr.length() == 0) {
                     CustomDictionary.INSTANCE.add(tSynonym);
@@ -212,7 +222,6 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             }
         }
     }
-
 
     private boolean isCustomDictionaryIndexExist() {
         return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
@@ -290,9 +299,16 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                     HanLpLogger.info(this, "cluster has global [write] block, ignore exe monitor task.");
                 }
                 else {
+                    // master node only
                     if (clusterService.state().nodes().isLocalNodeElectedMaster()) {
+                        /**
+                         *  if custom dict index is not exists, create it
+                         */
                         createCustomDictionaryIndexIfNotExist();
 
+                        /**
+                         *  if custom dict index is closed, just open it
+                         */
                         if (isCustomDictionaryIndexClosed()) {
                             openCustomDictionaryIndex();
                         }

@@ -11,6 +11,8 @@
  */
 package com.hankcs.hanlp.corpus.dictionary;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Sets;
 import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
 import com.hankcs.hanlp.io.IOSafeHelper;
 import com.hankcs.hanlp.io.LineOperator;
@@ -19,6 +21,7 @@ import com.hankcs.hanlp.log.HanLpLogger;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 可以调整大小的词典
@@ -27,25 +30,32 @@ import java.util.TreeSet;
  */
 public abstract class SimpleDictionary<V> {
 
-    BinTrie<V> trie = new BinTrie<V>();
+    BinTrie<V> trie = BinTrie.newBinTrie();
 
-    public boolean load(String path) {
-        return IOSafeHelper.openAutoCloseableFileReader(path, new LineOperator() {
-            @Override
-            public void process(String line) throws Exception {
-                Map.Entry<String, V> entry = onGenerateEntry(line);
-                if (entry == null) {
-                    return;
+    public boolean load(String... pathList) {
+        for (String path : pathList) {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            IOSafeHelper.openAutoCloseableFileReader(path, new LineOperator() {
+                @Override
+                public void process(String line) throws Exception {
+                    Map.Entry<String, V> entry = onGenerateEntry(line);
+                    if (entry == null) {
+                        return;
+                    }
+                    trie.put(entry.getKey(), entry.getValue());
                 }
-                trie.put(entry.getKey(), entry.getValue());
-            }
-        });
+            });
+
+            HanLpLogger.info(SimpleDictionary.class,
+                    String.format("Load dictionary[%s], takes %s ms, path[%s] ",
+                            "PinyinDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), path));
+        }
+        return true;
     }
 
     /**
      * 查询一个单词
      *
-     * @param key
      * @return 单词对应的条目
      */
     public V get(String key) {
@@ -54,32 +64,11 @@ public abstract class SimpleDictionary<V> {
 
     /**
      * 由参数构造一个词条
-     *
-     * @param line
-     * @return
      */
     protected abstract Map.Entry<String, V> onGenerateEntry(String line);
 
     /**
-     * 以我为主词典，合并一个副词典，我有的词条不会被副词典覆盖
-     *
-     * @param other 副词典
-     */
-    public void combine(SimpleDictionary<V> other) {
-        if (other.trie == null) {
-            HanLpLogger.error(SimpleDictionary.class, "有个词典还没加载");
-            return;
-        }
-        for (Map.Entry<String, V> entry : other.trie.entrySet()) {
-            if (trie.containsKey(entry.getKey())) continue;
-            trie.put(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /**
      * 获取键值对集合
-     *
-     * @return
      */
     public Set<Map.Entry<String, V>> entrySet() {
         return trie.entrySet();
@@ -87,11 +76,9 @@ public abstract class SimpleDictionary<V> {
 
     /**
      * 键集合
-     *
-     * @return
      */
     public Set<String> keySet() {
-        TreeSet<String> keySet = new TreeSet<String>();
+        TreeSet<String> keySet = Sets.newTreeSet();
 
         for (Map.Entry<String, V> entry : entrySet()) {
             keySet.add(entry.getKey());
@@ -106,7 +93,7 @@ public abstract class SimpleDictionary<V> {
      * @param filter 过滤器
      * @return 删除了多少条
      */
-    public int remove(Filter filter) {
+    public int remove(Filter<V> filter) {
         int size = trie.size();
         for (Map.Entry<String, V> entry : entrySet()) {
             if (filter.remove(entry)) {
@@ -123,9 +110,6 @@ public abstract class SimpleDictionary<V> {
 
     /**
      * 向中加入单词
-     *
-     * @param key
-     * @param value
      */
     public void add(String key, V value) {
         trie.put(key, value);

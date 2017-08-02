@@ -38,6 +38,11 @@ public abstract class CommonSynonymDictionary {
             ArrayList<Synonym> synonymList = null;
             while ((line = bw.readLine()) != null) {
                 String[] args = line.split(" ");
+
+                if (line.trim().length() == 0) {
+                    continue;
+                }
+
                 synonymList = Synonym.create(args);
                 char type = args[0].charAt(args[0].length() - 1);
                 for (Synonym synonym : synonymList) {

@@ -47,13 +47,13 @@ public class LcAnalyzer extends Analyzer {
         }
 
         if (lcAnalyzerConfig.isExtractFullPinyin() && lcAnalyzerConfig.isExtractPinyinFirstLetter()) {
-            filter = new PinyinTokenFilter(filter, "all");
+            filter = new PinyinTokenFilter(filter, "all", lcAnalyzerConfig.isKeepChinese());
         }
         else if (lcAnalyzerConfig.isExtractFullPinyin()) {
-            filter = new PinyinTokenFilter(filter, "pinyin");
+            filter = new PinyinTokenFilter(filter, "full", lcAnalyzerConfig.isKeepChinese());
         }
         else if (lcAnalyzerConfig.isExtractPinyinFirstLetter()) {
-            filter = new PinyinTokenFilter(filter, "first_letter");
+            filter = new PinyinTokenFilter(filter, "head", lcAnalyzerConfig.isKeepChinese());
         }
 
         return new TokenStreamComponents(tokenizer, filter);

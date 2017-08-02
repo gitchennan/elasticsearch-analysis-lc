@@ -1,9 +1,6 @@
 package org.elasticsearch.index.analysis;
 
-import lc.lucene.filter.StopWordTokenFilter;
-import lc.lucene.filter.SynonymTokenFilter;
-import lc.lucene.filter.UselessCharFilter;
-import lc.lucene.filter.WhitespaceTokenFilter;
+import lc.lucene.filter.*;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.elasticsearch.common.settings.Settings;
@@ -14,9 +11,16 @@ public class LcTokenFilterFactory extends AbstractTokenFilterFactory {
 
     private LcTokenFilterType filterType;
 
+    private Settings settings;
+
     public LcTokenFilterFactory(IndexSettings indexSettings, String name, Settings settings, LcTokenFilterType filterType) {
         super(indexSettings, name, settings);
         this.filterType = filterType;
+        this.settings = settings;
+    }
+
+    public static LcTokenFilterFactory getLcPinyinTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+        return new LcTokenFilterFactory(indexSettings, name, settings, LcTokenFilterType.LC_PINYIN);
     }
 
     public static LcTokenFilterFactory getLcStopWordTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
@@ -51,6 +55,15 @@ public class LcTokenFilterFactory extends AbstractTokenFilterFactory {
             case LC_WHITESPACE:
                 tokenFilter = new WhitespaceTokenFilter(tokenStream);
                 break;
+            case LC_PINYIN: {
+                String pinyinSetting = settings.get("pinyin", "full");
+                pinyinSetting = pinyinSetting == null ? "pinyin" : pinyinSetting;
+                boolean keepChinese = settings.getAsBoolean("keep_chinese", true);
+
+                tokenFilter = new PinyinTokenFilter(tokenStream, pinyinSetting, keepChinese);
+                break;
+            }
+
         }
         return tokenFilter;
     }

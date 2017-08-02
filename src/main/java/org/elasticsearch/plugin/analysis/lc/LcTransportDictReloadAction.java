@@ -2,7 +2,7 @@ package org.elasticsearch.plugin.analysis.lc;
 
 
 import com.hankcs.hanlp.log.HanLpLogger;
-import lc.lucene.service.CustomDictionaryReloadService;
+import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.action.support.HandledTransportAction;
