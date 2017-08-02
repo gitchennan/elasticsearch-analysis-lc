@@ -12,7 +12,6 @@
 package com.hankcs.hanlp.dictionary.ts;
 
 import com.google.common.collect.Maps;
-import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -25,7 +24,7 @@ import java.util.TreeMap;
  * @author hankcs
  */
 public class TraditionalToTaiwanChineseDictionary extends BaseChineseDictionary {
-    static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    static AhoCorasickDoubleArrayTrie<String> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
 
     static {
         long start = System.currentTimeMillis();

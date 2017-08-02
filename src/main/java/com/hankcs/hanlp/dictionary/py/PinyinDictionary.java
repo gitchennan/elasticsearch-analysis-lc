@@ -19,7 +19,7 @@ import java.util.TreeMap;
  */
 public class PinyinDictionary {
 
-    static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = new AhoCorasickDoubleArrayTrie<Pinyin[]>();
+    static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
 
     static {
         load(HanLpGlobalSettings.PinyinDictionaryPath);

@@ -25,7 +25,7 @@ import java.util.TreeMap;
  * @author hankcs
  */
 public class HongKongToSimplifiedChineseDictionary extends BaseChineseDictionary {
-    static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    static AhoCorasickDoubleArrayTrie<String> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
 
     static {
         long start = System.currentTimeMillis();

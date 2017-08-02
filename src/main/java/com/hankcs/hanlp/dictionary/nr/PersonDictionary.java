@@ -84,7 +84,7 @@ public class PersonDictionary {
                             "PersonDictionary.tr", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PersonDictionaryTrPath));
         }
 
-        trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
+        trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
         TreeMap<String, NRPattern> map = Maps.newTreeMap();
         for (NRPattern pattern : NRPattern.values()) {
             map.put(pattern.toString(), pattern);

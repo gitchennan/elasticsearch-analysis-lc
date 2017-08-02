@@ -11,6 +11,7 @@
  */
 package com.hankcs.hanlp.dictionary.ts;
 
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.log.HanLpLogger;
@@ -23,13 +24,13 @@ import java.util.TreeMap;
  * @author hankcs
  */
 public class TaiwanToHongKongChineseDictionary extends BaseChineseDictionary {
-    static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    static AhoCorasickDoubleArrayTrie<String> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
 
     static {
         long start = System.currentTimeMillis();
 
-        TreeMap<String, String> t2hk = new TreeMap<String, String>();
-        TreeMap<String, String> tw2t = new TreeMap<String, String>();
+        TreeMap<String, String> t2hk = Maps.newTreeMap();
+        TreeMap<String, String> tw2t = Maps.newTreeMap();
         if (!load(t2hk, false, HanLpGlobalSettings.tcDictionaryRoot + "t2hk.txt") ||
                 !load(tw2t, true, HanLpGlobalSettings.tcDictionaryRoot + "t2tw.txt")) {
             throw new IllegalArgumentException("台湾繁体转香港繁体词典加载失败");

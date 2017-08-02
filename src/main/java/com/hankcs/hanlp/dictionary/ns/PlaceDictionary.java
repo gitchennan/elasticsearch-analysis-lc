@@ -12,6 +12,7 @@
 package com.hankcs.hanlp.dictionary.ns;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.item.EnumItem;
@@ -84,8 +85,8 @@ public class PlaceDictionary {
                             stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.PlaceDictionaryTrPath));
         }
 
-        trie = new AhoCorasickDoubleArrayTrie<String>();
-        TreeMap<String, String> patternMap = new TreeMap<String, String>();
+        trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
+        TreeMap<String, String> patternMap = Maps.newTreeMap();
         patternMap.put("CH", "CH");
         patternMap.put("CDH", "CDH");
         patternMap.put("CDEH", "CDEH");

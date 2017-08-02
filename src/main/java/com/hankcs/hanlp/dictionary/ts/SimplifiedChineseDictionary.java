@@ -25,7 +25,7 @@ public class SimplifiedChineseDictionary extends BaseChineseDictionary {
     /**
      * 简体=繁体
      */
-    static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    static AhoCorasickDoubleArrayTrie<String> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
 
     static {
         long start = System.currentTimeMillis();
