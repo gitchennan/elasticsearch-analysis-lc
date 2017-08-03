@@ -50,7 +50,7 @@ public class PinyinTokenFilter extends TokenFilter {
 
         String curWord = String.valueOf(text, 0, termLength);
 
-        List<Pinyin> pinyinList = PinyinDictionary.convertToPinyin(curWord);
+        List<Pinyin> pinyinList = PinyinDictionary.INSTANCE.convertToPinyin(curWord);
         if (pinyinList != null && pinyinList.size() == termLength) {
             StringBuilder fullPinyinBuilder = new StringBuilder();
             StringBuilder firstLetterBuilder = new StringBuilder();

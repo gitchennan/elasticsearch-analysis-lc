@@ -68,7 +68,9 @@ public class BaseChineseDictionary {
                 return false;
             }
         }
-        if (reverse) dictionary = dictionary.reverse();
+        if (reverse) {
+            dictionary = dictionary.reverse();
+        }
         Set<Map.Entry<String, String>> entrySet = dictionary.entrySet();
         for (Map.Entry<String, String> entry : entrySet) {
             storage.put(entry.getKey(), entry.getValue());

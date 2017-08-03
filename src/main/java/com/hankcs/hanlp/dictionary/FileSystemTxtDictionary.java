@@ -18,9 +18,9 @@ public abstract class FileSystemTxtDictionary implements Dictionary {
         this.dictionaryLocations = dictionaryLocations;
     }
 
-    abstract void onLoadLine(String line);
+    protected abstract void onLoadLine(String line);
 
-    void onDictionaryLoaded() {
+    protected void onDictionaryLoaded() {
 
     }
 

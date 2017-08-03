@@ -221,7 +221,7 @@ public class HanLP {
      * @return 一个字符串，由[拼音][分隔符][拼音]构成
      */
     public static String convertToPinyinString(String text, String separator, boolean remainNone) {
-        List<Pinyin> pinyinList = PinyinDictionary.convertToPinyin(text, true);
+        List<Pinyin> pinyinList = PinyinDictionary.INSTANCE.convertToPinyin(text, true);
         int length = pinyinList.size();
         StringBuilder sb = new StringBuilder(length * (5 + separator.length()));
         int i = 1;
@@ -246,7 +246,7 @@ public class HanLP {
      * @return 一个拼音列表
      */
     public static List<Pinyin> convertToPinyinList(String text) {
-        return PinyinDictionary.convertToPinyin(text);
+        return PinyinDictionary.INSTANCE.convertToPinyin(text);
     }
 
     /**
@@ -258,7 +258,7 @@ public class HanLP {
      * @return 一个字符串，由[首字母][分隔符][首字母]构成
      */
     public static String convertToPinyinFirstCharString(String text, String separator, boolean remainNone) {
-        List<Pinyin> pinyinList = PinyinDictionary.convertToPinyin(text, remainNone);
+        List<Pinyin> pinyinList = PinyinDictionary.INSTANCE.convertToPinyin(text, remainNone);
         int length = pinyinList.size();
         StringBuilder sb = new StringBuilder(length * (1 + separator.length()));
         int i = 1;

@@ -1,61 +1,76 @@
 package com.hankcs.hanlp.dictionary.py;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
-import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.dictionary.StringDictionary;
-import com.hankcs.hanlp.dictionary.BaseSearcher;
-import com.hankcs.hanlp.dictionary.searcher.DoubleArrayTrieSearcher;
+import com.hankcs.hanlp.dictionary.FileSystemTxtDictionary;
 import com.hankcs.hanlp.log.HanLpLogger;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * @author hankcs
  */
-public class PinyinDictionary {
+public class PinyinDictionary extends FileSystemTxtDictionary {
 
-    static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
+    private volatile AhoCorasickDoubleArrayTrie<Pinyin[]> acDoubleArrayTrie;
+
+    private TreeMap<String, Pinyin[]> pinyinSourceHolder;
+
+    public static PinyinDictionary INSTANCE;
 
     static {
-        load(HanLpGlobalSettings.PinyinDictionaryPath);
+        INSTANCE = new PinyinDictionary();
+        INSTANCE.load();
     }
 
-    /**
-     * 读取词典
-     */
-    static boolean load(String... pathList) {
-        StringDictionary dictionary = new StringDictionary("=");
-        if (!dictionary.load(pathList)) {
-            return false;
+    public PinyinDictionary() {
+        super(HanLpGlobalSettings.PinyinDictionaryPath);
+        acDoubleArrayTrie = AhoCorasickDoubleArrayTrie.newAhoCorasickDoubleArrayTrie();
+        pinyinSourceHolder = Maps.newTreeMap();
+    }
+
+    @Override
+    public String dictionaryName() {
+        return "PinyinDictionary";
+    }
+
+    @Override
+    protected void onDictionaryLoaded() {
+        acDoubleArrayTrie.build(pinyinSourceHolder);
+
+        pinyinSourceHolder.clear();
+        pinyinSourceHolder = null;
+    }
+
+    @Override
+    protected void onLoadLine(String line) {
+        String[] paramArray = line.split("=", 2);
+        if (paramArray.length != 2) {
+            HanLpLogger.error(StringDictionary.class, "词典有一行读取错误： " + line);
+            return;
         }
-        TreeMap<String, Pinyin[]> map = Maps.newTreeMap();
-        for (Map.Entry<String, String> entry : dictionary.entrySet()) {
-            String[] args = entry.getValue().split(",");
-            Pinyin[] pinyinValue = new Pinyin[args.length];
-            for (int i = 0; i < pinyinValue.length; ++i) {
-                try {
-                    Pinyin pinyin = Pinyin.valueOf(args[i]);
-                    pinyinValue[i] = pinyin;
-                }
-                catch (IllegalArgumentException e) {
-                    HanLpLogger.error(PinyinDictionary.class, "Failed to load pinyin dict", e);
-                    return false;
-                }
+
+        String[] args = paramArray[1].split(",");
+        Pinyin[] pinyinValue = new Pinyin[args.length];
+        for (int i = 0; i < pinyinValue.length; ++i) {
+            try {
+                Pinyin pinyin = Pinyin.valueOf(args[i]);
+                pinyinValue[i] = pinyin;
             }
-            map.put(entry.getKey(), pinyinValue);
+            catch (IllegalArgumentException e) {
+                HanLpLogger.error(PinyinDictionary.class, "Failed to load pinyin dict", e);
+                return;
+            }
         }
-        trie.build(map);
-
-        return true;
+        pinyinSourceHolder.put(paramArray[0], pinyinValue);
     }
 
-    public static Pinyin[] get(String key) {
-        return trie.get(key);
+    public Pinyin[] get(String key) {
+        return acDoubleArrayTrie.get(key);
     }
 
     /**
@@ -63,36 +78,22 @@ public class PinyinDictionary {
      *
      * @return List形式的拼音，对应每一个字（所谓字，指的是任意字符）
      */
-    public static List<Pinyin> convertToPinyin(String text) {
-        return segLongest(text.toCharArray(), trie);
+    public List<Pinyin> convertToPinyin(String text) {
+        return segLongest(text.toCharArray(), acDoubleArrayTrie);
     }
 
-    public static List<Pinyin> convertToPinyin(String text, boolean remainNone) {
-        return segLongest(text.toCharArray(), trie, remainNone);
-    }
-
-    /**
-     * 转为拼音
-     *
-     * @return 数组形式的拼音
-     */
-    public static Pinyin[] convertToPinyinArray(String text) {
-        List<Pinyin> pinyinList = convertToPinyin(text);
-        return pinyinList.toArray(new Pinyin[pinyinList.size()]);
-    }
-
-    public static BaseSearcher<Pinyin[]> getSearcher(char[] text, DoubleArrayTrie<Pinyin[]> trie) {
-        return new DoubleArrayTrieSearcher<Pinyin[]>(String.valueOf(text), trie);
+    public List<Pinyin> convertToPinyin(String text, boolean remainNone) {
+        return segLongest(text.toCharArray(), acDoubleArrayTrie, remainNone);
     }
 
     /**
      * 用最长分词算法匹配拼音
      */
-    protected static List<Pinyin> segLongest(char[] charArray, AhoCorasickDoubleArrayTrie<Pinyin[]> trie) {
+    protected List<Pinyin> segLongest(char[] charArray, AhoCorasickDoubleArrayTrie<Pinyin[]> trie) {
         return segLongest(charArray, trie, true);
     }
 
-    protected static List<Pinyin> segLongest(char[] charArray, AhoCorasickDoubleArrayTrie<Pinyin[]> trie, boolean remainNone) {
+    protected List<Pinyin> segLongest(char[] charArray, AhoCorasickDoubleArrayTrie<Pinyin[]> trie, boolean remainNone) {
         final Pinyin[][] wordNet = new Pinyin[charArray.length][];
         trie.parseText(charArray, new AhoCorasickDoubleArrayTrie.IHit<Pinyin[]>() {
             @Override
@@ -103,7 +104,8 @@ public class PinyinDictionary {
                 }
             }
         });
-        List<Pinyin> pinyinList = new ArrayList<Pinyin>(charArray.length);
+
+        List<Pinyin> pinyinList = Lists.newArrayListWithCapacity(charArray.length);
         for (int offset = 0; offset < wordNet.length; ) {
             if (wordNet[offset] == null) {
                 if (remainNone) {
@@ -112,6 +114,7 @@ public class PinyinDictionary {
                 ++offset;
                 continue;
             }
+
             for (Pinyin pinyin : wordNet[offset]) {
                 pinyinList.add(pinyin);
             }

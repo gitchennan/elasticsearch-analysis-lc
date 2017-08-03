@@ -83,7 +83,7 @@ public class CustomDictionary extends FileSystemTxtDictionary {
 //    }
 
     @Override
-    void onLoadLine(String line) {
+    protected void onLoadLine(String line) {
         String[] param = line.split(DICT_LINE_SPLIT_CHAR);
         if (param[0].length() == 0) {
             return;
@@ -110,7 +110,7 @@ public class CustomDictionary extends FileSystemTxtDictionary {
     }
 
     @Override
-    void onDictionaryLoaded() {
+    protected void onDictionaryLoaded() {
         if (wordAttributeMap.isEmpty()) {
             HanLpLogger.warn(CustomDictionary.class, "There's no any word found in custom dictionaries.");
             wordAttributeMap.put(Predefine.TAG_OTHER, null);

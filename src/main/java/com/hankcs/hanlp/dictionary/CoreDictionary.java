@@ -66,7 +66,7 @@ public class CoreDictionary extends FileSystemTxtDictionary {
     }
 
     @Override
-    void onLoadLine(String line) {
+    protected void onLoadLine(String line) {
         String param[] = line.split(DICT_LINE_SPLIT_CHAR);
         int natureCount = (param.length - 1) / 2;
         WordAttribute wordAttribute = new WordAttribute(natureCount);
@@ -79,7 +79,7 @@ public class CoreDictionary extends FileSystemTxtDictionary {
     }
 
     @Override
-    void onDictionaryLoaded() {
+    protected void onDictionaryLoaded() {
         if (!wordAttributeMap.isEmpty()) {
             Stopwatch stopwatch = Stopwatch.createStarted();
             int buildResult = doubleArrayTrie.build(wordAttributeMap);

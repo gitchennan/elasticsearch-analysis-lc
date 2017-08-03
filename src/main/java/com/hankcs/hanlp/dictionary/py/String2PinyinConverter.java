@@ -81,7 +81,7 @@ public class String2PinyinConverter
             }
             else
             {
-                pinyinList.addAll(PinyinDictionary.convertToPinyin(fragment));
+                pinyinList.addAll(PinyinDictionary.INSTANCE.convertToPinyin(fragment));
             }
         }
 
@@ -134,7 +134,7 @@ public class String2PinyinConverter
             }
             else
             {
-                List<Pinyin> pinyinListFragment = PinyinDictionary.convertToPinyin(fragment);
+                List<Pinyin> pinyinListFragment = PinyinDictionary.INSTANCE.convertToPinyin(fragment);
                 pinyinList.addAll(pinyinListFragment);
                 for (int i = 0; i < pinyinListFragment.size(); ++i)
                 {
