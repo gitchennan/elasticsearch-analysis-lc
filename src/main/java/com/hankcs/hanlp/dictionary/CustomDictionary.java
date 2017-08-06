@@ -156,7 +156,7 @@ public class CustomDictionary extends FileSystemTxtDictionary {
      * @return 是否插入成功（失败的原因可能是不覆盖、natureWithFrequency有问题等，后者可以通过调试模式了解原因）
      */
     public boolean add(String word, String natureWithFrequency) {
-        if (contains(word)) {
+        if (word == null || contains(word)) {
             return false;
         }
         return insert(word, natureWithFrequency);
@@ -170,6 +170,10 @@ public class CustomDictionary extends FileSystemTxtDictionary {
      * @return 是否插入成功（失败的原因可能是不覆盖等，可以通过调试模式了解原因）
      */
     public boolean add(String word) {
+        if (word == null) {
+            return false;
+        }
+
         if (HanLpGlobalSettings.Normalization) {
             word = CharTable.convert(word);
         }

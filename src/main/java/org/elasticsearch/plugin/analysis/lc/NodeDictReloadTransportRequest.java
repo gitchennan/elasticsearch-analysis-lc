@@ -1,18 +1,15 @@
 package org.elasticsearch.plugin.analysis.lc;
 
-import com.hankcs.hanlp.log.HanLpLogger;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.ActionRequestValidationException;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
+import org.elasticsearch.transport.TransportRequest;
 
 import java.io.IOException;
 
-public class LcDictReloadRequest extends ActionRequest {
+public class NodeDictReloadTransportRequest extends TransportRequest {
     @Override
-    public ActionRequestValidationException validate() {
-        HanLpLogger.debug(this, "there's nothing to validate");
-        return null;
+    public String getDescription() {
+        return "Reload node level custom dictionary request.";
     }
 
     @Override

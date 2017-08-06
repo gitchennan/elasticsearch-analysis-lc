@@ -22,6 +22,9 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.plugin.analysis.lc.NodeDictReloadResult;
+import org.elasticsearch.plugin.analysis.lc.NodeDictReloadTransportRequest;
+import org.elasticsearch.plugin.analysis.lc.NodeDictReloadTransportResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -37,9 +40,6 @@ import java.util.concurrent.TimeUnit;
 
 public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
-    /**
-     * A client to make requests to the system
-     */
     private Client client;
 
     private ClusterService clusterService;
@@ -133,22 +133,16 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
     }
 
     public String doPrivilegedReloadCustomDictionary() {
-        return AccessController.doPrivileged((PrivilegedAction<String>) this::reloadCustomDictionary);
+        return AccessController.doPrivileged(((PrivilegedAction<String>)
+                () -> reloadLocalNodeDictionary(new NodeDictReloadTransportRequest()).toString()));
     }
 
-    private String reloadCustomDictionary() {
-        if (!isCustomDictionaryIndexExist()) {
-            String resultMsg = "custom dict index[" + customIdxName + "] not exists, ignore reload.";
-            HanLpLogger.warn(this, resultMsg);
-            return resultMsg;
-        }
+    public NodeDictReloadTransportResponse doPrivilegedReloadCustomDictionary(NodeDictReloadTransportRequest request) {
+        return AccessController.doPrivileged((PrivilegedAction<NodeDictReloadTransportResponse>)
+                () -> reloadLocalNodeDictionary(request));
+    }
 
-        if (isCustomDictionaryIndexClosed()) {
-            String resultMsg = "custom dict index[" + customIdxName + "] closed, ignore reload.";
-            HanLpLogger.warn(this, resultMsg);
-            return resultMsg;
-        }
-
+    private NodeDictReloadTransportResponse reloadLocalNodeDictionary(NodeDictReloadTransportRequest request) {
         SearchResponse response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
                 .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
 
@@ -157,7 +151,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         if (response.getHits().totalHits() == 0) {
             String resultMsg = "there's no any custom word found in index[" + customIdxName + "], ignore reload.";
             HanLpLogger.info(this, resultMsg);
-            return resultMsg;
+            return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
         }
 
         int wordCount = 0;
@@ -176,16 +170,14 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                     processCustomWord(word);
                     wordCount++;
                 }
-                response = client.prepareSearchScroll(scrollId)
-                        .setScroll(new TimeValue(60000)).execute().actionGet();
+                response = client.prepareSearchScroll(scrollId).setScroll(new TimeValue(60000)).execute().actionGet();
             }
         }
         finally {
             client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
             afterReloadCustomerDictionary();
         }
-
-        return "Loaded custom_dict, total_count: " + wordCount;
+        return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), wordCount, "OK"));
     }
 
     private void beforeReloadCustomerDictionary() {
