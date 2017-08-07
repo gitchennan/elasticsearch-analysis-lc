@@ -3,7 +3,7 @@ package com.hankcs.test.elasticsearch;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.plugin.analysis.lc.LcClientPlugin;
+import org.elasticsearch.plugin.analysis.lc.LcAnalysisClientPlugin;
 import org.elasticsearch.plugin.analysis.lc.LcDictReloadAction;
 import org.elasticsearch.plugin.analysis.lc.LcDictReloadRequestBuilder;
 import org.elasticsearch.plugin.analysis.lc.LcDictReloadResponse;
@@ -25,14 +25,13 @@ public class ReloadDictApiTest {
                     .put("client.transport.sniff", true)
                     .build();
 
-            transportClient = new PreBuiltTransportClient(settings, LcClientPlugin.class);
+            transportClient = new PreBuiltTransportClient(settings, LcAnalysisClientPlugin.class);
             transportClient.addTransportAddresses(new InetSocketTransportAddress(InetAddress.getByName("192.168.0.125"), 9300));
         }
     }
 
     @Test
     public void test_reloadDict() {
-
         LcDictReloadRequestBuilder requestBuilder = new LcDictReloadRequestBuilder(transportClient, LcDictReloadAction.INSTANCE);
         LcDictReloadResponse lcDictReloadResponse = requestBuilder.execute().actionGet();
 

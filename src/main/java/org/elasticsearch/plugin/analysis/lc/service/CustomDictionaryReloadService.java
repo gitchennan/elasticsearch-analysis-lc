@@ -11,7 +11,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.block.ClusterBlockLevel;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
-    private Client client;
+    private NodeClient nodeClient;
 
     private ClusterService clusterService;
 
@@ -49,14 +49,14 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
     private ScheduledExecutorService lcCustomDictReloadExecutor;
 
     @Inject
-    public CustomDictionaryReloadService(Client client, ClusterService clusterService, Settings settings) {
-        this(".custom-dictionary", client, clusterService, settings);
+    public CustomDictionaryReloadService(NodeClient nodeClient, ClusterService clusterService, Settings settings) {
+        this(".custom-dictionary", nodeClient, clusterService, settings);
     }
 
-    public CustomDictionaryReloadService(String customIdxName, Client client, ClusterService clusterService, Settings settings) {
+    public CustomDictionaryReloadService(String customIdxName, NodeClient nodeClient, ClusterService clusterService, Settings settings) {
         super(settings, CustomDictionaryReloadService.class);
         this.customIdxName = customIdxName;
-        this.client = client;
+        this.nodeClient = nodeClient;
         this.clusterService = clusterService;
     }
 
@@ -113,7 +113,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             int dataNodeCount = clusterService.state().nodes().getDataNodes().size();
             String indexReplicas = dataNodeCount > 1 ? "1" : "0";
 
-            CreateIndexResponse createIdxResp = client.admin().indices().prepareCreate(customIdxName)
+            CreateIndexResponse createIdxResp = nodeClient.admin().indices().prepareCreate(customIdxName)
                     .setSettings(Settings.builder()
                             .put("number_of_shards", "1")
                             .put("number_of_replicas", indexReplicas)
@@ -133,34 +133,39 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
     }
 
     public String doPrivilegedReloadCustomDictionary() {
-        return AccessController.doPrivileged(((PrivilegedAction<String>)
-                () -> reloadLocalNodeDictionary(new NodeDictReloadTransportRequest()).toString()));
+        return doPrivilegedReloadCustomDictionary(new NodeDictReloadTransportRequest()).toString();
     }
 
     public NodeDictReloadTransportResponse doPrivilegedReloadCustomDictionary(NodeDictReloadTransportRequest request) {
-        return AccessController.doPrivileged((PrivilegedAction<NodeDictReloadTransportResponse>)
-                () -> reloadLocalNodeDictionary(request));
+        NodeDictReloadTransportResponse response = AccessController.doPrivileged(
+                (PrivilegedAction<NodeDictReloadTransportResponse>) () -> reloadLocalNodeDictionary(request));
+        HanLpLogger.info(this, "Reloaded custom dict: " + response.toString());
+        return response;
     }
 
     private NodeDictReloadTransportResponse reloadLocalNodeDictionary(NodeDictReloadTransportRequest request) {
-        SearchResponse response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
+        if (!isCustomDictionaryIndexExist()) {
+            String resultMsg = "Index[" + customIdxName + "] missing, abort reload.";
+            return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
+        }
+
+        SearchResponse response = nodeClient.prepareSearch(customIdxName).setTypes(CustomWord.type)
                 .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
 
         beforeReloadCustomerDictionary();
 
         if (response.getHits().totalHits() == 0) {
-            String resultMsg = "there's no any custom word found in index[" + customIdxName + "], ignore reload.";
-            HanLpLogger.info(this, resultMsg);
+            String resultMsg = "No custom word found in index[" + customIdxName + "], abort reload.";
             return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
         }
 
         int wordCount = 0;
         String scrollId = null;
         try {
-            response = client.prepareSearch(customIdxName).setTypes(CustomWord.type)
+            response = nodeClient.prepareSearch(customIdxName).setTypes(CustomWord.type)
                     .setQuery(QueryBuilders.matchAllQuery())
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
-                    .setScroll(new TimeValue(60000)).setSize(500).execute().actionGet();
+                    .setScroll(new TimeValue(10, TimeUnit.SECONDS)).setSize(500).execute().actionGet();
             scrollId = response.getScrollId();
 
             Gson gson = new Gson();
@@ -170,11 +175,21 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                     processCustomWord(word);
                     wordCount++;
                 }
-                response = client.prepareSearchScroll(scrollId).setScroll(new TimeValue(60000)).execute().actionGet();
+                response = nodeClient.prepareSearchScroll(scrollId).setScroll(new TimeValue(10, TimeUnit.SECONDS)).execute().actionGet();
+                if (response.getScrollId() != null) {
+                    scrollId = response.getScrollId();
+                }
             }
         }
+        catch (Exception ex) {
+            HanLpLogger.error(this, "Scroll search error.", ex);
+            return new NodeDictReloadTransportResponse(new NodeDictReloadResult(
+                    clusterService.localNode().getName(), wordCount, "ERROR: " + ex.getMessage()));
+        }
         finally {
-            client.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
+            if (scrollId != null) {
+                nodeClient.prepareClearScroll().addScrollId(scrollId).execute().actionGet();
+            }
             afterReloadCustomerDictionary();
         }
         return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), wordCount, "OK"));
@@ -216,26 +231,24 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
     }
 
     private boolean isCustomDictionaryIndexExist() {
-        return client.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
+        return nodeClient.admin().indices().prepareExists(customIdxName).execute().actionGet().isExists();
     }
 
     private boolean isCustomDictionaryIndexClosed() {
-        ClusterStateResponse clusterStateResponse = client.admin().cluster().prepareState().setIndices(customIdxName).execute().actionGet();
+        ClusterStateResponse clusterStateResponse = nodeClient.admin().cluster().prepareState().setIndices(customIdxName).execute().actionGet();
         return clusterStateResponse.getState().getMetaData().indices().get(customIdxName).getState() == IndexMetaData.State.CLOSE;
     }
 
     private boolean openCustomDictionaryIndex() {
-        return client.admin().indices().prepareOpen(customIdxName).execute().actionGet().isAcknowledged();
+        return nodeClient.admin().indices().prepareOpen(customIdxName).execute().actionGet().isAcknowledged();
     }
 
     public boolean isCustomDictionaryIndexActive() {
-        ClusterHealthResponse healthResponse = client.admin().cluster().prepareHealth(customIdxName).execute().actionGet();
+        ClusterHealthResponse healthResponse = nodeClient.admin().cluster().prepareHealth(customIdxName).execute().actionGet();
         if (healthResponse.getIndices().containsKey(customIdxName)) {
             ClusterIndexHealth clusterIndexHealth = healthResponse.getIndices().get(customIdxName);
             HanLpLogger.info(this, "custom dictionary index[" + customIdxName + "] status[" + clusterIndexHealth.getStatus().name() + "]");
-
-            if (clusterIndexHealth.getStatus() == ClusterHealthStatus.YELLOW
-                    || clusterIndexHealth.getStatus() == ClusterHealthStatus.GREEN) {
+            if (clusterIndexHealth.getStatus() == ClusterHealthStatus.GREEN) {
                 return true;
             }
         }
@@ -251,7 +264,6 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                     checkPass = false;
                     HanLpLogger.info(this, "cluster has global [read] block, retry again.");
                 }
-
                 if (checkPass && !isCustomDictionaryIndexActive()) {
                     checkPass = false;
                     HanLpLogger.info(this, "custom dict index[" + customIdxName + "] is inactive, retry again.");
@@ -259,12 +271,11 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
 
                 if (checkPass) {
                     if (!isCustomDictionaryIndexExist()) {
-                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] not exists, ignore init dict.");
+                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] not exists, abort init dict.");
                         return;
                     }
-
                     if (isCustomDictionaryIndexClosed()) {
-                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] is closed, ignore init dict.");
+                        HanLpLogger.info(this, "custom dict index[" + customIdxName + "] is closed, abort init dict.");
                         return;
                     }
                 }
@@ -288,7 +299,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         public void run() {
             try {
                 if (clusterService.state().blocks().hasGlobalBlock(ClusterBlockLevel.WRITE)) {
-                    HanLpLogger.info(this, "cluster has global [write] block, ignore exe monitor task.");
+                    HanLpLogger.info(this, "cluster has global [write] block, abort execute monitor task.");
                 }
                 else {
                     // master node only

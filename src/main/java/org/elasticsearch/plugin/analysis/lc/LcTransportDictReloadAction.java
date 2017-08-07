@@ -4,7 +4,6 @@ package org.elasticsearch.plugin.analysis.lc;
 import com.google.common.collect.Lists;
 import com.hankcs.hanlp.log.HanLpLogger;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.LatchedActionListener;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
@@ -26,8 +25,6 @@ import org.elasticsearch.transport.TransportService;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class LcTransportDictReloadAction extends HandledTransportAction<LcDictReloadRequest, LcDictReloadResponse> {
 
@@ -37,6 +34,8 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
 
     private DictionaryReloadTransportService dictionaryReloadTransportService;
 
+    private CustomDictionaryReloadService reloadService;
+
     @Inject
     public LcTransportDictReloadAction(Settings settings, ThreadPool threadPool, ActionFilters actionFilters, CustomDictionaryReloadService reloadService,
                                        IndexNameExpressionResolver indexNameExpressionResolver, Client client, TransportService transportService, ClusterService clusterService) {
@@ -44,17 +43,17 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
         this.clusterService = clusterService;
         this.client = client;
 
-        DictionaryReloadTransportService.registerRequestHandler(transportService, reloadService);
-        dictionaryReloadTransportService = new DictionaryReloadTransportService(settings, transportService);
+        this.reloadService = reloadService;
+        dictionaryReloadTransportService = new DictionaryReloadTransportService(settings, transportService, clusterService);
+        dictionaryReloadTransportService.registerRequestHandler(reloadService);
     }
 
     @Override
     protected void doExecute(Task task, LcDictReloadRequest request, ActionListener<LcDictReloadResponse> listener) {
         try {
+            HanLpLogger.info(this, "received dict reload request, node: " + clusterService.localNode().getName());
             LcDictReloadResponse dictReloadResponse = reloadAllNodesCustomDictionary(task, request);
             listener.onResponse(dictReloadResponse);
-
-            HanLpLogger.info(this, dictReloadResponse.toString());
         }
         catch (Exception ex) {
             listener.onFailure(ex);
@@ -74,6 +73,11 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
         List<DiscoveryNode> targetNodes = Lists.newLinkedList();
         for (DiscoveryNode discoveryNode : clusterService.state().nodes()) {
             NodeInfo info = nodesInfoResponse.getNodesMap().get(discoveryNode.getId());
+            if (clusterService.localNode().getId().equals(discoveryNode.getId())) {
+                // ignore local node
+                continue;
+            }
+
             for (PluginInfo pluginInfo : info.getPlugins().getPluginInfos()) {
                 if (LcAnalysisPlugin.PLUGIN_NAME.equalsIgnoreCase(pluginInfo.getName())) {
                     targetNodes.add(discoveryNode);
@@ -85,12 +89,12 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
             return new LcDictReloadResponse(RestStatus.OK, Collections.<NodeDictReloadResult>emptyList());
         }
 
-        List<NodeDictReloadResult> nodeDictReloadResults = Lists.newLinkedList();
-        CountDownLatch countDownLatch = new CountDownLatch(targetNodes.size());
+        List<NodeDictReloadResult> nodeDictReloadResults = Collections.synchronizedList(Lists.newArrayList());
+//        CountDownLatch countDownLatch = new CountDownLatch(targetNodes.size());
 
-        ActionListener<NodeDictReloadTransportResponse> reloadActionListener = new LatchedActionListener<>(new ActionListenerAdapter<NodeDictReloadTransportResponse>() {
+        ActionListener<NodeDictReloadTransportResponse> reloadActionListener = new ActionListener<NodeDictReloadTransportResponse>() {
             @Override
-            public void onResponseWithException(NodeDictReloadTransportResponse nodeDictReloadTransportResponse) throws Exception {
+            public void onResponse(NodeDictReloadTransportResponse nodeDictReloadTransportResponse) {
                 nodeDictReloadResults.add(nodeDictReloadTransportResponse.nodeDictReloadResult());
             }
 
@@ -98,19 +102,24 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
             public void onFailure(Exception e) {
                 HanLpLogger.error(this, "onFailure: " + e.getMessage(), e);
             }
-        }, countDownLatch);
+        };
 
+        HanLpLogger.info(this, "send node level dict reload request to nodes: " + targetNodes.toString());
         for (DiscoveryNode discoveryNode : targetNodes) {
             NodeDictReloadTransportRequest reloadRequest = new NodeDictReloadTransportRequest();
             dictionaryReloadTransportService.sendExecuteNodeReload(discoveryNode, reloadRequest, parentTask, reloadActionListener);
         }
 
-        try {
-            countDownLatch.await(5, TimeUnit.MINUTES);
-        }
-        catch (InterruptedException ex) {
-            HanLpLogger.error(this, "custom dict reload main thread interrupted", ex);
-        }
+//        try {
+//            HanLpLogger.info(this, "await for remote nodes callback, node: " + clusterService.localNode().getName());
+//            countDownLatch.await(5, TimeUnit.SECONDS);
+//        }
+//        catch (InterruptedException ex) {
+//            HanLpLogger.error(this, "custom dict reload main thread interrupted", ex);
+//        }
+
+        NodeDictReloadTransportResponse localResponse = reloadService.doPrivilegedReloadCustomDictionary(new NodeDictReloadTransportRequest());
+        nodeDictReloadResults.add(localResponse.nodeDictReloadResult());
 
         return new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResults);
     }

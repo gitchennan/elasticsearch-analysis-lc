@@ -25,7 +25,6 @@ public class LcRestAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         return channel -> {
-            LcDictReloadRequest reloadRequest = new LcDictReloadRequest();
             XContentBuilder resultMessageBuilder = JsonXContent.contentBuilder().prettyPrint();
             resultMessageBuilder.startObject();
 
@@ -33,6 +32,7 @@ public class LcRestAction extends BaseRestHandler {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             Stopwatch stopwatch = Stopwatch.createStarted();
 
+            LcDictReloadRequest reloadRequest = new LcDictReloadRequest();
             client.executeLocally(LcDictReloadAction.INSTANCE, reloadRequest, new LatchedActionListener<>(new ActionListenerAdapter<LcDictReloadResponse>() {
                 @Override
                 public void onResponseWithException(LcDictReloadResponse lcDictReloadResponse) throws Exception {
@@ -46,7 +46,7 @@ public class LcRestAction extends BaseRestHandler {
                 }
             }, countDownLatch));
 
-            countDownLatch.await(5, TimeUnit.MINUTES);
+            countDownLatch.await(5, TimeUnit.SECONDS);
 
             if (errorMessageBuilder.length() > 0) {
                 resultMessageBuilder.field("message", errorMessageBuilder.toString());

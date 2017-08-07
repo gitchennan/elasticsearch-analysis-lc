@@ -8,7 +8,7 @@ import org.elasticsearch.plugins.Plugin;
 import java.util.Collections;
 import java.util.List;
 
-public class LcClientPlugin extends Plugin implements ActionPlugin {
+public class LcAnalysisClientPlugin extends Plugin implements ActionPlugin {
 
     public static final String PLUGIN_NAME = "analysis-lc";
 

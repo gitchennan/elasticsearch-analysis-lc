@@ -1,8 +1,10 @@
 package org.elasticsearch.plugin.analysis.lc.service;
 
+import com.hankcs.hanlp.log.HanLpLogger;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionListenerResponseHandler;
 import org.elasticsearch.cluster.node.DiscoveryNode;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.analysis.lc.NodeDictReloadTransportRequest;
@@ -19,9 +21,12 @@ public class DictionaryReloadTransportService extends AbstractComponent {
 
     private final TransportService transportService;
 
-    public DictionaryReloadTransportService(Settings settings, TransportService transportService) {
+    private final ClusterService clusterService;
+
+    public DictionaryReloadTransportService(Settings settings, TransportService transportService, ClusterService clusterService) {
         super(settings);
         this.transportService = transportService;
+        this.clusterService = clusterService;
     }
 
     public void sendExecuteNodeReload(DiscoveryNode node, NodeDictReloadTransportRequest request, Task parentTask,
@@ -30,12 +35,13 @@ public class DictionaryReloadTransportService extends AbstractComponent {
                 new ActionListenerResponseHandler<>(listener, NodeDictReloadTransportResponse::new));
     }
 
-    public static void registerRequestHandler(TransportService transportService, CustomDictionaryReloadService customDictionaryReloadService) {
-        transportService.registerRequestHandler(DICT_RELOAD_ACTION_NAME, NodeDictReloadTransportRequest::new, ThreadPool.Names.SAME,
+    public void registerRequestHandler(CustomDictionaryReloadService reloadService) {
+        transportService.registerRequestHandler(DICT_RELOAD_ACTION_NAME, NodeDictReloadTransportRequest::new, ThreadPool.Names.GENERIC,
                 new TaskAwareTransportRequestHandler<NodeDictReloadTransportRequest>() {
                     @Override
                     public void messageReceived(NodeDictReloadTransportRequest request, TransportChannel channel, Task task) throws Exception {
-                        NodeDictReloadTransportResponse nodeDictReloadTransportResponse = customDictionaryReloadService.doPrivilegedReloadCustomDictionary(request);
+                        HanLpLogger.info(this, "received child dict reload request, node:" + clusterService.localNode().getName());
+                        NodeDictReloadTransportResponse nodeDictReloadTransportResponse = reloadService.doPrivilegedReloadCustomDictionary(request);
                         channel.sendResponse(nodeDictReloadTransportResponse);
                     }
                 });
