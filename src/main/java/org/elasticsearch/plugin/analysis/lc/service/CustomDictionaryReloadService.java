@@ -149,6 +149,8 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
         }
 
+        refreshCustomDictionaryIndex();
+
         SearchResponse response = nodeClient.prepareSearch(customIdxName).setTypes(CustomWord.type)
                 .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
 
@@ -228,6 +230,10 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                 }
             }
         }
+    }
+
+    private void refreshCustomDictionaryIndex() {
+        nodeClient.admin().indices().prepareRefresh(customIdxName).execute().actionGet();
     }
 
     private boolean isCustomDictionaryIndexExist() {
