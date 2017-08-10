@@ -21,17 +21,17 @@
 //    public void initClient() throws Exception {
 //        if (transportClient == null) {
 //            Settings settings = Settings.builder()
-//                    .put("cluster.name", "lu-search-cluster")
+//                    .put("cluster.name", "lufax-asset-cluster")
 //                    .put("client.transport.sniff", true)
 //                    .build();
 //
 //            transportClient = new PreBuiltTransportClient(settings, LcAnalysisClientPlugin.class);
-//            transportClient.addTransportAddresses(new InetSocketTransportAddress(InetAddress.getByName("192.168.0.125"), 9300));
+//            transportClient.addTransportAddresses(new InetSocketTransportAddress(InetAddress.getByName("172.29.30.118"), 9300));
 //        }
 //    }
 //
 //    @Test
-//    public void test_reloadDict() {
+//    public void test_reloadDict() throws Exception {
 //        LcDictReloadRequestBuilder requestBuilder = new LcDictReloadRequestBuilder(transportClient, LcDictReloadAction.INSTANCE);
 //        LcDictReloadResponse lcDictReloadResponse = requestBuilder.execute().actionGet();
 //

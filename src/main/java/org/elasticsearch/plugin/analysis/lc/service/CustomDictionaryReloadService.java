@@ -143,7 +143,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
         return response;
     }
 
-    private NodeDictReloadTransportResponse reloadLocalNodeDictionary(NodeDictReloadTransportRequest request) {
+    private synchronized NodeDictReloadTransportResponse reloadLocalNodeDictionary(NodeDictReloadTransportRequest request) {
         if (!isCustomDictionaryIndexExist()) {
             String resultMsg = "Index[" + customIdxName + "] missing, abort reload.";
             return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
@@ -165,7 +165,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             response = nodeClient.prepareSearch(customIdxName).setTypes(CustomWord.type)
                     .setQuery(QueryBuilders.matchAllQuery())
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
-                    .setScroll(new TimeValue(10, TimeUnit.SECONDS)).setSize(500).execute().actionGet();
+                    .setScroll(new TimeValue(2, TimeUnit.MINUTES)).setSize(500).execute().actionGet();
             scrollId = response.getScrollId();
 
             Gson gson = new Gson();
@@ -175,7 +175,7 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                     processCustomWord(word);
                     wordCount++;
                 }
-                response = nodeClient.prepareSearchScroll(scrollId).setScroll(new TimeValue(10, TimeUnit.SECONDS)).execute().actionGet();
+                response = nodeClient.prepareSearchScroll(scrollId).setScroll(new TimeValue(2, TimeUnit.MINUTES)).execute().actionGet();
                 if (response.getScrollId() != null) {
                     scrollId = response.getScrollId();
                 }

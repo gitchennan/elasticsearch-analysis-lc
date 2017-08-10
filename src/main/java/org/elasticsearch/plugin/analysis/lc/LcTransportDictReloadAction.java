@@ -15,9 +15,9 @@ import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.util.concurrent.AtomicArray;
 import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.elasticsearch.plugin.analysis.lc.service.DictionaryReloadTransportService;
-import org.elasticsearch.plugins.PluginInfo;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
@@ -25,6 +25,8 @@ import org.elasticsearch.transport.TransportService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class LcTransportDictReloadAction extends HandledTransportAction<LcDictReloadRequest, LcDictReloadResponse> {
 
@@ -34,8 +36,6 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
 
     private DictionaryReloadTransportService dictionaryReloadTransportService;
 
-    private CustomDictionaryReloadService reloadService;
-
     @Inject
     public LcTransportDictReloadAction(Settings settings, ThreadPool threadPool, ActionFilters actionFilters, CustomDictionaryReloadService reloadService,
                                        IndexNameExpressionResolver indexNameExpressionResolver, Client client, TransportService transportService, ClusterService clusterService) {
@@ -43,7 +43,6 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
         this.clusterService = clusterService;
         this.client = client;
 
-        this.reloadService = reloadService;
         dictionaryReloadTransportService = new DictionaryReloadTransportService(settings, transportService, clusterService);
         dictionaryReloadTransportService.registerRequestHandler(reloadService);
     }
@@ -51,9 +50,8 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
     @Override
     protected void doExecute(Task task, LcDictReloadRequest request, ActionListener<LcDictReloadResponse> listener) {
         try {
-            HanLpLogger.info(this, "received dict reload request, node: " + clusterService.localNode().getName());
-            LcDictReloadResponse dictReloadResponse = reloadAllNodesCustomDictionary(task, request);
-            listener.onResponse(dictReloadResponse);
+            HanLpLogger.info(this, "received dict reload request, local_node: " + clusterService.localNode().getName());
+            reloadAllNodesCustomDictionary(task, request, listener);
         }
         catch (Exception ex) {
             listener.onFailure(ex);
@@ -65,7 +63,7 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
         throw new UnsupportedOperationException("task required");
     }
 
-    private LcDictReloadResponse reloadAllNodesCustomDictionary(Task parentTask, LcDictReloadRequest request) throws Exception {
+    private void reloadAllNodesCustomDictionary(Task parentTask, LcDictReloadRequest request, ActionListener<LcDictReloadResponse> listener) {
         NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
         nodesInfoRequest.clear().plugins(true);
         NodesInfoResponse nodesInfoResponse = client.admin().cluster().nodesInfo(nodesInfoRequest).actionGet();
@@ -73,54 +71,61 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
         List<DiscoveryNode> targetNodes = Lists.newLinkedList();
         for (DiscoveryNode discoveryNode : clusterService.state().nodes()) {
             NodeInfo info = nodesInfoResponse.getNodesMap().get(discoveryNode.getId());
-            if (clusterService.localNode().getId().equals(discoveryNode.getId())) {
-                // ignore local node
-                continue;
-            }
-
-            for (PluginInfo pluginInfo : info.getPlugins().getPluginInfos()) {
-                if (LcAnalysisPlugin.PLUGIN_NAME.equalsIgnoreCase(pluginInfo.getName())) {
-                    targetNodes.add(discoveryNode);
-                }
-            }
+            targetNodes.addAll(info.getPlugins().getPluginInfos().stream()
+                    .filter(pluginInfo -> LcAnalysisPlugin.PLUGIN_NAME.equalsIgnoreCase(pluginInfo.getName()))
+                    .map(pluginInfo -> discoveryNode)
+                    .collect(Collectors.toList()));
         }
 
         if (targetNodes.isEmpty()) {
-            return new LcDictReloadResponse(RestStatus.OK, Collections.<NodeDictReloadResult>emptyList());
+            listener.onResponse(new LcDictReloadResponse(RestStatus.OK, Collections.<NodeDictReloadResult>emptyList()));
         }
 
-        List<NodeDictReloadResult> nodeDictReloadResults = Collections.synchronizedList(Lists.newArrayList());
-//        CountDownLatch countDownLatch = new CountDownLatch(targetNodes.size());
+        AtomicInteger counter = new AtomicInteger(targetNodes.size());
+        AtomicArray<NodeDictReloadResult> nodeDictReloadResults = new AtomicArray<>(targetNodes.size());
 
+        for (DiscoveryNode targetNode : targetNodes) {
+            NodeDictReloadTransportRequest reloadRequest = new NodeDictReloadTransportRequest();
+            sendChildReloadRequestToTargetNode(targetNode, parentTask, reloadRequest, counter, nodeDictReloadResults, listener);
+        }
+    }
+
+    private void sendChildReloadRequestToTargetNode(DiscoveryNode targetNode, Task parentTask, NodeDictReloadTransportRequest reloadRequest,
+                                                    AtomicInteger counter, AtomicArray<NodeDictReloadResult> nodeDictReloadResults,
+                                                    ActionListener<LcDictReloadResponse> topListener) {
         ActionListener<NodeDictReloadTransportResponse> reloadActionListener = new ActionListener<NodeDictReloadTransportResponse>() {
             @Override
             public void onResponse(NodeDictReloadTransportResponse nodeDictReloadTransportResponse) {
-                nodeDictReloadResults.add(nodeDictReloadTransportResponse.nodeDictReloadResult());
+                int count = counter.decrementAndGet();
+                nodeDictReloadResults.set(count, nodeDictReloadTransportResponse.nodeDictReloadResult());
+
+                if (count == 0) {
+                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList();
+                    nodeDictReloadResultList.addAll(nodeDictReloadResults.asList().stream().map(
+                            nodeDictReloadResultEntry -> nodeDictReloadResultEntry.value).collect(Collectors.toList()));
+
+                    Collections.sort(nodeDictReloadResultList, (r1, r2) -> r1.nodeName().compareTo(r2.nodeName()));
+                    topListener.onResponse(new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResultList));
+                }
             }
 
             @Override
             public void onFailure(Exception e) {
-                HanLpLogger.error(this, "onFailure: " + e.getMessage(), e);
+                int count = counter.decrementAndGet();
+                nodeDictReloadResults.set(count, new NodeDictReloadResult(targetNode.getName(), 0, e.getClass().getName() + ":" + e.getMessage()));
+
+                if (count == 0) {
+                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList();
+                    nodeDictReloadResultList.addAll(nodeDictReloadResults.asList().stream().map(
+                            nodeDictReloadResultEntry -> nodeDictReloadResultEntry.value).collect(Collectors.toList()));
+
+                    Collections.sort(nodeDictReloadResultList, (r1, r2) -> r1.nodeName().compareTo(r2.nodeName()));
+                    topListener.onResponse(new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResultList));
+                }
             }
         };
 
-        HanLpLogger.info(this, "send node level dict reload request to nodes: " + targetNodes.toString());
-        for (DiscoveryNode discoveryNode : targetNodes) {
-            NodeDictReloadTransportRequest reloadRequest = new NodeDictReloadTransportRequest();
-            dictionaryReloadTransportService.sendExecuteNodeReload(discoveryNode, reloadRequest, parentTask, reloadActionListener);
-        }
-
-//        try {
-//            HanLpLogger.info(this, "await for remote nodes callback, node: " + clusterService.localNode().getName());
-//            countDownLatch.await(5, TimeUnit.SECONDS);
-//        }
-//        catch (InterruptedException ex) {
-//            HanLpLogger.error(this, "custom dict reload main thread interrupted", ex);
-//        }
-
-        NodeDictReloadTransportResponse localResponse = reloadService.doPrivilegedReloadCustomDictionary(new NodeDictReloadTransportRequest());
-        nodeDictReloadResults.add(localResponse.nodeDictReloadResult());
-
-        return new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResults);
+        HanLpLogger.info(this, "send node level dict reload request to target_node: " + targetNode.toString());
+        dictionaryReloadTransportService.sendExecuteNodeReload(targetNode, reloadRequest, parentTask, reloadActionListener);
     }
 }

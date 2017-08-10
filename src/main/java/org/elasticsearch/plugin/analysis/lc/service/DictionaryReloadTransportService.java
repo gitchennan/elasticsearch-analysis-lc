@@ -40,7 +40,7 @@ public class DictionaryReloadTransportService extends AbstractComponent {
                 new TaskAwareTransportRequestHandler<NodeDictReloadTransportRequest>() {
                     @Override
                     public void messageReceived(NodeDictReloadTransportRequest request, TransportChannel channel, Task task) throws Exception {
-                        HanLpLogger.info(this, "received child dict reload request, node:" + clusterService.localNode().getName());
+                        HanLpLogger.info(this, "received child dict reload request, local_node:" + clusterService.localNode().getName());
                         NodeDictReloadTransportResponse nodeDictReloadTransportResponse = reloadService.doPrivilegedReloadCustomDictionary(request);
                         channel.sendResponse(nodeDictReloadTransportResponse);
                     }

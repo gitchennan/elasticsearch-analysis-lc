@@ -1,7 +1,7 @@
 package org.elasticsearch.plugin.analysis.lc;
 
 import com.google.common.base.Stopwatch;
-import org.elasticsearch.action.LatchedActionListener;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
@@ -11,7 +11,6 @@ import org.elasticsearch.common.xcontent.json.JsonXContent;
 import org.elasticsearch.rest.*;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class LcRestAction extends BaseRestHandler {
@@ -25,37 +24,48 @@ public class LcRestAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         return channel -> {
-            XContentBuilder resultMessageBuilder = JsonXContent.contentBuilder().prettyPrint();
-            resultMessageBuilder.startObject();
-
-            StringBuilder errorMessageBuilder = new StringBuilder();
-            CountDownLatch countDownLatch = new CountDownLatch(1);
             Stopwatch stopwatch = Stopwatch.createStarted();
-
             LcDictReloadRequest reloadRequest = new LcDictReloadRequest();
-            client.executeLocally(LcDictReloadAction.INSTANCE, reloadRequest, new LatchedActionListener<>(new ActionListenerAdapter<LcDictReloadResponse>() {
+
+            client.executeLocally(LcDictReloadAction.INSTANCE, reloadRequest, new ActionListener<LcDictReloadResponse>() {
                 @Override
-                public void onResponseWithException(LcDictReloadResponse lcDictReloadResponse) throws Exception {
-                    resultMessageBuilder.field("took", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                    lcDictReloadResponse.toXContent(resultMessageBuilder, ToXContent.EMPTY_PARAMS);
+                public void onResponse(LcDictReloadResponse lcDictReloadResponse) {
+                    try {
+                        XContentBuilder resultMessageBuilder = JsonXContent.contentBuilder().prettyPrint();
+                        resultMessageBuilder.startObject();
+
+                        resultMessageBuilder.field("took", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                        lcDictReloadResponse.toXContent(resultMessageBuilder, ToXContent.EMPTY_PARAMS);
+
+                        resultMessageBuilder.endObject();
+
+                        BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, resultMessageBuilder.string());
+                        channel.sendResponse(bytesRestResponse);
+                    }
+                    catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    errorMessageBuilder.append(e.getClass().getName()).append(":").append(e.getMessage());
+                    String errorMessage = null;
+                    try {
+                        XContentBuilder resultMessageBuilder = JsonXContent.contentBuilder().prettyPrint();
+                        resultMessageBuilder.startObject();
+                        resultMessageBuilder.field("message", e.getClass().getName() + ":" + e.getMessage());
+                        resultMessageBuilder.endObject();
+
+                        errorMessage = resultMessageBuilder.string();
+                    }
+                    catch (IOException iex) {
+                        errorMessage = e.getClass().getName() + ":" + e.getMessage();
+                    }
+
+                    BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, errorMessage);
+                    channel.sendResponse(bytesRestResponse);
                 }
-            }, countDownLatch));
-
-            countDownLatch.await(5, TimeUnit.SECONDS);
-
-            if (errorMessageBuilder.length() > 0) {
-                resultMessageBuilder.field("message", errorMessageBuilder.toString());
-            }
-
-            resultMessageBuilder.endObject();
-
-            BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, resultMessageBuilder.string());
-            channel.sendResponse(bytesRestResponse);
+            });
         };
     }
 
