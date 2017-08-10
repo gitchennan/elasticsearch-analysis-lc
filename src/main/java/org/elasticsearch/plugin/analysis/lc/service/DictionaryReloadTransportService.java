@@ -31,7 +31,7 @@ public class DictionaryReloadTransportService extends AbstractComponent {
 
     public void sendExecuteNodeReload(DiscoveryNode node, NodeDictReloadTransportRequest request, Task parentTask,
                                       ActionListener<NodeDictReloadTransportResponse> listener) {
-        transportService.sendChildRequest(node, DICT_RELOAD_ACTION_NAME, request, parentTask,
+        transportService.sendChildRequest(transportService.getConnection(node), DICT_RELOAD_ACTION_NAME, request, parentTask,
                 new ActionListenerResponseHandler<>(listener, NodeDictReloadTransportResponse::new));
     }
 

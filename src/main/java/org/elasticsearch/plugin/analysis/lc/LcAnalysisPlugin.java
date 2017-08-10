@@ -1,22 +1,30 @@
 package org.elasticsearch.plugin.analysis.lc;
 
 import com.google.common.collect.Maps;
-import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
+import org.elasticsearch.cluster.node.DiscoveryNodes;
 import org.elasticsearch.common.component.LifecycleComponent;
+import org.elasticsearch.common.settings.ClusterSettings;
+import org.elasticsearch.common.settings.IndexScopedSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.SettingsFilter;
 import org.elasticsearch.index.analysis.*;
 import org.elasticsearch.indices.analysis.AnalysisModule;
+import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPlugin {
 
@@ -65,7 +73,9 @@ public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPl
     }
 
     @Override
-    public List<Class<? extends RestHandler>> getRestHandlers() {
-        return Collections.singletonList(LcRestAction.class);
+    public List<RestHandler> getRestHandlers(Settings settings, RestController restController, ClusterSettings clusterSettings,
+                                             IndexScopedSettings indexScopedSettings, SettingsFilter settingsFilter,
+                                             IndexNameExpressionResolver indexNameExpressionResolver, Supplier<DiscoveryNodes> nodesInCluster) {
+        return Collections.singletonList(new LcRestAction(settings, restController));
     }
 }

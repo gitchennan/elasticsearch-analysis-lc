@@ -100,10 +100,7 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
                 nodeDictReloadResults.set(count, nodeDictReloadTransportResponse.nodeDictReloadResult());
 
                 if (count == 0) {
-                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList();
-                    nodeDictReloadResultList.addAll(nodeDictReloadResults.asList().stream().map(
-                            nodeDictReloadResultEntry -> nodeDictReloadResultEntry.value).collect(Collectors.toList()));
-
+                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList(nodeDictReloadResults.asList());
                     Collections.sort(nodeDictReloadResultList, (r1, r2) -> r1.nodeName().compareTo(r2.nodeName()));
                     topListener.onResponse(new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResultList));
                 }
@@ -115,10 +112,7 @@ public class LcTransportDictReloadAction extends HandledTransportAction<LcDictRe
                 nodeDictReloadResults.set(count, new NodeDictReloadResult(targetNode.getName(), 0, e.getClass().getName() + ":" + e.getMessage()));
 
                 if (count == 0) {
-                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList();
-                    nodeDictReloadResultList.addAll(nodeDictReloadResults.asList().stream().map(
-                            nodeDictReloadResultEntry -> nodeDictReloadResultEntry.value).collect(Collectors.toList()));
-
+                    List<NodeDictReloadResult> nodeDictReloadResultList = Lists.newLinkedList(nodeDictReloadResults.asList());
                     Collections.sort(nodeDictReloadResultList, (r1, r2) -> r1.nodeName().compareTo(r2.nodeName()));
                     topListener.onResponse(new LcDictReloadResponse(RestStatus.OK, nodeDictReloadResultList));
                 }

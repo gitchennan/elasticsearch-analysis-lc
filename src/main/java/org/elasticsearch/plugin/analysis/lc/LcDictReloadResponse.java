@@ -4,7 +4,7 @@ import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
-import org.elasticsearch.common.xcontent.StatusToXContent;
+import org.elasticsearch.common.xcontent.StatusToXContentObject;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.rest.RestStatus;
 
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class LcDictReloadResponse extends ActionResponse implements StatusToXContent {
+public class LcDictReloadResponse extends ActionResponse implements StatusToXContentObject {
 
     private RestStatus restStatus = RestStatus.OK;
 
@@ -101,6 +101,6 @@ public class LcDictReloadResponse extends ActionResponse implements StatusToXCon
 
     @Override
     public String toString() {
-        return Strings.toString(this, true);
+        return Strings.toString(this);
     }
 }

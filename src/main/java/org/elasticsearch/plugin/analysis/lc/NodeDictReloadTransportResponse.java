@@ -46,6 +46,6 @@ public class NodeDictReloadTransportResponse extends TransportResponse implement
 
     @Override
     public String toString() {
-        return Strings.toString(this, true);
+        return Strings.toString(this);
     }
 }
