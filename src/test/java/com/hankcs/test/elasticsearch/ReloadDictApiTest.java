@@ -4,9 +4,9 @@
 //import org.elasticsearch.common.settings.Settings;
 //import org.elasticsearch.common.transport.InetSocketTransportAddress;
 //import org.elasticsearch.plugin.analysis.lc.LcAnalysisClientPlugin;
-//import org.elasticsearch.plugin.analysis.lc.LcDictReloadAction;
-//import org.elasticsearch.plugin.analysis.lc.LcDictReloadRequestBuilder;
-//import org.elasticsearch.plugin.analysis.lc.LcDictReloadResponse;
+//import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadAction;
+//import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadRequestBuilder;
+//import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadResponse;
 //import org.elasticsearch.transport.client.PreBuiltTransportClient;
 //import org.junit.Before;
 //import org.junit.Test;

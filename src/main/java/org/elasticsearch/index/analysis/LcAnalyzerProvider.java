@@ -59,6 +59,7 @@ public class LcAnalyzerProvider extends AbstractIndexAnalyzerProvider<Analyzer> 
         config.setSynonymRecognize(settings.getAsBoolean("synonym", config.isSynonymRecognize()));
         config.setLowerCase(settings.getAsBoolean("lowercase", config.isLowerCase()));
         config.setKeepChinese(settings.getAsBoolean("keep_chinese", config.isKeepChinese()));
+        config.setSingleCharMode(settings.getAsBoolean("single_char", config.isSingleCharMode()));
 
 
         String pinyinSetting = settings.get("pinyin");

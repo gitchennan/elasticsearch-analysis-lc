@@ -2,6 +2,8 @@ package org.elasticsearch.plugin.analysis.lc;
 
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadAction;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcTransportDictReloadAction;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
 

@@ -1,4 +1,4 @@
-package org.elasticsearch.plugin.analysis.lc;
+package org.elasticsearch.plugin.analysis.lc.dict.reload;
 
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;

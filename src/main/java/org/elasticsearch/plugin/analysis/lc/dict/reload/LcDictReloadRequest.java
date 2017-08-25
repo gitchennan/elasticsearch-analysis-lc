@@ -1,4 +1,4 @@
-package org.elasticsearch.plugin.analysis.lc;
+package org.elasticsearch.plugin.analysis.lc.dict.reload;
 
 import com.hankcs.hanlp.log.HanLpLogger;
 import org.elasticsearch.action.ActionRequest;

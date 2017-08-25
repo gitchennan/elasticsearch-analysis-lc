@@ -2,6 +2,8 @@ package lc.lucene.analyzer;
 
 public class LcAnalyzerConfig {
 
+    private boolean singleCharMode = false;
+
     private boolean indexMode = false;
 
     private boolean stopWordRecognize = true;
@@ -17,6 +19,10 @@ public class LcAnalyzerConfig {
     private boolean extractPinyinFirstLetter = false;
 
     private boolean lowerCase = true;
+
+    public boolean isSingleCharMode() {
+        return singleCharMode;
+    }
 
     public boolean isSynonymRecognize() {
         return synonymRecognize;
@@ -80,5 +86,9 @@ public class LcAnalyzerConfig {
 
     public void setKeepChinese(boolean keepChinese) {
         this.keepChinese = keepChinese;
+    }
+
+    public void setSingleCharMode(boolean singleCharMode) {
+        this.singleCharMode = singleCharMode;
     }
 }

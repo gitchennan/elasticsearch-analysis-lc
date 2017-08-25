@@ -22,9 +22,9 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.plugin.analysis.lc.NodeDictReloadResult;
-import org.elasticsearch.plugin.analysis.lc.NodeDictReloadTransportRequest;
-import org.elasticsearch.plugin.analysis.lc.NodeDictReloadTransportResponse;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.NodeDictReloadResult;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.NodeDictReloadTransportRequest;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.NodeDictReloadTransportResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -149,8 +149,6 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
             return new NodeDictReloadTransportResponse(new NodeDictReloadResult(clusterService.localNode().getName(), 0, resultMsg));
         }
 
-        refreshCustomDictionaryIndex();
-
         SearchResponse response = nodeClient.prepareSearch(customIdxName).setTypes(CustomWord.type)
                 .setQuery(QueryBuilders.matchAllQuery()).setSize(0).execute().actionGet();
 
@@ -230,10 +228,6 @@ public class CustomDictionaryReloadService extends AbstractLifecycleComponent {
                 }
             }
         }
-    }
-
-    private void refreshCustomDictionaryIndex() {
-        nodeClient.admin().indices().prepareRefresh(customIdxName).execute().actionGet();
     }
 
     private boolean isCustomDictionaryIndexExist() {

@@ -1,4 +1,4 @@
-package org.elasticsearch.plugin.analysis.lc;
+package org.elasticsearch.plugin.analysis.lc.dict.reload;
 
 import org.elasticsearch.action.Action;
 import org.elasticsearch.action.ActionRequestBuilder;

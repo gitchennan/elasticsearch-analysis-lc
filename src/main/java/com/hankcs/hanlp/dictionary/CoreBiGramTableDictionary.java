@@ -51,14 +51,14 @@ public class CoreBiGramTableDictionary {
                             HanLpGlobalSettings.BiGramDictionaryPath));
         }
         else {
-            HanLpLogger.error(CoreBiGramTableDictionary.class,
+            HanLpLogger.info(CoreBiGramTableDictionary.class,
                     String.format("Load dictionary[%s], takes %s ms, path[%s.table]",
                             "CoreBiGramTableDictionary", stopwatch.elapsed(TimeUnit.MILLISECONDS), HanLpGlobalSettings.BiGramDictionaryPath));
         }
     }
 
     static boolean load(String path) {
-        TreeMap<Integer, TreeMap<Integer, Integer>> map = new TreeMap<Integer, TreeMap<Integer, Integer>>();
+        TreeMap<Integer, TreeMap<Integer, Integer>> map = Maps.newTreeMap();
         int maxWordId = CoreDictionary.INSTANCE.getMaxWordID();
 
         boolean readResult = IOSafeHelper.openAutoCloseableFileInputStream(path, new InputStreamOperator() {

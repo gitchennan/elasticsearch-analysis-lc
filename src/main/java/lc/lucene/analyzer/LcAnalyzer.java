@@ -8,6 +8,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.ngram.NGramTokenizer;
 
 
 public class LcAnalyzer extends Analyzer {
@@ -20,17 +21,23 @@ public class LcAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Segment segment = HanLP.newViterbiSegment()
-                .enableOffset(true)
-                .enableCustomDictionary(true)
-                .enablePartOfSpeechTagging(true)
-                .enableNumberQuantifierRecognize(true);
+        Tokenizer tokenizer = null;
+        if(lcAnalyzerConfig.isSingleCharMode()) {
+            tokenizer = new NGramTokenizer(1, 1);
+        }
+        else {
+            Segment segment = HanLP.newViterbiSegment()
+                    .enableOffset(true)
+                    .enableCustomDictionary(true)
+                    .enablePartOfSpeechTagging(true)
+                    .enableNumberQuantifierRecognize(true);
 
 
-        segment.enableIndexMode(lcAnalyzerConfig.isIndexMode());
-        segment.enableAllNamedEntityRecognize(lcAnalyzerConfig.isNamedEntityRecognize());
+            segment.enableIndexMode(lcAnalyzerConfig.isIndexMode());
+            segment.enableAllNamedEntityRecognize(lcAnalyzerConfig.isNamedEntityRecognize());
+            tokenizer = new LcTokenizer(segment);
+        }
 
-        Tokenizer tokenizer = new LcTokenizer(segment);
         TokenFilter filter = new WhitespaceTokenFilter(tokenizer);
         filter = new UselessCharFilter(filter);
 

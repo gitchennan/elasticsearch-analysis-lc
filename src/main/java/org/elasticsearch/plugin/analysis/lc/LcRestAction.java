@@ -8,6 +8,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadAction;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadRequest;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadResponse;
 import org.elasticsearch.rest.*;
 
 import java.io.IOException;

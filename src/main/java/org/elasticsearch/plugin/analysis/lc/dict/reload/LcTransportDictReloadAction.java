@@ -1,4 +1,4 @@
-package org.elasticsearch.plugin.analysis.lc;
+package org.elasticsearch.plugin.analysis.lc.dict.reload;
 
 
 import com.google.common.collect.Lists;
@@ -16,6 +16,7 @@ import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.AtomicArray;
+import org.elasticsearch.plugin.analysis.lc.LcAnalysisPlugin;
 import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.elasticsearch.plugin.analysis.lc.service.DictionaryReloadTransportService;
 import org.elasticsearch.rest.RestStatus;

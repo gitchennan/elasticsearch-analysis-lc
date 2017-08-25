@@ -1,22 +1,23 @@
 package org.elasticsearch.plugin.analysis.lc;
 
 import com.google.common.collect.Maps;
-import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.index.analysis.*;
 import org.elasticsearch.indices.analysis.AnalysisModule;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcDictReloadAction;
+import org.elasticsearch.plugin.analysis.lc.dict.reload.LcTransportDictReloadAction;
+import org.elasticsearch.plugin.analysis.lc.hanlp.api.LcPinyinConvertAction;
+import org.elasticsearch.plugin.analysis.lc.hanlp.api.LcTransportPinyinConvertAction;
+import org.elasticsearch.plugin.analysis.lc.service.CustomDictionaryReloadService;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestHandler;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPlugin {
 
@@ -61,7 +62,10 @@ public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPl
 
     @Override
     public List<ActionHandler<? extends ActionRequest, ? extends ActionResponse>> getActions() {
-        return Collections.singletonList(new ActionHandler<>(LcDictReloadAction.INSTANCE, LcTransportDictReloadAction.class));
+        return Arrays.asList(
+                new ActionHandler<>(LcDictReloadAction.INSTANCE, LcTransportDictReloadAction.class),
+                new ActionHandler<>(LcPinyinConvertAction.INSTANCE, LcTransportPinyinConvertAction.class)
+        );
     }
 
     @Override
