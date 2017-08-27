@@ -18,18 +18,22 @@ public class PinyinTokenFilter extends TokenFilter {
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     //拼音缓存
     private final LinkedList<String> pinyinCache = Lists.newLinkedList();
-    //full / head / all
-    private String pinyinMode = "full";
+    /**
+     * 1. pinyin
+     * 2. pinyin_head
+     * 3. pinyin_all
+     */
+    private String pinyinMode = "pinyin";
 
-    private boolean keepChinese;
+    private boolean keepChinese = false;
 
-    public PinyinTokenFilter(TokenStream input, String pinyinMode, boolean keepChinese) {
+    public PinyinTokenFilter(TokenStream input, PinyinTokenFilterConfig tokenFilterConfig) {
         super(input);
+        String pinyinMode = tokenFilterConfig.getPinyinMode();
         if (keepFullPinyin(pinyinMode) || keepPinyinFirstLetter(pinyinMode)) {
             this.pinyinMode = pinyinMode;
         }
-
-        this.keepChinese = keepChinese;
+        this.keepChinese = tokenFilterConfig.isKeepChinese();
     }
 
     @Override
@@ -109,11 +113,11 @@ public class PinyinTokenFilter extends TokenFilter {
     }
 
     private boolean keepFullPinyin(String pinyinMode) {
-        return "full".equalsIgnoreCase(pinyinMode) || "all".equalsIgnoreCase(pinyinMode);
+        return "pinyin".equalsIgnoreCase(pinyinMode) || "pinyin_all".equalsIgnoreCase(pinyinMode);
     }
 
     private boolean keepPinyinFirstLetter(String pinyinMode) {
-        return "head".equalsIgnoreCase(pinyinMode);
+        return "pinyin_head".equalsIgnoreCase(pinyinMode) || "pinyin_all".equalsIgnoreCase(pinyinMode);
     }
 
     @Override
@@ -133,6 +137,34 @@ public class PinyinTokenFilter extends TokenFilter {
     private void addPinyinToCache(String pinyin) {
         if (pinyin != null) {
             pinyinCache.add(pinyin);
+        }
+    }
+
+    public static class PinyinTokenFilterConfig {
+
+        private boolean keepChinese = false;
+
+        /**
+         * 1. pinyin
+         * 2. pinyin_head
+         * 3. pinyin_all
+         */
+        private String pinyinMode = "pinyin";
+
+        public boolean isKeepChinese() {
+            return keepChinese;
+        }
+
+        public void setKeepChinese(boolean keepChinese) {
+            this.keepChinese = keepChinese;
+        }
+
+        public String getPinyinMode() {
+            return pinyinMode;
+        }
+
+        public void setPinyinMode(String pinyinMode) {
+            this.pinyinMode = pinyinMode;
         }
     }
 

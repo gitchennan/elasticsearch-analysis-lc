@@ -1,7 +1,5 @@
 package org.elasticsearch.index.analysis;
 
-import com.hankcs.hanlp.api.HanLP;
-import com.hankcs.hanlp.seg.Segment;
 import lc.lucene.tokenizer.LcTokenizer;
 import org.apache.lucene.analysis.Tokenizer;
 import org.elasticsearch.common.settings.Settings;
@@ -10,8 +8,11 @@ import org.elasticsearch.index.IndexSettings;
 
 public class LcTokenizerFactory extends AbstractTokenizerFactory {
 
+    private Settings settings;
+
     public LcTokenizerFactory(IndexSettings indexSettings, String name, Settings settings) {
         super(indexSettings, name, settings);
+        this.settings = settings;
     }
 
     public static LcTokenizerFactory getLcTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
@@ -20,12 +21,10 @@ public class LcTokenizerFactory extends AbstractTokenizerFactory {
 
     @Override
     public Tokenizer create() {
-        Segment segment = HanLP.newViterbiSegment()
-                .enableOffset(true)
-                .enableCustomDictionary(true)
-                .enablePartOfSpeechTagging(true)
-                .enableNumberQuantifierRecognize(true);
+        LcTokenizer.LcTokenizerConfig tokenizerConfig = new LcTokenizer.LcTokenizerConfig();
+        tokenizerConfig.setIndexMode(settings.getAsBoolean("index_mode", tokenizerConfig.isIndexMode()));
+        tokenizerConfig.setNamedEntityRecognize(settings.getAsBoolean("named_entity", tokenizerConfig.isNamedEntityRecognize()));
 
-        return new LcTokenizer(segment);
+        return new LcTokenizer(tokenizerConfig);
     }
 }

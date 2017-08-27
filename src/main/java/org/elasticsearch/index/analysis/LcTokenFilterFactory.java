@@ -35,9 +35,9 @@ public class LcTokenFilterFactory extends AbstractTokenFilterFactory {
         return new LcTokenFilterFactory(indexSettings, name, settings, LcTokenFilterType.LC_USELESS_CHAR);
     }
 
-    public static LcTokenFilterFactory getLcWhitespaceFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
-        return new LcTokenFilterFactory(indexSettings, name, settings, LcTokenFilterType.LC_WHITESPACE);
-    }
+//    public static LcTokenFilterFactory getLcWhitespaceFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+//        return new LcTokenFilterFactory(indexSettings, name, settings, LcTokenFilterType.LC_WHITESPACE);
+//    }
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
@@ -52,15 +52,18 @@ public class LcTokenFilterFactory extends AbstractTokenFilterFactory {
             case LC_USELESS_CHAR:
                 tokenFilter = new UselessCharFilter(tokenStream);
                 break;
-            case LC_WHITESPACE:
-                tokenFilter = new WhitespaceTokenFilter(tokenStream);
-                break;
+//            case LC_WHITESPACE:
+//                tokenFilter = new WhitespaceTokenFilter(tokenStream);
+//                break;
             case LC_PINYIN: {
-                String pinyinSetting = settings.get("pinyin", "full");
-                pinyinSetting = pinyinSetting == null ? "pinyin" : pinyinSetting;
-                boolean keepChinese = settings.getAsBoolean("keep_chinese", true);
+                String pinyinModeSetting = settings.get("pinyin_mode", "pinyin");
+                boolean keepChinese = settings.getAsBoolean("keep_chinese", false);
 
-                tokenFilter = new PinyinTokenFilter(tokenStream, pinyinSetting, keepChinese);
+                PinyinTokenFilter.PinyinTokenFilterConfig tokenFilterConfig = new PinyinTokenFilter.PinyinTokenFilterConfig();
+                tokenFilterConfig.setKeepChinese(keepChinese);
+                tokenFilterConfig.setPinyinMode(pinyinModeSetting);
+
+                tokenFilter = new PinyinTokenFilter(tokenStream, tokenFilterConfig);
                 break;
             }
 

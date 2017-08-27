@@ -1,0 +1,155 @@
+
+DELETE /my_index
+
+PUT my_index
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "lu_index": {
+          "type": "lc_index",
+          "synonym": true,
+          "named_entity": true,
+          "stopword": true,
+          "lowercase": true,
+          "html_strip": true
+        },
+        "lu_search": {
+          "type": "lc_search",
+          "synonym": true,
+          "named_entity": true,
+          "stopword": true,
+          "lowercase": true,
+          "html_strip": true
+        },
+        "lu_single_word": {
+          "type": "custom",
+          "tokenizer": "lu_single_word",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "unique"
+          ]
+        },
+        "lu_pinyin": {
+          "type": "custom",
+          "tokenizer": "lu_index",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "lc_stopword",
+            "lc_synonym",
+            "lc_useless",
+            "lu_pinyin",
+            "lu_edge_ngram",
+            "unique"
+          ]
+        },
+        "lu_pinyin_head": {
+          "type": "custom",
+          "tokenizer": "lu_index",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "lc_stopword",
+            "lc_synonym",
+            "lc_useless",
+            "lu_pinyin_head",
+            "lu_edge_ngram",
+            "unique"
+          ]
+        }
+      },
+      "tokenizer": {
+        "lu_index": {
+          "type": "lc",
+          "index_mode": true,
+          "named_entity": true
+        },
+        "lu_search": {
+          "type": "lc",
+          "index_mode": false,
+          "named_entity": true
+        },
+        "lu_single_word": {
+          "type": "ngram",
+          "min_gram": 1,
+          "max_gram": 1,
+          "token_chars": [
+            "letter",
+            "symbol"
+          ]
+        }
+      },
+      "filter": {
+        "lu_pinyin": {
+          "type": "lc_pinyin",
+          "keep_chinese": false,
+          "pinyin_mode": "pinyin"
+        },
+        "lu_pinyin_head": {
+          "type": "lc_pinyin",
+          "keep_chinese": false,
+          "pinyin_mode": "pinyin_head"
+        },
+        "lu_pinyin_all": {
+          "type": "lc_pinyin",
+          "keep_chinese": false,
+          "pinyin_mode": "pinyin_all"
+        },
+        "lu_edge_ngram": {
+          "type": "edgeNGram",
+          "min_gram": 1,
+          "max_gram": 30
+        }
+      }
+    }
+  }
+}
+
+POST /my_index/_analyze
+{
+  "text": "灵活宝-123456",
+  "analyzer": "lu_pinyin_head"
+}
+
+POST /my_index/_analyze
+{
+  "text": "灵活宝18个月-00123456",
+  "analyzer": "lu_index"
+}
+
+POST /my_index/_analyze
+{
+  "text": "灵活宝-123456",
+  "analyzer": "lu_search"
+}
+
+POST /my_index/_analyze
+{
+  "text": "灵活宝-123456",
+  "analyzer": "lu_single_word"
+}
+
+PUT .custom-dictionary/custom_word/5
+{
+  "word": "零活宝",
+  "synonyms": [
+    "灵活宝"
+  ],
+  "wordAttributes": [
+    {
+      "nature": "pr",
+      "frequency": 1024
+    }
+  ]
+}
+

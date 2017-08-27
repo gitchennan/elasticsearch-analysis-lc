@@ -1,8 +1,10 @@
 package lc.lucene.tokenizer;
 
+import com.hankcs.hanlp.api.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -23,9 +25,23 @@ public class LcTokenizer extends Tokenizer {
 
     private SegmentWrapper segment;
 
-    public LcTokenizer(Segment segment) {
+    public LcTokenizer(LcTokenizerConfig tokenizerConfig) {
         super();
-        this.segment = new SegmentWrapper(new BufferedReader(input), segment);
+        Segment hanLpSegment = HanLP.newViterbiSegment()
+                .enableOffset(true)
+                .enableCustomDictionary(true)
+                .enablePartOfSpeechTagging(true)
+                .enableNumberQuantifierRecognize(true);
+
+        hanLpSegment.enableIndexMode(tokenizerConfig.isIndexMode());
+        hanLpSegment.enableAllNamedEntityRecognize(tokenizerConfig.isNamedEntityRecognize());
+
+        if (tokenizerConfig.isHtmlStrip()) {
+            segment = new SegmentWrapper(new BufferedReader(new HTMLStripCharFilter(input)), hanLpSegment);
+        }
+        else {
+            segment = new SegmentWrapper(new BufferedReader(input), hanLpSegment);
+        }
     }
 
     @Override
@@ -56,5 +72,38 @@ public class LcTokenizer extends Tokenizer {
     @Override
     public void end() throws IOException {
         super.end();
+    }
+
+    public static class LcTokenizerConfig {
+
+        private boolean indexMode = false;
+
+        private boolean namedEntityRecognize = true;
+
+        private boolean htmlStrip = false;
+
+        public boolean isHtmlStrip() {
+            return htmlStrip;
+        }
+
+        public void setHtmlStrip(boolean htmlStrip) {
+            this.htmlStrip = htmlStrip;
+        }
+
+        public boolean isNamedEntityRecognize() {
+            return namedEntityRecognize;
+        }
+
+        public void setNamedEntityRecognize(boolean namedEntityRecognize) {
+            this.namedEntityRecognize = namedEntityRecognize;
+        }
+
+        public boolean isIndexMode() {
+            return indexMode;
+        }
+
+        public void setIndexMode(boolean indexMode) {
+            this.indexMode = indexMode;
+        }
     }
 }

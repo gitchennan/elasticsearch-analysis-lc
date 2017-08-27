@@ -5,11 +5,8 @@ import com.hankcs.hanlp.corpus.synonym.Synonym;
 import com.hankcs.hanlp.dictionary.CoreSynonymDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 import lc.lucene.analyzer.LcAnalyzer;
-import lc.lucene.analyzer.LcAnalyzerConfig;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -48,10 +45,10 @@ public class LcAnalyzerTest extends BaseAnalyzerTest {
 
     @Test
     public void testLuSearchAnalysis() throws IOException {
-        LcAnalyzerConfig config = new LcAnalyzerConfig();
+        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
         config.setStopWordRecognize(false);
         config.setSynonymRecognize(false);
-        config.setExtractFullPinyin(false);
+//        config.setExtractFullPinyin(false);
         config.setNamedEntityRecognize(true);
 
         Analyzer analyzer = new LcAnalyzer(config);
@@ -62,7 +59,7 @@ public class LcAnalyzerTest extends BaseAnalyzerTest {
 
     @Test
     public void testLuIndexAnalysis() throws IOException {
-        LcAnalyzerConfig config = new LcAnalyzerConfig();
+        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
         config.setIndexMode(true);
         config.setStopWordRecognize(false);
 
@@ -78,6 +75,5 @@ public class LcAnalyzerTest extends BaseAnalyzerTest {
 
         CoreSynonymDictionary.INSTANCE.add(Synonym.Type.EQUAL, "1", "2", "3");
         System.out.println(CoreSynonymDictionary.INSTANCE.find("1"));
-
     }
 }

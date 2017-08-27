@@ -1,14 +1,14 @@
 package lc.lucene.analyzer;
 
-import com.hankcs.hanlp.api.HanLP;
-import com.hankcs.hanlp.seg.Segment;
-import lc.lucene.filter.*;
+import lc.lucene.filter.StopWordTokenFilter;
+import lc.lucene.filter.SynonymTokenFilter;
+import lc.lucene.filter.UselessCharFilter;
 import lc.lucene.tokenizer.LcTokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.ngram.NGramTokenizer;
+import org.apache.lucene.analysis.miscellaneous.UniqueTokenFilter;
 
 
 public class LcAnalyzer extends Analyzer {
@@ -21,25 +21,14 @@ public class LcAnalyzer extends Analyzer {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer tokenizer = null;
-        if(lcAnalyzerConfig.isSingleCharMode()) {
-            tokenizer = new NGramTokenizer(1, 1);
-        }
-        else {
-            Segment segment = HanLP.newViterbiSegment()
-                    .enableOffset(true)
-                    .enableCustomDictionary(true)
-                    .enablePartOfSpeechTagging(true)
-                    .enableNumberQuantifierRecognize(true);
+        LcTokenizer.LcTokenizerConfig tokenizerConfig = new LcTokenizer.LcTokenizerConfig();
+        tokenizerConfig.setIndexMode(lcAnalyzerConfig.isIndexMode());
+        tokenizerConfig.setNamedEntityRecognize(lcAnalyzerConfig.isNamedEntityRecognize());
+        tokenizerConfig.setHtmlStrip(lcAnalyzerConfig.isHtmlStrip());
+        Tokenizer tokenizer = new LcTokenizer(tokenizerConfig);
 
-
-            segment.enableIndexMode(lcAnalyzerConfig.isIndexMode());
-            segment.enableAllNamedEntityRecognize(lcAnalyzerConfig.isNamedEntityRecognize());
-            tokenizer = new LcTokenizer(segment);
-        }
-
-        TokenFilter filter = new WhitespaceTokenFilter(tokenizer);
-        filter = new UselessCharFilter(filter);
+//        TokenFilter filter = new WhitespaceTokenFilter(tokenizer);
+        TokenFilter filter = new UselessCharFilter(tokenizer);
 
         if (lcAnalyzerConfig.isLowerCase()) {
             filter = new LowerCaseFilter(filter);
@@ -52,17 +41,71 @@ public class LcAnalyzer extends Analyzer {
         if (lcAnalyzerConfig.isSynonymRecognize()) {
             filter = new SynonymTokenFilter(filter);
         }
-
-        if (lcAnalyzerConfig.isExtractFullPinyin() && lcAnalyzerConfig.isExtractPinyinFirstLetter()) {
-            filter = new PinyinTokenFilter(filter, "all", lcAnalyzerConfig.isKeepChinese());
-        }
-        else if (lcAnalyzerConfig.isExtractFullPinyin()) {
-            filter = new PinyinTokenFilter(filter, "full", lcAnalyzerConfig.isKeepChinese());
-        }
-        else if (lcAnalyzerConfig.isExtractPinyinFirstLetter()) {
-            filter = new PinyinTokenFilter(filter, "head", lcAnalyzerConfig.isKeepChinese());
-        }
-
+        filter = new UniqueTokenFilter(filter, true);
         return new TokenStreamComponents(tokenizer, filter);
     }
+
+    public static class LcAnalyzerConfig {
+
+        private boolean indexMode = false;
+
+        private boolean htmlStrip = false;
+
+        private boolean stopWordRecognize = true;
+
+        private boolean synonymRecognize = false;
+
+        private boolean namedEntityRecognize = true;
+
+        private boolean lowerCase = true;
+
+        public boolean isHtmlStrip() {
+            return htmlStrip;
+        }
+
+        public void setHtmlStrip(boolean htmlStrip) {
+            this.htmlStrip = htmlStrip;
+        }
+
+        public boolean isSynonymRecognize() {
+            return synonymRecognize;
+        }
+
+        public void setSynonymRecognize(boolean synonymRecognize) {
+            this.synonymRecognize = synonymRecognize;
+        }
+
+        public boolean isNamedEntityRecognize() {
+            return namedEntityRecognize;
+        }
+
+        public void setNamedEntityRecognize(boolean namedEntityRecognize) {
+            this.namedEntityRecognize = namedEntityRecognize;
+        }
+
+        public boolean isStopWordRecognize() {
+            return stopWordRecognize;
+        }
+
+        public void setStopWordRecognize(boolean stopWordRecognize) {
+            this.stopWordRecognize = stopWordRecognize;
+        }
+
+        public boolean isIndexMode() {
+            return indexMode;
+        }
+
+        public void setIndexMode(boolean indexMode) {
+            this.indexMode = indexMode;
+        }
+
+        public boolean isLowerCase() {
+            return lowerCase;
+        }
+
+        public void setLowerCase(boolean lowerCase) {
+            this.lowerCase = lowerCase;
+        }
+    }
+
 }

@@ -46,11 +46,11 @@ public class LcAnalysisPlugin extends Plugin implements AnalysisPlugin, ActionPl
     public Map<String, AnalysisModule.AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
         Map<String, AnalysisModule.AnalysisProvider<TokenFilterFactory>> extra = Maps.newHashMap();
 
-        extra.put("lc_pinyin", LcTokenFilterFactory::getLcStopWordTokenFilterFactory);
+        extra.put("lc_pinyin", LcTokenFilterFactory::getLcPinyinTokenFilterFactory);
         extra.put("lc_stopword", LcTokenFilterFactory::getLcStopWordTokenFilterFactory);
         extra.put("lc_synonym", LcTokenFilterFactory::getLcSynonymTokenFilterFactory);
         extra.put("lc_useless", LcTokenFilterFactory::getLcUselessCharFilterFactory);
-        extra.put("lc_whitespace", LcTokenFilterFactory::getLcWhitespaceFilterFactory);
+//        extra.put("lc_whitespace", LcTokenFilterFactory::getLcWhitespaceFilterFactory);
 
         return extra;
     }

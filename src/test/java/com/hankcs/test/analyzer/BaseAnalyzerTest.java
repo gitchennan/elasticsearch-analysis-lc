@@ -3,6 +3,8 @@ package com.hankcs.test.analyzer;
 import com.hankcs.hanlp.seg.common.Term;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 
 import java.io.IOException;
@@ -24,13 +26,14 @@ public class BaseAnalyzerTest {
         wordsBuilder.append("【");
 
         CharTermAttribute charTermAttribute = tokenStream.getAttribute(CharTermAttribute.class);
-//        OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
+        OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
 //        PositionIncrementAttribute positionIncrementAttribute = tokenStream.getAttribute(PositionIncrementAttribute.class);
         TypeAttribute typeAtt = tokenStream.getAttribute(TypeAttribute.class);
         tokenStream.reset();
 
         while (tokenStream.incrementToken()) {
-            wordsBuilder.append(String.format("%s/%s,", charTermAttribute.toString(), typeAtt.type()));
+            wordsBuilder.append(String.format("%s/%s[%s-%s],", charTermAttribute.toString(), typeAtt.type(),
+                    offsetAttribute.startOffset(), offsetAttribute.endOffset()));
         }
         if (wordsBuilder.length() > 1) {
             wordsBuilder.deleteCharAt(wordsBuilder.length() - 1);
