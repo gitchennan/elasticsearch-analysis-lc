@@ -8,10 +8,12 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.Reader;
 
 public class LuAnalyzerTest extends BaseAnalyzerTest {
 
@@ -22,7 +24,6 @@ public class LuAnalyzerTest extends BaseAnalyzerTest {
         LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
         config.setStopWordRecognize(false);
         config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
         config.setNamedEntityRecognize(true);
         config.setIndexMode(true);
 
@@ -37,82 +38,8 @@ public class LuAnalyzerTest extends BaseAnalyzerTest {
         LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
         config.setStopWordRecognize(false);
         config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
         config.setNamedEntityRecognize(true);
         config.setIndexMode(false);
-
-        Analyzer analyzer = new LcAnalyzer(config);
-        TokenStream tokenStream = analyzer.tokenStream("lc", text);
-        showWords(tokenStream);
-        tokenStream.close();
-    }
-
-
-    @Test
-    public void test_lu_max_pinyin() throws IOException {
-        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
-        config.setStopWordRecognize(false);
-        config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
-        config.setNamedEntityRecognize(true);
-        config.setIndexMode(true);
-//        config.setKeepChinese(false);
-//        config.setExtractFullPinyin(true);
-//        config.setExtractPinyinFirstLetter(false);
-
-        Analyzer analyzer = new LcAnalyzer(config);
-        TokenStream tokenStream = analyzer.tokenStream("lc", text);
-        showWords(tokenStream);
-        tokenStream.close();
-    }
-
-    @Test
-    public void test_lu_max_pinyin_head() throws IOException {
-        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
-        config.setStopWordRecognize(false);
-        config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
-        config.setNamedEntityRecognize(true);
-        config.setIndexMode(true);
-//        config.setKeepChinese(false);
-//        config.setExtractFullPinyin(false);
-//        config.setExtractPinyinFirstLetter(true);
-
-        Analyzer analyzer = new LcAnalyzer(config);
-        TokenStream tokenStream = analyzer.tokenStream("lc", text);
-        showWords(tokenStream);
-        tokenStream.close();
-    }
-
-    @Test
-    public void test_lu_smart_pinyin() throws IOException {
-        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
-        config.setStopWordRecognize(false);
-        config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
-        config.setNamedEntityRecognize(true);
-        config.setIndexMode(false);
-//        config.setKeepChinese(false);
-//        config.setExtractFullPinyin(true);
-//        config.setExtractPinyinFirstLetter(false);
-
-        Analyzer analyzer = new LcAnalyzer(config);
-        TokenStream tokenStream = analyzer.tokenStream("lc", text);
-        showWords(tokenStream);
-        tokenStream.close();
-    }
-
-    @Test
-    public void test_lu_smart_pinyin_head() throws IOException {
-        LcAnalyzer.LcAnalyzerConfig config = new LcAnalyzer.LcAnalyzerConfig();
-        config.setStopWordRecognize(false);
-        config.setSynonymRecognize(true);
-//        config.setExtractFullPinyin(false);
-        config.setNamedEntityRecognize(true);
-        config.setIndexMode(false);
-//        config.setKeepChinese(false);
-//        config.setExtractFullPinyin(false);
-//        config.setExtractPinyinFirstLetter(true);
 
         Analyzer analyzer = new LcAnalyzer(config);
         TokenStream tokenStream = analyzer.tokenStream("lc", text);
@@ -122,13 +49,14 @@ public class LuAnalyzerTest extends BaseAnalyzerTest {
 
     @Test
     public void test_lu_smart_ngram_pinyin() throws IOException {
-        String text = "零活宝-123456";
+        String text = "灵活宝18个月-00123456 <link rel=\"stylesheet\" type=\"text/css\" href=\"../../../../../stylesheet.css\" title=\"Style\" />";
 
         Analyzer analyzer = new Analyzer() {
             @Override
             protected TokenStreamComponents createComponents(String s) {
                 LcTokenizer.LcTokenizerConfig tokenizerConfig = new LcTokenizer.LcTokenizerConfig();
                 tokenizerConfig.setIndexMode(true);
+                tokenizerConfig.setNamedEntityRecognize(true);
                 Tokenizer tokenizer = new LcTokenizer(tokenizerConfig);
 
                 TokenFilter filter = new UselessCharFilter(tokenizer);
@@ -140,8 +68,13 @@ public class LuAnalyzerTest extends BaseAnalyzerTest {
                 filter = new PinyinTokenFilter(filter, pinyinTokenFilterConfig);
                 filter = new EdgeNGramTokenFilter(filter, 1, 30);
 
-
                 return new TokenStreamComponents(tokenizer, filter);
+            }
+
+            @Override
+            protected Reader initReader(String fieldName, Reader reader) {
+                HTMLStripCharFilter filter = new HTMLStripCharFilter(reader);
+                return super.initReader(fieldName, filter);
             }
         };
 

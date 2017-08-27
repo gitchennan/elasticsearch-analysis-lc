@@ -8,7 +8,10 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilter;
 import org.apache.lucene.analysis.miscellaneous.UniqueTokenFilter;
+
+import java.io.Reader;
 
 
 public class LcAnalyzer extends Analyzer {
@@ -20,14 +23,20 @@ public class LcAnalyzer extends Analyzer {
     }
 
     @Override
+    protected Reader initReader(String fieldName, Reader reader) {
+        if (lcAnalyzerConfig.isHtmlStrip()) {
+            reader = new HTMLStripCharFilter(reader);
+        }
+        return reader;
+    }
+
+    @Override
     protected TokenStreamComponents createComponents(String fieldName) {
         LcTokenizer.LcTokenizerConfig tokenizerConfig = new LcTokenizer.LcTokenizerConfig();
         tokenizerConfig.setIndexMode(lcAnalyzerConfig.isIndexMode());
         tokenizerConfig.setNamedEntityRecognize(lcAnalyzerConfig.isNamedEntityRecognize());
-        tokenizerConfig.setHtmlStrip(lcAnalyzerConfig.isHtmlStrip());
-        Tokenizer tokenizer = new LcTokenizer(tokenizerConfig);
 
-//        TokenFilter filter = new WhitespaceTokenFilter(tokenizer);
+        Tokenizer tokenizer = new LcTokenizer(tokenizerConfig);
         TokenFilter filter = new UselessCharFilter(tokenizer);
 
         if (lcAnalyzerConfig.isLowerCase()) {

@@ -72,12 +72,14 @@ PUT my_index
         "lu_index": {
           "type": "lc",
           "index_mode": true,
-          "named_entity": true
+          "named_entity": true,
+          "html_strip": true
         },
         "lu_search": {
           "type": "lc",
           "index_mode": false,
-          "named_entity": true
+          "named_entity": true,
+          "html_strip": true
         },
         "lu_single_word": {
           "type": "ngram",
@@ -123,7 +125,7 @@ POST /my_index/_analyze
 
 POST /my_index/_analyze
 {
-  "text": "灵活宝18个月-00123456",
+  "text": "灵活宝18个月-00123456<link rel=\"stylesheet\" type=\"text/css\" href=\"../../../../../stylesheet.css\" title=\"Style\">",
   "analyzer": "lu_index"
 }
 
@@ -152,4 +154,3 @@ PUT .custom-dictionary/custom_word/5
     }
   ]
 }
-
