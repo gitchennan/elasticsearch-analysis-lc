@@ -32,7 +32,7 @@ PUT my_index
           ],
           "filter": [
             "lowercase",
-            "unique"
+            "lu_unique"
           ]
         },
         "lu_pinyin": {
@@ -48,7 +48,7 @@ PUT my_index
             "lc_useless",
             "lu_pinyin",
             "lu_edge_ngram",
-            "unique"
+            "lu_unique"
           ]
         },
         "lu_pinyin_head": {
@@ -64,7 +64,7 @@ PUT my_index
             "lc_useless",
             "lu_pinyin_head",
             "lu_edge_ngram",
-            "unique"
+            "lu_unique"
           ]
         }
       },
@@ -87,6 +87,7 @@ PUT my_index
           "max_gram": 1,
           "token_chars": [
             "letter",
+            "digit",
             "symbol"
           ]
         }
@@ -111,6 +112,10 @@ PUT my_index
           "type": "edgeNGram",
           "min_gram": 1,
           "max_gram": 30
+        },
+        "lu_unique": {
+          "type": "unique",
+          "only_on_same_position": true
         }
       }
     }
@@ -119,33 +124,33 @@ PUT my_index
 
 POST /my_index/_analyze
 {
-  "text": "¡ÈªÓ±¶-123456",
+  "text": "ÁÅµÊ¥ªÂÆù-123456",
   "analyzer": "lu_pinyin_head"
 }
 
 POST /my_index/_analyze
 {
-  "text": "¡ÈªÓ±¶18∏ˆ‘¬-00123456<link rel=\"stylesheet\" type=\"text/css\" href=\"../../../../../stylesheet.css\" title=\"Style\">",
+  "text": "ÁÅµÊ¥ªÂÆù18‰∏™Êúà-00123456<link rel=\"stylesheet\" type=\"text/css\" href=\"../../../../../stylesheet.css\" title=\"Style\">",
   "analyzer": "lu_index"
 }
 
 POST /my_index/_analyze
 {
-  "text": "¡ÈªÓ±¶-123456",
+  "text": "ÁÅµÊ¥ªÂÆù-123456",
   "analyzer": "lu_search"
 }
 
 POST /my_index/_analyze
 {
-  "text": "¡ÈªÓ±¶-123456",
+  "text": "ÁÅµÊ¥ªÂÆù-123456",
   "analyzer": "lu_single_word"
 }
 
 PUT .custom-dictionary/custom_word/5
 {
-  "word": "¡„ªÓ±¶",
+  "word": "Èõ∂Ê¥ªÂÆù",
   "synonyms": [
-    "¡ÈªÓ±¶"
+    "ÁÅµÊ¥ªÂÆù"
   ],
   "wordAttributes": [
     {
