@@ -12,9 +12,7 @@
 package com.hankcs.hanlp.seg;
 
 import com.hankcs.hanlp.api.HanLpGlobalSettings;
-import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.dictionary.InternalWordIds;
 import com.hankcs.hanlp.dictionary.WordAttribute;
 import com.hankcs.hanlp.dictionary.other.CharTable;

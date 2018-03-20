@@ -14,10 +14,6 @@ package com.hankcs.hanlp.api;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
 import com.hankcs.hanlp.dictionary.ts.*;
-import com.hankcs.hanlp.log.HanLpLogger;
-import com.hankcs.hanlp.seg.Dijkstra.DijkstraSegment;
-import com.hankcs.hanlp.seg.NShort.NShortSegment;
-import com.hankcs.hanlp.seg.Other.DoubleArrayTrieSegment;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.Viterbi.ViterbiSegment;
 import com.hankcs.hanlp.seg.common.Term;
@@ -60,17 +56,17 @@ public class HanLP {
         return new ViterbiSegment();
     }
 
-    public static Segment newNShortSegment() {
-        return new NShortSegment();
-    }
-
-    public static Segment newDijkstraSegment() {
-        return new DijkstraSegment();
-    }
-
-    public static Segment newDoubleArrayTrieSegment() {
-        return new DoubleArrayTrieSegment();
-    }
+//    public static Segment newNShortSegment() {
+//        return new NShortSegment();
+//    }
+//
+//    public static Segment newDijkstraSegment() {
+//        return new DijkstraSegment();
+//    }
+//
+//    public static Segment newDoubleArrayTrieSegment() {
+//        return new DoubleArrayTrieSegment();
+//    }
 
     /**
      * 繁转简

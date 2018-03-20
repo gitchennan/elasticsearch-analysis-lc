@@ -59,7 +59,8 @@ public class WordAttribute implements Serializable {
             int natureCount = param.length / 2;
             WordAttribute attribute = new WordAttribute(natureCount);
             for (int i = 0; i < natureCount; ++i) {
-                attribute.nature[i] = LexiconUtility.convertStringToNature(param[2 * i], null);
+//                attribute.nature[i] = LexiconUtility.convertStringToNature(param[2 * i], null);
+                attribute.nature[i] = LexiconUtility.convertStringToNature(param[2 * i]);
                 attribute.frequency[i] = Integer.parseInt(param[1 + 2 * i]);
                 attribute.totalFrequency += attribute.frequency[i];
             }

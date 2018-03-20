@@ -11,8 +11,6 @@
  */
 package com.hankcs.hanlp.corpus.tag;
 
-import com.hankcs.hanlp.corpus.util.CustomNatureUtility;
-
 /**
  * 词性
  *
@@ -813,20 +811,20 @@ public enum Nature
         }
     }
 
-    /**
-     * 创建自定义词性,如果已有该对应词性,则直接返回已有的词性
-     * @param name 字符串词性
-     * @return Enum词性
-     */
-    public static Nature create(String name)
-    {
-        try
-        {
-            return Nature.valueOf(name);
-        }
-        catch (Exception e)
-        {
-            return CustomNatureUtility.addNature(name);
-        }
-    }
+//    /**
+//     * 创建自定义词性,如果已有该对应词性,则直接返回已有的词性
+//     * @param name 字符串词性
+//     * @return Enum词性
+//     */
+//    public static Nature create(String name)
+//    {
+//        try
+//        {
+//            return Nature.valueOf(name);
+//        }
+//        catch (Exception e)
+//        {
+//            return CustomNatureUtility.addNature(name);
+//        }
+//    }
 }

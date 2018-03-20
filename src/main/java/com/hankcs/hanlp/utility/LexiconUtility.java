@@ -12,13 +12,10 @@
 package com.hankcs.hanlp.utility;
 
 import com.hankcs.hanlp.corpus.tag.Nature;
-import com.hankcs.hanlp.corpus.util.CustomNatureUtility;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 import com.hankcs.hanlp.dictionary.CustomDictionary;
 import com.hankcs.hanlp.dictionary.WordAttribute;
-import com.hankcs.hanlp.seg.common.Term;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 /**
@@ -121,25 +118,25 @@ public class LexiconUtility {
 //        return setAttribute(word, attribute);
 //    }
 
-    /**
-     * 将字符串词性转为Enum词性
-     *
-     * @param name                  词性名称
-     * @param customNatureCollector 一个收集集合
-     * @return 转换结果
-     */
-    public static Nature convertStringToNature(String name, LinkedHashSet<Nature> customNatureCollector) {
-        try {
-            return Nature.valueOf(name);
-        }
-        catch (Exception e) {
-            Nature nature = CustomNatureUtility.addNature(name);
-            if (customNatureCollector != null) {
-                customNatureCollector.add(nature);
-            }
-            return nature;
-        }
-    }
+//    /**
+//     * 将字符串词性转为Enum词性
+//     *
+//     * @param name                  词性名称
+//     * @param customNatureCollector 一个收集集合
+//     * @return 转换结果
+//     */
+//    public static Nature convertStringToNature(String name, LinkedHashSet<Nature> customNatureCollector) {
+//        try {
+//            return Nature.valueOf(name);
+//        }
+//        catch (Exception e) {
+//            Nature nature = CustomNatureUtility.addNature(name);
+//            if (customNatureCollector != null) {
+//                customNatureCollector.add(nature);
+//            }
+//            return nature;
+//        }
+//    }
 
     /**
      * 将字符串词性转为Enum词性
@@ -152,7 +149,8 @@ public class LexiconUtility {
             return Nature.valueOf(name);
         }
         catch (Exception e) {
-            return CustomNatureUtility.addNature(name);
+//            return CustomNatureUtility.addNature(name);
+            return Nature.n;
         }
     }
 }

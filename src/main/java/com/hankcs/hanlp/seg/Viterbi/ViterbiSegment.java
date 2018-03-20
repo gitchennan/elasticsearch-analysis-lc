@@ -57,33 +57,33 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment {
         }
 
         // 实体命名识别
-        if (config.ner) {
-            WordNet wordNetOptimum = new WordNet(sentence, vertexList);
-            int preSize = wordNetOptimum.size();
-            if (config.nameRecognize) {
-                PersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
-            }
-            if (config.translatedNameRecognize) {
-                TranslatedPersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
-            }
-            if (config.japaneseNameRecognize) {
-                JapanesePersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
-            }
-            if (config.placeRecognize) {
-                PlaceRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
-            }
-            if (config.organizationRecognize) {
-                // 层叠隐马模型——生成输出作为下一级隐马输入
-                vertexList = viterbi(wordNetOptimum);
-                wordNetOptimum.clear();
-                wordNetOptimum.addAll(vertexList);
-                preSize = wordNetOptimum.size();
-                OrganizationRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
-            }
-            if (wordNetOptimum.size() != preSize) {
-                vertexList = viterbi(wordNetOptimum);
-            }
-        }
+//        if (config.ner) {
+//            WordNet wordNetOptimum = new WordNet(sentence, vertexList);
+//            int preSize = wordNetOptimum.size();
+//            if (config.nameRecognize) {
+//                PersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
+//            }
+//            if (config.translatedNameRecognize) {
+//                TranslatedPersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
+//            }
+//            if (config.japaneseNameRecognize) {
+//                JapanesePersonRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
+//            }
+//            if (config.placeRecognize) {
+//                PlaceRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
+//            }
+//            if (config.organizationRecognize) {
+//                // 层叠隐马模型——生成输出作为下一级隐马输入
+//                vertexList = viterbi(wordNetOptimum);
+//                wordNetOptimum.clear();
+//                wordNetOptimum.addAll(vertexList);
+//                preSize = wordNetOptimum.size();
+//                OrganizationRecognition.Recognition(vertexList, wordNetOptimum, wordNetAll);
+//            }
+//            if (wordNetOptimum.size() != preSize) {
+//                vertexList = viterbi(wordNetOptimum);
+//            }
+//        }
 
         // 如果是索引模式则全切分
         if (config.indexMode) {
